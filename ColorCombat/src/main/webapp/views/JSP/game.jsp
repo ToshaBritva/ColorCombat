@@ -13,9 +13,11 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
         <script src="<c:url value="/js/socketJS.js" />"></script>
+        <script src="https://cdn.rawgit.com/konvajs/konva/0.9.5/konva.min.js"></script>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <div id="container"></div>
+        <script src="<c:url value="/js/field.js" />"></script>
     </body>
 </html>
 
