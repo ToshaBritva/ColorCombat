@@ -8,14 +8,20 @@ var wsUri = "ws://" + document.location.host + document.location.pathname + "/se
 var websocket = new WebSocket(wsUri);
 
 websocket.onerror = function (evt) {
-
+    onError(evt)
 };
+
 websocket.onopen = function (evt) {
     onOpen(evt)
 };
+
+//Действия по возникновению ошибки в соеденении с сокетом
 function onError(evt) {
     alert("ошибка подключения")
 }
-function onOpen() {
+
+//Действия по открытию соеденения с сокетом
+function onOpen(evt) {
     alert("подключено")
 }
+
