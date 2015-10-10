@@ -5,6 +5,7 @@
  */
 function CreateMainPage()
 {
+    //создание структуры страницы
    var mydiv = $('<div/>', {
     class:  'row header show-grid' 
     });
@@ -109,6 +110,15 @@ function CreateMainPage()
     });
     $('#new_Btn4').append(mydiv);
     $('#ShowLiders').append("Таблица лидеров");
+    //создание структуры страницы
+    //
+    //
+    //делаем чат
     
+    ShowFreandList();
+}
+function ShowFreandList()
+{
+     $('#Contact').append('Contacts');
 }
 
