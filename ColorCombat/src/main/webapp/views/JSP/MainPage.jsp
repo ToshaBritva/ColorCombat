@@ -12,11 +12,14 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
-        <%-- <script src="../../js/MainPageCreator.js" type="text/javascript"></script>--%>
         <script src="<c:url value="/js/MainPageCreator.js" />"></script>
+        <%-- <style src="<c:url value="/CSS/MainPageCSS.css" />"></style>--%>
+        <link href="<c:url value="/CSS/MainPageCSS.css" />" rel="stylesheet" />
+        <link href="<c:url value="/CSS/bootstrap-theme.css" />" rel="stylesheet" />
+        <link href="<c:url value="/CSS/bootstrap.css" />" rel="stylesheet" />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     </head>
-    <body onload="CreateMainPage()">
+    <body onload="CreateMainPage()" class="container-fluid">
         
     </body>
 </html>

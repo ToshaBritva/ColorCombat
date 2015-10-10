@@ -5,6 +5,32 @@
  */
 function CreateMainPage()
 {
-    $('body').append('div');
+   var mydiv = $('<div/>', {
+    class:  'header row' 
+    });
+    $('body').append(mydiv);
+    
+    mydiv = $('<div/>', {
+    id:  'NickName' 
+    });
+    $('.header').append(mydiv);
+    
+    mydiv = $('<div/>', {
+    id:  'exit'
+    });
+    $('.header').append(mydiv);
+    mydiv = $('<button/>', {
+     class: 'btn btn-default'
+    });
+    $('.header #exit').append(mydiv);
+    $('.header #exit .btn').append("Exit");
+    
+    
+    mydiv = $('<div/>', {
+    id:  'Profile' 
+    });
+    $('.header').append(mydiv);
+    
+    
 }
 
