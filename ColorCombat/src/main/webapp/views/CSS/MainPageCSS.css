@@ -8,31 +8,32 @@ and open the template in the editor.
     Author     : Pushkin
 */
 
-.header
+#content
 {
-    background-color: black;
+    //height: 100%;
+     //background-color: black;
+  text-align: center;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  min-height: 40px;
+  line-height: 40px;
 }
 
-#NickName
+.new_Btn
 {
-    width: 50%;
-    height: 100%;
-    background-color: red;
-    float: left;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    width:  100%;
+    
     
 }
-#Profile
-{
-    width: 10%;
-    height: 100%;
-    background-color: green;
-    float: right;   
-}
-#exit
-{
-    width: 10%;
-    height: 100%;
-    background-color: windowframe;
-    float: right;
-}
 
+#Contact
+{
+    //height: 100%;
+}
+#Menu
+{
+    padding-left: 40px;
+}
