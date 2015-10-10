@@ -18,7 +18,8 @@ public class Game {
 
     @RequestMapping(value = {"/", "game"})
     public String home() {
-        return "game";
+        //return "game";
+        return "MainPage";
     }
 
 }
