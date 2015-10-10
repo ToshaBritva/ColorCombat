@@ -7,22 +7,23 @@
 var wsUri = "ws://" + document.location.host + document.location.pathname + "/server";
 var websocket = new WebSocket(wsUri);
 
+
 websocket.onerror = function (evt) {
-    onError(evt)
+    onError(evt);
 };
 
 websocket.onopen = function (evt) {
-    onOpen(evt)
+    onOpen(evt);
 };
 
 //Действия по возникновению ошибки в соеденении с сокетом
 function onError(evt) {
-    alert("ошибка подключения")
+    alert("ошибка подключения");
 }
 
 //Действия по открытию соеденения с сокетом
 function onOpen(evt) {
-    alert("подключено")
+    alert("подключено");
 }
 
 
