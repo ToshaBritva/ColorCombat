@@ -30,5 +30,10 @@ public class Game {
     public String CreateLobby() {
         return "CreateLobbyPage";
     }
+    
+    @RequestMapping(value = {"Lobbies"})
+    public String FindLobbies() {
+        return "FindLobbiesPage";
+    }
 
 }

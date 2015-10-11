@@ -39,7 +39,9 @@
                             </button>
                         </div>
                         <div id="new_Btn2" class="row new_Btn">
-                            <button id="FindLobby" class="btn btn-primary btn-lg btn-block">Найти лобби</button>
+                            <button id="FindLobby" class="btn btn-primary btn-lg btn-block" onClick='location.href="<c:url value="/Lobbies"/>"'>
+                                Найти лобби
+                            </button>
                         </div>
                         <div id="new_Btn3" class="row new_Btn">
                             <button id="FindGame" class="btn btn-primary btn-lg btn-block">Найти игру</button>
