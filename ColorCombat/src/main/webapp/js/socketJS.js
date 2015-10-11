@@ -33,6 +33,6 @@ function onOpen(evt) {
 //Действия при получении сообщения
 function onMessage(evt) {
     console.log(evt.data)
-    drowOter(evt.data)
+    drawOtherPlayerMove(evt.data)
 }
 

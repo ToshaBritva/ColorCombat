@@ -221,16 +221,16 @@ function movePlayer(direction) {
     }
 }
 
-function sendPos(player, x, y) {
+function sendPos(x, y) {
     //  websocket.send("Hallo from " + currentPlayer.toString())
     var json = JSON.stringify({
-        "id": currentPlayer.toString(),
+        "id": currentPlayer,
         "coords": {
             "x": x,
             "y": y
         }
     });
-    websocket.send(json)
+    websocket.send(json);
 }
 
 //Проверяет может ли игрок сдвинуться в указанном направлении
@@ -293,16 +293,16 @@ function reDrawField() {
 }
 
 //Собтие смены игрока(Для тестирования базового функционала)
-function chenge(evt) {
+function change(evt) {
     var n = document.getElementById("Role").options.selectedIndex;
     var val = document.getElementById("Role").options[n].value;
     currentPlayer = parseInt(val, 10);
-    document.getElementById("Role").blur()
+    document.getElementById("Role").blur();
 }
 
 
 //Отрисовка движения другого игрока
-function drowOter(data) {
+function drawOtherPlayerMove(data) {
     var json = JSON.parse(data);
     var player = playersLayer.findOne('#player' + json.id);
     var cell = cellsLayer.findOne('#' + getCellId(getPlayerYMatrix(player), getPlayerXMatrix(player)));
