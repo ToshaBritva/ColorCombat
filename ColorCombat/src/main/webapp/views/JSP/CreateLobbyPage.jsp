@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -16,6 +17,7 @@
         <link href="<c:url value="/CSS/MainPageCSS.css" />" rel="stylesheet" />
         <link href="<c:url value="/CSS/bootstrap.css"/>" rel="stylesheet" />
         <script src="<c:url value="/js/LobbyScripts.js"/>"></script>
+        <link href="<c:url value="/CSS/bootstrap.css"/>" rel="stylesheet" />
 
     </head>
         <body>
@@ -36,7 +38,7 @@
                                 </tr>
                             </thead>
                             <tr id='Slot0'>
-                                <th id='Nick'>Свободный слот <span class="glyphico"></span></th>
+                                <th id='Nick'>Свободный слот</th>
                                 <th id='Status'></th>
                             </tr>
                             <tr id='Slot1'>
