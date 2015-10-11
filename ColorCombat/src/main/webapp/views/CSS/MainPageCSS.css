@@ -22,18 +22,19 @@ and open the template in the editor.
 
 .new_Btn
 {
-    margin-top: 10px;
     margin-bottom: 15px;
     width:  100%;
-    
-    
 }
 
-#Contact
+#Contacts
 {
-    height: 100%;
+    max-height:200px;
+    overflow-y: auto;
 }
 #Menu
 {
     padding-left: 40px;
 }
+
+.top-buffer { margin-top:20px; } //Для отступов вверх
+
