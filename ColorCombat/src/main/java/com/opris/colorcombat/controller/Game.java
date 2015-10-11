@@ -25,5 +25,10 @@ public class Game {
     public String home() {
         return "MainPage";
     }
+    
+    @RequestMapping(value = {"/MyLobby"})
+    public String CreateLobby() {
+        return "CreateLobbyPage";
+    }
 
 }

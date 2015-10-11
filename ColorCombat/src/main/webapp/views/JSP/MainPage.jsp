@@ -32,9 +32,9 @@
                 </div>
                 
                 <div id="content" class="top-buffer">
-                    <div id="Menu" class="col-sm-6 ">
+                    <div id="Menu" class="col-sm-6">
                         <div id="new_Btn1" class="row new_Btn">
-                            <button id="CreateLobby" class="btn btn-primary btn-lg btn-block" onClick="location.href='../'">
+                            <button id="CreateLobby" class="btn btn-primary btn-lg btn-block" onClick='location.href="<c:url value="/MyLobby"/>"'>
                                 Создать лобби
                             </button>
                         </div>
