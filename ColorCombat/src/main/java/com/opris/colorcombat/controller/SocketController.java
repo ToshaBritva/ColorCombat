@@ -20,14 +20,22 @@ import javax.websocket.server.ServerEndpoint;
  *
  * @author boris
  */
-@ServerEndpoint("/server")
+@ServerEndpoint("/game/server")
 public class SocketController {
 
     private static final Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
 
     @OnMessage
-    public String onMessage(String message) {
-        return null;
+    public void onMessage(String message, Session session) {
+        try {
+            for (Session peer : sessions) {
+                if (!peer.equals(session)) {
+                    peer.getBasicRemote().sendText(message);
+                }
+            }
+        } catch (Exception e) {
+        }
+
     }
 
     @OnOpen
