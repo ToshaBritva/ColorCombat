@@ -57,8 +57,6 @@
                                 <div id="Contacts">
                                     <a href="#" class="list-group-item">Вася</a>
                                     <a href="#" class="list-group-item">Петя </a>
-                                    <a href="#" class="list-group-item">Петя </a>
-                                    <a href="#" class="list-group-item">Петя </a>
                                 </div>
                         </div>
                         
