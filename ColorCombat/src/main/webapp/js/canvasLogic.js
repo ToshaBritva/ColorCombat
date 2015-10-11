@@ -180,7 +180,7 @@ function movePlayer(direction) {
             if (canMoveLeft(player)) {
                 player.move({x: -cellWidth, y: 0});
                 playerMoved = true;
-                sendPos(player, -cellWidth, 0);
+                sendPos( -cellWidth, 0);
             }
             break;
         case 38: //Вверх
@@ -188,7 +188,7 @@ function movePlayer(direction) {
             if (canMoveUp(player)) {
                 player.move({x: 0, y: -cellWidth});
                 playerMoved = true;
-                sendPos(player, 0, -cellWidth);
+                sendPos( 0, -cellWidth);
             }
             break;
         case 39: //Право
@@ -196,7 +196,7 @@ function movePlayer(direction) {
             if (canMoveRight(player)) {
                 player.move({x: cellWidth, y: 0});
                 playerMoved = true;
-                sendPos(player, cellWidth, 0);
+                sendPos(cellWidth, 0);
             }
             break;
         case 40: //Вниз
@@ -204,7 +204,7 @@ function movePlayer(direction) {
             if (canMoveDown(player)) {
                 player.move({x: 0, y: cellWidth});
                 playerMoved = true;
-                sendPos(player, 0, cellWidth);
+                sendPos( 0, cellWidth);
             }
             break;
     }
