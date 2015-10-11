@@ -11,15 +11,10 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>ColorCombat</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-        <script src="<c:url value="/js/MainPageCreator.js" />"></script>
         <link href="<c:url value="/CSS/MainPageCSS.css" />" rel="stylesheet" />
-        <%--<link href="<c:url value="/CSS/bootstrap-theme.css" />" rel="stylesheet" />--%>
-        <link href="<c:url value="/CSS/bootstrap.css" />" rel="stylesheet" />
-        <%--<link href="<c:url value="/CSS/bootstrap-responsive.css" />" rel="stylesheet" />
-        <link href="<c:url value="/CSS/docs.css" />" rel="stylesheet" />
-        <link href="<c:url value="/CSS/prettify.css" />" rel="stylesheet" />>--%>
+        <link href="<c:url value="/CSS/bootstrap.css"/>" rel="stylesheet" />
     </head>
         <body>
             <div class="container">
@@ -36,10 +31,12 @@
                     </div>
                 </div>
                 
-                <div id="content" class="row top-buffer">
+                <div id="content" class="top-buffer">
                     <div id="Menu" class="col-sm-6 ">
                         <div id="new_Btn1" class="row new_Btn">
-                            <button id="CreateLobby" class="btn btn-primary btn-lg btn-block">Создать лобби</button>
+                            <button id="CreateLobby" class="btn btn-primary btn-lg btn-block" onClick="location.href='../'">
+                                Создать лобби
+                            </button>
                         </div>
                         <div id="new_Btn2" class="row new_Btn">
                             <button id="FindLobby" class="btn btn-primary btn-lg btn-block">Найти лобби</button>
@@ -53,15 +50,25 @@
                     </div>
                     
                     <div class="col-sm-6">
-                        <li class="list-group-item list-group-item-info text-left">
-                            <h4 class="list-group-item-heading">Контакты</h4>
-                        </li>
-                        <div id="Contacts" class="list-group text-left">
-                            <a href="#" class="list-group-item text-left">Вася</a>
-                            <a href="#" class="list-group-item text-left">Вася </a>
-                            <a href="#" class="list-group-item text-left">Вася </a>
-                            <a href="#" class="list-group-item text-left">Вася </a>
+                        <div class="list-group text-left">
+                                <li class="list-group-item list-group-item-info">
+                                    <h4 class="list-group-item-heading">Контакты</h4>
+                                </li>
+                                <div id="Contacts">
+                                    <a href="#" class="list-group-item">Вася</a>
+                                    <a href="#" class="list-group-item">Петя </a>
+                                    <a href="#" class="list-group-item">Петя </a>
+                                    <a href="#" class="list-group-item">Петя </a>
+                                </div>
                         </div>
+                        
+                        <div class="col-sm-6 top-buffer">
+                                <input id="inpContactName" class="form-control" placeholder="Ник пользователя">
+                            </div>
+                        <div class="col-sm-6 top-buffer">
+                            <button id="AddContact" class="btn btn-primary btn-block">Добавить</button>
+                        </div>
+                        
                     </div>
                 </div>
             </div>

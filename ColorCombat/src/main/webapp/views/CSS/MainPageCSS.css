@@ -28,7 +28,7 @@ and open the template in the editor.
 
 #Contacts
 {
-    max-height:200px;
+    max-height:300px;
     overflow-y: auto;
 }
 #Menu
