@@ -30,5 +30,8 @@ public class Game {
     public String CreateLobby() {
         return "CreateLobbyPage";
     }
-
+    @RequestMapping(value = {"/1"})
+    public String MainAnim() {
+        return "MainAnim";
+    }
 }
