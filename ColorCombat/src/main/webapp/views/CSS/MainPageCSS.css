@@ -36,5 +36,10 @@ and open the template in the editor.
     padding-left: 40px;
 }
 
+#Slots
+{
+    text-align: center;
+}
+
 .top-buffer { margin-top:20px; } //Для отступов вверх
 

@@ -180,7 +180,7 @@ function movePlayer(direction) {
             if (canMoveLeft(player)) {
                 player.move({x: -cellWidth, y: 0});
                 playerMoved = true;
-                sendPos(player, -cellWidth, 0);
+                sendPos( -cellWidth, 0);
             }
             break;
         case 38: //Вверх
@@ -188,7 +188,7 @@ function movePlayer(direction) {
             if (canMoveUp(player)) {
                 player.move({x: 0, y: -cellWidth});
                 playerMoved = true;
-                sendPos(player, 0, -cellWidth);
+                sendPos( 0, -cellWidth);
             }
             break;
         case 39: //Право
@@ -196,7 +196,7 @@ function movePlayer(direction) {
             if (canMoveRight(player)) {
                 player.move({x: cellWidth, y: 0});
                 playerMoved = true;
-                sendPos(player, cellWidth, 0);
+                sendPos(cellWidth, 0);
             }
             break;
         case 40: //Вниз
@@ -204,7 +204,7 @@ function movePlayer(direction) {
             if (canMoveDown(player)) {
                 player.move({x: 0, y: cellWidth});
                 playerMoved = true;
-                sendPos(player, 0, cellWidth);
+                sendPos( 0, cellWidth);
             }
             break;
     }
@@ -221,16 +221,16 @@ function movePlayer(direction) {
     }
 }
 
-function sendPos(player, x, y) {
+function sendPos(x, y) {
     //  websocket.send("Hallo from " + currentPlayer.toString())
     var json = JSON.stringify({
-        "id": currentPlayer.toString(),
+        "id": currentPlayer,
         "coords": {
             "x": x,
             "y": y
         }
     });
-    websocket.send(json)
+    websocket.send(json);
 }
 
 //Проверяет может ли игрок сдвинуться в указанном направлении
@@ -293,16 +293,16 @@ function reDrawField() {
 }
 
 //Собтие смены игрока(Для тестирования базового функционала)
-function chenge(evt) {
+function change(evt) {
     var n = document.getElementById("Role").options.selectedIndex;
     var val = document.getElementById("Role").options[n].value;
     currentPlayer = parseInt(val, 10);
-    document.getElementById("Role").blur()
+    document.getElementById("Role").blur();
 }
 
 
 //Отрисовка движения другого игрока
-function drowOter(data) {
+function drawOtherPlayerMove(data) {
     var json = JSON.parse(data);
     var player = playersLayer.findOne('#player' + json.id);
     var cell = cellsLayer.findOne('#' + getCellId(getPlayerYMatrix(player), getPlayerXMatrix(player)));

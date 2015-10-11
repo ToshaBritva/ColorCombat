@@ -26,12 +26,14 @@ public class Game {
         return "MainPage";
     }
     
-    @RequestMapping(value = {"/MyLobby"})
+    @RequestMapping(value = {"MyLobby"})
     public String CreateLobby() {
         return "CreateLobbyPage";
     }
-    @RequestMapping(value = {"/1"})
-    public String MainAnim() {
-        return "MainAnim";
+    
+    @RequestMapping(value = {"Lobbies"})
+    public String FindLobbies() {
+        return "FindLobbiesPage";
     }
+
 }
