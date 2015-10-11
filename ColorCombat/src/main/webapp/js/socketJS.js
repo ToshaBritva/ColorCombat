@@ -16,6 +16,10 @@ websocket.onopen = function (evt) {
     onOpen(evt);
 };
 
+websocket.onmessage= function (evt) {
+    onMessage(evt);
+};
+
 //Действия по возникновению ошибки в соеденении с сокетом
 function onError(evt) {
     alert("ошибка подключения");
@@ -26,4 +30,9 @@ function onOpen(evt) {
     alert("подключено");
 }
 
+//Действия при получении сообщения
+function onMessage(evt) {
+    console.log(evt.data)
+    drowOter(evt.data)
+}
 
