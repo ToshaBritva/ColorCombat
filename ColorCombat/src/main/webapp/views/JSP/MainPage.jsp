@@ -24,7 +24,9 @@
                         <h2>NAME</h2>
                     </div>
                     <div id="Profile" class="col-sm-2 col-sm-offset-2 top-buffer">
-                        <button id="bntProfile" class="btn btn-primary btn-block">Профиль</button>
+                        <button id="bntProfile" class="btn btn-primary btn-block" onClick='location.href="<c:url value="/Profile"/>"'>
+                            Профиль
+                        </button>
                     </div>
                     <div id="exit" class="col-sm-2 top-buffer">
                         <button id="idExit" class="btn btn-primary btn-block">Exit</button>
@@ -52,19 +54,23 @@
                     </div>
                     
                     <div class="col-sm-6">
-                        <div class="list-group text-left">
+                        <div class="list-group text-left panel panel-default">
                                 <li class="list-group-item list-group-item-info">
                                     <h4 class="list-group-item-heading">Контакты</h4>
                                 </li>
                                 <div id="Contacts">
                                     <a href="#" class="list-group-item">Вася</a>
                                     <a href="#" class="list-group-item">Петя </a>
+                                    <a href="#" class="list-group-item">Петя </a>
+                                    <a href="#" class="list-group-item">Петя </a>
+                                    <a href="#" class="list-group-item">Петя </a>
+                                    <a href="#" class="list-group-item">Петя </a>
                                 </div>
                         </div>
                         
                         <div class="col-sm-6 top-buffer">
                                 <input id="inpContactName" class="form-control" placeholder="Ник пользователя">
-                            </div>
+                        </div>
                         <div class="col-sm-6 top-buffer">
                             <button id="AddContact" class="btn btn-primary btn-block">Добавить</button>
                         </div>

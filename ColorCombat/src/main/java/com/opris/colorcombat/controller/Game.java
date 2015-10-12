@@ -15,30 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping(value = {"/", "game"})
 public class Game {
-
     @RequestMapping(value = {"game"})
     public String game() {
         return "game";
     }
-
-    @RequestMapping(value = {"/"})
-    public String home() {
-        return "MainPage";
-    }
-    
-    @RequestMapping(value = {"MyLobby"})
-    public String CreateLobby() {
-        return "CreateLobbyPage";
-    }
-    
-    @RequestMapping(value = {"Lobbies"})
-    public String FindLobbies() {
-        return "FindLobbiesPage";
-    }
-    @RequestMapping(value = {"/1"})
-        public String MainAnim() {
-            return "MainAnim";
-        }
 }
-
-
