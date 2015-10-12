@@ -6,7 +6,8 @@
 
 var cellsArr = [0];
 var playersArr = [];
-var colors = ["white", "red", "yellow", "green", "cyan"];
+var playersColors = ["red", "yellow", "lime", "aqua"];
+var cellsColors = ["white", "lightcoral", "#F0F000", "#4DDB4D", "#00E6E6"];
 
 var currentPlayer = 1;
 
@@ -95,7 +96,7 @@ function addNewPlayer(i, j, id) {
         x: getPlayerXCanvas(j),
         y: getPlayerXCanvas(i),
         radius: cellWidth / 2 - 5,
-        fill: colors[id],
+        fill: playersColors[playersArr.indexOf(id)],
         stroke: 'black',
         strokeWidth: 2,
         id: "player" + id
@@ -120,16 +121,6 @@ function getPlayerYCanvas(playerXMatrix) {
     return playerXMatrix * cellWidth + cellWidth / 2;
 }
 
-
-//возрващает цвет соответсвующий значению в матрице
-function getShapeColor(value) {
-    var index;
-    if (isPlayer(value))
-        index = value;
-    else
-        index = cellsArr.indexOf(value);
-    return colors[index];
-}
 
 //Функция возвращает true/false если указанное цифра соответсвует клетке
 function isCell(value) {
@@ -169,8 +160,7 @@ function movePlayer(direction) {
     var oldY = getPlayerYMatrix(player);
     var playerMoved = false;
 
-    //Клетка под игроком
-    var cell = cellsLayer.findOne('#' + getCellId(getPlayerYMatrix(player), getPlayerXMatrix(player)));
+
 
 
     //Изменяем координаты фигуры игрока
@@ -180,7 +170,7 @@ function movePlayer(direction) {
             if (canMoveLeft(player)) {
                 player.move({x: -cellWidth, y: 0});
                 playerMoved = true;
-                sendPos( -cellWidth, 0);
+                sendPos(-cellWidth, 0);
             }
             break;
         case 38: //Вверх
@@ -188,7 +178,7 @@ function movePlayer(direction) {
             if (canMoveUp(player)) {
                 player.move({x: 0, y: -cellWidth});
                 playerMoved = true;
-                sendPos( 0, -cellWidth);
+                sendPos(0, -cellWidth);
             }
             break;
         case 39: //Право
@@ -204,7 +194,7 @@ function movePlayer(direction) {
             if (canMoveDown(player)) {
                 player.move({x: 0, y: cellWidth});
                 playerMoved = true;
-                sendPos( 0, cellWidth);
+                sendPos(0, cellWidth);
             }
             break;
     }
@@ -214,10 +204,12 @@ function movePlayer(direction) {
         playersLayer.draw();
         currentMatrix[getPlayerXMatrix(player)][getPlayerYMatrix(player)] = currentPlayer;
 
-        //Красим клетку
-        cell.fill(getShapeColor(currentPlayer));
-        cell.draw();
+        //Красим клетку под игроком
         currentMatrix[oldX][oldY] = cellsArr[currentPlayer];
+        var cell = cellsLayer.findOne('#' + getCellId(getPlayerYMatrix(player), getPlayerXMatrix(player)));
+        cell.fill(cellsColors[currentPlayer]);
+        cell.draw();
+
     }
 }
 
@@ -278,7 +270,7 @@ function reDrawField() {
                 // фигугры имеют являются клетками, то перекрашиваем старую клетку
                 if (isCell(currentMatrix[i][j]) && isCell(newMatrix[i][j])) {
                     var shape = cellsLayer.findOne('#' + getCellId(i, j));
-                    shape.fill(getShapeColor(newMatrix[i][j]));
+                    shape.fill(cellsColors(newMatrix[i][j]));
                 }
                 else {
                     if (isPlayer(newMatrix[i][j])) {
@@ -303,21 +295,24 @@ function change(evt) {
 
 //Отрисовка движения другого игрока
 function drawOtherPlayerMove(data) {
+    
     var json = JSON.parse(data);
+    
     var player = playersLayer.findOne('#player' + json.id);
-    var cell = cellsLayer.findOne('#' + getCellId(getPlayerYMatrix(player), getPlayerXMatrix(player)));
     var oldX = getPlayerXMatrix(player);
     var oldY = getPlayerYMatrix(player);
-    player.move({x: json.coords.x, y: json.coords.y});
-
+    
     //Передвигаем игрока
+    player.move({x: json.coords.x, y: json.coords.y});
     playersLayer.draw();
     currentMatrix[getPlayerXMatrix(player)][getPlayerYMatrix(player)] = json.id;
 
     //Красим клетку
-    cell.fill(getShapeColor(parseInt(json.id, 10)));
-    cell.draw();
     currentMatrix[oldX][oldY] = cellsArr[json.id];
+    var cell = cellsLayer.findOne('#' + getCellId(getPlayerYMatrix(player), getPlayerXMatrix(player)));
+    cell.fill(cellsColors[json.id]);
+    cell.draw();
+
     printMatrix(currentMatrix, cellsCount);
 }
 

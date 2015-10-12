@@ -32,7 +32,7 @@ function onOpen(evt) {
 
 //Действия при получении сообщения
 function onMessage(evt) {
-    console.log(evt.data)
-    drawOtherPlayerMove(evt.data)
+    console.log(evt.data);
+    drawOtherPlayerMove(evt.data);
 }
 
