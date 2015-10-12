@@ -21,7 +21,7 @@
         <div class="container">
             <div id='Content' class="row top-buffer">
                 <div class="col-md-6">
-                    <table id='Lobbies' class='table table-hover'>
+                    <table id='LobbiesTable' class='table table-hover table-striped'>
                         <thead>
                             <tr class="info">
                               <th style="width: 60%">Владелец лобби</th>
@@ -29,7 +29,7 @@
                               <th style="width: 10%"></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="LobbiesBody">
                             <tr class='lobbyRow'>
                                 <th id='Nick'>Вася</th>
                                 <th id='Slots'>3/4</th>
