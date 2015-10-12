@@ -52,6 +52,8 @@
                     </div>
                     
                     <div class="col-sm-6">
+                        <div class="bs-component"><div class="progress progress-striped active"> <div class="progress-bar" style="width: 100%"></div></div><div id="source-button" class="btn btn-primary " style="display: none;">&lt; &gt;</div></div>
+            
                         <div class="list-group text-left">
                                 <li class="list-group-item list-group-item-info">
                                     <h4 class="list-group-item-heading">Контакты</h4>
@@ -71,7 +73,7 @@
                         
                     </div>
                 </div>
-            </div>
+                </div>
             
             
             <!-- создать лобби -->
@@ -120,7 +122,7 @@
                   <div class="modal-content">
                     <div class="modal-header">
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                      <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                      <h4 class="modal-title" id="myModalLabel">Таблица лидеров</h4>
                     </div>
                     <div class="modal-body">
                                         <div id='ContentTBL' >
@@ -151,8 +153,8 @@
                                         </div>
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary">Save changes</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                   
                     </div>
                   </div>
                 </div>

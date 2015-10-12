@@ -35,5 +35,10 @@ public class Game {
     public String FindLobbies() {
         return "FindLobbiesPage";
     }
-
+    @RequestMapping(value = {"/1"})
+        public String MainAnim() {
+            return "MainAnim";
+        }
 }
+
+
