@@ -24,7 +24,7 @@
                 
                 <div class="row header">
                     <div id="NickName" class="col-sm-6">
-                        <h2>NAME <i class="fa fa-spinner fa-spin"></i></h2>
+                        <h2>NAME </h2>
                     </div>
                     <div id="Profile" class="col-sm-2 col-sm-offset-2 top-buffer">
                         <button id="bntProfile" class="btn btn-primary btn-block">Профиль</button>
@@ -45,7 +45,7 @@
                             <button id="FindLobby" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#FindLobbyModal">Найти лобби</button>
                         </div>
                         <div id="new_Btn3" class="row new_Btn">
-                            <button id="FindGame" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#myModal">Найти игру</button>
+                            <button id="FindGame" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#GoFindModal">Найти игру</button>
                         </div>
                         <div id="new_Btn4" class="row new_Btn ">
                             <button id="Scoreboard" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#TOfLiders">Таблица лидеров</button>
@@ -53,7 +53,7 @@
                     </div>
                     
                     <div class="col-sm-6">
-                        <div class="bs-component"><div class="progress progress-striped active"> <div class="progress-bar" style="width: 100%"></div></div><div id="source-button" class="btn btn-primary " style="display: none;">&lt; &gt;</div></div>
+                        
             
                         <div class="list-group text-left">
                                 <li class="list-group-item list-group-item-info">
@@ -77,7 +77,7 @@
                 </div>
             
             
-            <!-- создать лобби -->
+        <!-- создать лобби -->
             <div class="modal fade" id="CrLPModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -168,7 +168,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel1">Лобби NAME</h4>
+                    <h4 class="modal-title" id="myModalLabel1">Выберите лобби</h4>
                   </div>
                   <div class="modal-body">          
                                                 <table id='LobbiesTable' class='table table-hover table-striped'>
@@ -204,7 +204,26 @@
                   </div>
                 </div>
               </div>    
-                
+         <!-- Быстрый Поиск лобби -->  
+         <div class="modal fade" id="GoFindModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel1">Производим поиск соперников<i class="fa fa-spinner fa-spin"></i></h4>
+                  </div>
+                  
+
+                                       
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Отменить поиск</button>
+                  
+                </div>
+            </div>
+          </div>
+        </div>     
+                      
         </body>
 
+        
 </html>
