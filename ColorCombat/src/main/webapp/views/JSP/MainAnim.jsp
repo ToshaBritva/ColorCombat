@@ -19,8 +19,7 @@
         <script src="<c:url value="/js/bootstrap.min.js" />"></script>
     </head>
     <body>
-        <body>
-            <div class="container">
+        <div class="container">
                 
                 <div class="row header">
                     <div id="NickName" class="col-sm-6">
@@ -223,7 +222,7 @@
           </div>
         </div>     
                       
-        </body>
+    </body>
 
         
 </html>
