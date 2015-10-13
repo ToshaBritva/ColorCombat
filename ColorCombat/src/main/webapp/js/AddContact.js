@@ -7,6 +7,6 @@
 function addContact(contactName) //не протестировано
 {
     var Contact = '<a href="#" class="list-group-item text-left">' + contactName + '</a>'; //Заменить # на валидную ссылку
-    $("#Contacts").Apend(Contact);
+    $("#Contacts").append(Contact);
 }
 

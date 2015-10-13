@@ -44,3 +44,8 @@ and open the template in the editor.
 
 .top-buffer { margin-top:20px; } //Для отступов вверх
 
+.bootstrapSwitch
+{
+    height: 20px;
+    width: 208px
+}

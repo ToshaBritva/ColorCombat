@@ -16,14 +16,19 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
         <link href="<c:url value="/CSS/MainPageCSS.css" />" rel="stylesheet" />
         <link href="<c:url value="/CSS/bootstrap.css"/>" rel="stylesheet" />
+        <link href="<c:url value="/CSS/bootstrap-switch.min.css"/>" rel="stylesheet" />
         <script src="<c:url value="/js/bootstrap.min.js" />"></script>
+        <script src="<c:url value="/js/bootstrap-switch.min.js" />"></script>
+        <script src="<c:url value="/js/MainAnim.js" />"></script>
+       
     </head>
     <body>
+          
         <div class="container">
                 
                 <div class="row header">
                     <div id="NickName" class="col-sm-6">
-                        <h2>NAME </h2>
+                        <h2>NAME</h2>
                     </div>
                     <div id="Profile" class="col-sm-2 col-sm-offset-2 top-buffer">
                         <button id="bntProfile" class="btn btn-primary btn-block" data-toggle="modal" data-target="#ProfileModal">Профиль</button>
@@ -90,19 +95,23 @@
                             <thead>
                                 <tr class="info ">
                                   <th style="width: 70%">Ник</th>
-                                  <th style="width: 30%">Готовность</th>
+                                  <th style="width: 5%"></th>
+                                  <th style="width: 25%; text-align: center"   >Готовность</th>
                                 </tr>
                             </thead>
                             <tr id='Slot0'>
-                                <th id='Nick'>Свободный слот <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></th> 
+                                <th id='Nick'>Свободный слот<button type="button" class="close" aria-label="Close"></button></th> 
+                                <th id='Kick'><span aria-hidden="true">&times;</span></th>
                                 <th id='Status'> </th>
                             </tr>
                             <tr id='Slot1'>
-                              <th id='Nick'>Свободный слот<button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></th>
+                              <th id='Nick'>Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
+                              <th id='Kick'><span aria-hidden="true">&times;</span></th>
                               <th id='Status'></th>
                             </tr>
                             <tr id='Slot2'>
-                              <th id='Nick'>Свободный слот<button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></th>
+                              <th id='Nick'>Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
+                              <th id='Kick'><span aria-hidden="true">&times;</span></th>
                               <th id='Status'></th>
                             </tr>
                         </table>
@@ -276,11 +285,12 @@
                     </div>
                 </div>
             </div>
-        </div>   
+        </div>  
+        
+               
     </body> 
-        </div>     
-                      
-    </body>
+       
+<script type="text/javascript"> $(document).ready(onloadPage()); </script>
 
         
 </html>

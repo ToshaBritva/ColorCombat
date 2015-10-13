@@ -8,7 +8,7 @@ function getSlotNum(nickname)
 {
     for (var i=0; i<3; i++)
     {
-        if($("#Slot" + i + " #Nick").text()===nickname)
+        if($("#Slot" + i + " #Nick" ).text()===nickname)
         {
             return i;
         }
