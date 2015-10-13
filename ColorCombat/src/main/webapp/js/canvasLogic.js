@@ -6,8 +6,8 @@
 
 var cellsArr = [0];
 var playersArr = [];
-var playersColors = ["red", "yellow", "lime", "aqua"];
-var cellsColors = ["white", "lightcoral", "#F0F000", "#4DDB4D", "#00E6E6"];
+var playersColors = ["red", "aqua", "#FFFF00", "lime"];
+var cellsColors = ["white", "#DB4D4D","#33CCCC", "orange", "#00B800"];
 
 var currentPlayer = 1;
 
@@ -156,6 +156,7 @@ function movePlayer(direction) {
 
     //Фигура соответсвующая управляемому игроку
     var player = playersLayer.findOne('#player' + currentPlayer.toString());
+    var cellOld = cellsLayer.findOne('#' + getCellId(getPlayerYMatrix(player), getPlayerXMatrix(player)));
     var oldX = getPlayerXMatrix(player);
     var oldY = getPlayerYMatrix(player);
     var playerMoved = false;
@@ -206,6 +207,9 @@ function movePlayer(direction) {
 
         //Красим клетку под игроком
         currentMatrix[oldX][oldY] = cellsArr[currentPlayer];
+        cellOld.fill(cellsColors[currentPlayer]);
+        cellOld.draw();
+
         var cell = cellsLayer.findOne('#' + getCellId(getPlayerYMatrix(player), getPlayerXMatrix(player)));
         cell.fill(cellsColors[currentPlayer]);
         cell.draw();
@@ -295,13 +299,13 @@ function change(evt) {
 
 //Отрисовка движения другого игрока
 function drawOtherPlayerMove(data) {
-    
+
     var json = JSON.parse(data);
-    
+
     var player = playersLayer.findOne('#player' + json.id);
     var oldX = getPlayerXMatrix(player);
     var oldY = getPlayerYMatrix(player);
-    
+
     //Передвигаем игрока
     player.move({x: json.coords.x, y: json.coords.y});
     playersLayer.draw();
