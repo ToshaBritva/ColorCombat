@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = {"/"})
 public class ProfilePageController 
 {
-    @RequestMapping(value = {"Profile"})
+    @RequestMapping(value = {"MainPage/Profile"})
     public String profilePage() {
         return "ProfilePage";
     }

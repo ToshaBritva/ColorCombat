@@ -24,24 +24,24 @@
                         <h2>NAME</h2>
                     </div>
                     <div id="Profile" class="col-sm-2 col-sm-offset-2 top-buffer">
-                        <button id="bntProfile" class="btn btn-primary btn-block" onClick='location.href="<c:url value="/Profile"/>"'>
+                        <button id="bntProfile" class="btn btn-primary btn-block" onClick='location.href="<c:url value="/MainPage/Profile"/>"'>
                             Профиль
                         </button>
                     </div>
                     <div id="exit" class="col-sm-2 top-buffer">
-                        <button id="idExit" class="btn btn-primary btn-block">Exit</button>
+                        <button id="idExit" class="btn btn-primary btn-block" onClick='location.href="<c:url value="/logout"/>"'>Exit</button>
                     </div>
                 </div>
                 
                 <div id="content" class="top-buffer">
                     <div id="Menu" class="col-sm-6">
                         <div id="new_Btn1" class="row new_Btn">
-                            <button id="CreateLobby" class="btn btn-primary btn-lg btn-block" onClick='location.href="<c:url value="/MyLobby"/>"'>
+                            <button id="CreateLobby" class="btn btn-primary btn-lg btn-block" onClick='location.href="<c:url value="/MainPage/MyLobby"/>"'>
                                 Создать лобби
                             </button>
                         </div>
                         <div id="new_Btn2" class="row new_Btn">
-                            <button id="FindLobby" class="btn btn-primary btn-lg btn-block" onClick='location.href="<c:url value="/Lobbies"/>"'>
+                            <button id="FindLobby" class="btn btn-primary btn-lg btn-block" onClick='location.href="<c:url value="/MainPage/Lobbies"/>"'>
                                 Найти лобби
                             </button>
                         </div>

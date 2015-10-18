@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Pushkin
  */
 @Controller
-@RequestMapping(value = {"/"})
+@RequestMapping(value = {"MainPageAnimate","1"})
 public class MainAnimController {
     @RequestMapping(value = {"MainPageAnimate","1"})
     public String game() {

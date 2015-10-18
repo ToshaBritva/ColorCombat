@@ -9,10 +9,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping(value = {"/"})
-public class MainPageController 
-{
-    @RequestMapping(value = {"/"})
+public class MainPageController {
+
+    @RequestMapping(value = {"/MainPage"})
     public String mainPage() {
         return "MainPage";
+    }
+
+    @RequestMapping(value = {"/"})
+    public String reMainPage() {
+        
+        return "redirect:/MainPage";
+
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping(value = {"/"})
 public class CreateLobbyPageController {  
-    @RequestMapping(value = {"MyLobby"})
+    @RequestMapping(value = {"MainPage/MyLobby"})
     public String createLobby() {
         return "CreateLobbyPage";
     }

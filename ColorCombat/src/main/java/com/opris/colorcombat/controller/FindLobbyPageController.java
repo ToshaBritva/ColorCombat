@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping(value = {"/"})
 public class FindLobbyPageController { 
-    @RequestMapping(value = {"Lobbies"})
+    @RequestMapping(value = {"MainPage/Lobbies"})
     public String findLobbies() {
         return "FindLobbiesPage";
     }

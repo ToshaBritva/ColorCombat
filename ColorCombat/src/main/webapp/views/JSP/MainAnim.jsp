@@ -34,7 +34,7 @@
                         <button id="bntProfile" class="btn btn-primary btn-block" data-toggle="modal" data-target="#ProfileModal">Профиль</button>
                     </div>
                     <div id="exit" class="col-sm-2 top-buffer">
-                        <button id="idExit" class="btn btn-primary btn-block">Exit</button>
+                        <button id="idExit" class="btn btn-primary btn-block" href="<c:url value="/logout" />">Exit</button>
                     </div>
                 </div>
                 
