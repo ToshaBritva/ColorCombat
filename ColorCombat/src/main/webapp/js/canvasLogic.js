@@ -141,3 +141,10 @@ $(document).keydown(function (event) {
     }
 });
 
+//Возвращает idшник прямоугольника на канвасе в формате X_Y
+function getCellId(i, j) {
+    var shapeX = i * cellWidth;
+    var shapeY = j * cellWidth;
+    return shapeX.toString() + '_' + shapeY.toString();
+}
+
