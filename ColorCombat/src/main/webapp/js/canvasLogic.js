@@ -4,34 +4,14 @@
  * and open the template in the editor.
  */
 
-var cellsArr = [0];
-var playersArr = [];
+var cellsArr = [0, 5, 6, 7, 8];
+var playersArr = [1, 2, 3, 4];
 var playersColors = ["red", "aqua", "#FFFF00", "lime"];
-var cellsColors = ["white", "#DB4D4D","#33CCCC", "orange", "#00B800"];
-
-var currentPlayer = 1;
+var cellsColors = ["white", "#DB4D4D", "#33CCCC", "orange", "#00B800"];
 
 var cellsCount = 10;
 
-var currentMatrix = new Array(cellsCount);
-for (i = 0; i < cellsCount; i++) {
-    currentMatrix[i] = new Array(cellsCount);
-    currentMatrix[i].fill(0);
-}
-
-var newMatrix = new Array(cellsCount);
-for (i = 0; i < cellsCount; i++) {
-    newMatrix[i] = new Array(cellsCount);
-    newMatrix[i].fill(0);
-}
-
-newMatrix[0][0] = 1;
-newMatrix[0][cellsCount - 1] = 2;
-newMatrix[cellsCount - 1][0] = 3;
-newMatrix[cellsCount - 1][cellsCount - 1] = 4;
-
-
-
+//Инициализируем канвас
 var field = new Konva.Stage({
     container: 'gameField', // индификатор div контейнера
     width: 400,
@@ -45,14 +25,14 @@ cellBorderWidth = 3; // ширина границы клетки
 var cellsLayer = new Konva.Layer();
 var playersLayer = new Konva.Layer();
 
+//Отрисовываем клетки
 initField();
-printMatrix(currentMatrix, cellsCount);
-reDrawField();
 
 
 
 //Функция инициализирует поле, добавляет клетки, игроков
 function initField() {
+
     //рисуем квадраты
     for (var i = 0; i < field.height(); i = i + cellWidth)
         for (var j = 0; j < field.width(); j = j + cellWidth) {
@@ -69,29 +49,41 @@ function initField() {
             cellsLayer.add(rect);
         }
     field.add(cellsLayer);
-
-    if (newMatrix[0][0] !== 0)
-        addNewPlayer(0, 0, 1);
-
-    if (newMatrix[0][cellsCount - 1] !== 0)
-        addNewPlayer(0, cellsCount - 1, 2);
-
-    if (newMatrix[cellsCount - 1][0] !== 0)
-        addNewPlayer(cellsCount - 1, 0, 3);
-
-    if (newMatrix[cellsCount - 1][cellsCount - 1] !== 0)
-        addNewPlayer(cellsCount - 1, cellsCount - 1, 4);
-
-    currentMatrix = newMatrix;
     field.add(playersLayer);
+}
 
+function drawChanges(changes) {
 
+    var json = JSON.parse(changes);
+
+    json.forEach(function draw(obj) {
+        //Если это клетка, то перекрашиваем ее
+        if (isCell(obj.number)) {
+            var cell = cellsLayer.findOne('#' + getCellId(obj.j, obj.i));
+            cell.fill(cellsColors[obj.number - 4]);
+        } else {
+            //Если это игрок
+            if (isPlayer(obj.number)) {
+
+                //Пытаемся получить фигуру соответсвующую игроку
+                var player = playersLayer.findOne('#player' + obj.number.toString());
+
+                //Если ее нет, то добавляем нового игрока
+                if (!player) {
+                    player = addNewPlayer(obj.i, obj.j, obj.number)
+                } else {
+                    player.setAbsolutePosition({x: getPlayerXCanvas(obj.j), y: getPlayerYCanvas(obj.i)});
+                }
+            }
+        }
+
+    });
+    cellsLayer.draw();
+    playersLayer.draw();
 }
 
 //Добавление нового игрока
 function addNewPlayer(i, j, id) {
-    playersArr.push(id);
-    cellsArr.push(id + 4);
     var circle = new Konva.Circle({
         x: getPlayerXCanvas(j),
         y: getPlayerXCanvas(i),
@@ -102,16 +94,9 @@ function addNewPlayer(i, j, id) {
         id: "player" + id
     });
     playersLayer.add(circle);
+    return circle;
 }
 
-
-//Возвращает координаты игрока в матрице
-function getPlayerXMatrix(player) {
-    return (player.y() - cellWidth / 2) / cellWidth;
-}
-function getPlayerYMatrix(player) {
-    return (player.x() - cellWidth / 2) / cellWidth;
-}
 
 //Возвращает координаты игрока на канвасе
 function getPlayerXCanvas(playerYMatrix) {
@@ -136,17 +121,23 @@ function isPlayer(value) {
 //Обрабатывает нажатие клавиш на клавиаутре
 $(document).keydown(function (event) {
     switch (event.keyCode) {
-        case 37: //Лево
-        case 65: //W
         case 38: //Вверх
-        case 87: //S
-        case 39: //Право
-        case 68: //A
-        case 40: //Вниз
-        case 83: //D
-            movePlayer(event.keyCode);
-            printMatrix(currentMatrix, cellsCount);
+        case 87: //W
+            websocket.send("up");
             break;
+        case 40: //Вниз
+        case 83: //S
+            websocket.send("down");
+            break;
+        case 37: //Лево
+        case 65: //A
+            websocket.send("left");
+            break;
+        case 39: //Право
+        case 68: //D
+            websocket.send("right");
+            break;
+
     }
 });
 
@@ -254,39 +245,6 @@ function getCellId(i, j) {
     return shapeX.toString() + '_' + shapeY.toString();
 }
 
-//Для отладки: выводит матрицу на страницу
-function printMatrix(matrix, n) {
-    var printThis = "";
-    for (var i = 0; i < n; i++) {
-        printThis += "<br>";
-        for (var j = 0; j < n; j++)
-            printThis += " " + matrix[i][j];
-    }
-    document.getElementById('currentTable').innerHTML = printThis;
-}
-
-
-function reDrawField() {
-    for (var i = 0; i < cellsCount; i++)
-        for (var j = 0; j < cellsCount; j++)
-            if (currentMatrix[i][j] !== newMatrix[i][j]) {
-                //если значения в матрицах различны, но при этом соответсвующие
-                // фигугры имеют являются клетками, то перекрашиваем старую клетку
-                if (isCell(currentMatrix[i][j]) && isCell(newMatrix[i][j])) {
-                    var shape = cellsLayer.findOne('#' + getCellId(i, j));
-                    shape.fill(cellsColors(newMatrix[i][j]));
-                }
-                else {
-                    if (isPlayer(newMatrix[i][j])) {
-                        var player = playersLayer.findOne('#player' + newMatrix[i][j].toString());
-                        player.x = getPlayerXCanvas(j);
-                        player.y = getPlayerYCanvas(i);
-                        player.draw();
-                    }
-                }
-                currentMatrix[i][j] = newMatrix[i][j];
-            }
-}
 
 //Собтие смены игрока(Для тестирования базового функционала)
 function change(evt) {

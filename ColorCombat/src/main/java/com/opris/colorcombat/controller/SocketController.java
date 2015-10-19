@@ -5,10 +5,12 @@
  */
 package com.opris.colorcombat.controller;
 
+import com.google.gson.Gson;
+import com.opris.colorcombat.classes.Game;
+import com.opris.colorcombat.classes.MapObject;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -23,28 +25,75 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/game/server")
 public class SocketController {
 
-    private static final Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
+    public static Game currentGame = new Game();
 
     @OnMessage
     public void onMessage(String message, Session session) {
+
+        //Двигаем игрока и получаем все изменения
+        List<MapObject> changes = currentGame.movePlayer(session, message);
+
+        // Преобразуем их в JSON и отправляем
+        Gson gson = new Gson();
+        String json = gson.toJson(changes);
+
+        //Рассылаем всем клиентам игроков
         try {
-            for (Session peer : sessions) {
-                if (!peer.equals(session)) {
-                    peer.getBasicRemote().sendText(message);
-                }
+            for (Session playerSession : currentGame.players.keySet()) {
+                playerSession.getBasicRemote().sendText(json);
             }
         } catch (Exception e) {
+
         }
 
     }
 
     @OnOpen
     public void onOpen(Session session) throws IOException, EncodeException {
-        sessions.add(session);
+
+        //Добавляем новго игрока
+        currentGame.addPlayer(session);
+
+        //Получаем список игроков на поле
+//        List<MapObject> changes = currentGame.getPlayers();
+        List<MapObject> changes = currentGame.getWholeField();
+        // Преобразуем его в JSON и отправляем
+        Gson gson = new Gson();
+        String json = gson.toJson(changes);
+
+        //Рассылаем всем клиентам игроков
+        try {
+            for (Session playerSession : currentGame.players.keySet()) {
+                playerSession.getBasicRemote().sendText(json);
+            }
+        } catch (Exception e) {
+
+        }
     }
 
     @OnClose
     public void onClose(Session session) throws IOException, EncodeException {
-        sessions.remove(session);
+
+        currentGame.removePlayer(session);
+        if (currentGame.players.size() >= 1) {
+            List<MapObject> changes = currentGame.getWholeField();
+            // Преобразуем его в JSON и отправляем
+            Gson gson = new Gson();
+            String json = gson.toJson(changes);
+
+            //Рассылаем всем клиентам игроков
+            try {
+                for (Session playerSession : currentGame.players.keySet()) {
+                    playerSession.getBasicRemote().sendText(json);
+                }
+            } catch (Exception e) {
+
+            }
+        }
+        else
+        {
+            currentGame = new Game();
+        }
+
     }
 }
