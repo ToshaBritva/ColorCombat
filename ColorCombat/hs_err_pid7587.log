@@ -1,0 +1,66 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 123731968 bytes for committing reserved memory.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_linux.cpp:2627), pid=7587, tid=139849707878144
+#
+# JRE version: Java(TM) SE Runtime Environment (8.0_60-b27) (build 1.8.0_60-b27)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.60-b23 mixed mode linux-amd64 compressed oops)
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007f315c077800):  VMThread [stack: 0x00007f314c18f000,0x00007f314c290000] [id=7594]
+
+Stack: [0x00007f314c18f000,0x00007f314c290000],  sp=0x00007f314c28df40,  free space=1019k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0xab97ea]  VMError::report_and_die()+0x2ba
+V  [libjvm.so+0x4f9dab]  report_vm_out_of_memory(char const*, int, unsigned long, VMErrorType, char const*)+0x8b
+V  [libjvm.so+0x91a7c3]  os::Linux::commit_memory_impl(char*, unsigned long, bool)+0x103
+V  [libjvm.so+0x91ad19]  os::pd_commit_memory(char*, unsigned long, unsigned long, bool)+0x29
+V  [libjvm.so+0x91502a]  os::commit_memory(char*, unsigned long, unsigned long, bool)+0x2a
+V  [libjvm.so+0x9886d3]  PSVirtualSpace::expand_by(unsigned long)+0x53
+V  [libjvm.so+0x989ad8]  PSYoungGen::resize_generation(unsigned long, unsigned long)+0xf8
+V  [libjvm.so+0x988c32]  PSYoungGen::resize(unsigned long, unsigned long)+0x22
+V  [libjvm.so+0x985f0b]  PSScavenge::invoke_no_policy()+0xf3b
+V  [libjvm.so+0x9811b5]  PSParallelCompact::invoke(bool)+0x85
+V  [libjvm.so+0x480f94]  CollectedHeap::collect_as_vm_thread(GCCause::Cause)+0x114
+V  [libjvm.so+0xabac61]  VM_CollectForMetadataAllocation::doit()+0x161
+V  [libjvm.so+0xac2c35]  VM_Operation::evaluate()+0x55
+V  [libjvm.so+0xac100a]  VMThread::evaluate_operation(VM_Operation*)+0xba
+V  [libjvm.so+0xac138e]  VMThread::loop()+0x1ce
+V  [libjvm.so+0xac1800]  VMThread::run()+0x70
+V  [libjvm.so+0x91cb88]  java_start(Thread*)+0x108
+
+VM_Operation (0x00007f3145645980): CollectForMetadataAllocation, mode: safepoint, requested by thread 0x00007f315c0bb000
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x00007f315c5e5000 JavaThread "process reaper" daemon [_thread_blocked, id=7605, stack(0x00007f3144f04000,0x00007f3144f3d000)]
+  0x00007f315c0bf800 JavaThread "Service Thread" daemon [_thread_blocked, id=7601, stack(0x00007f3145446000,0x00007f3145547000)]
+  0x00007f315c0bb000 JavaThread "C1 CompilerThread2" daemon [_thread_blocked, id=7600, stack(0x00007f3145547000,0x00007f3145648000)]
+  0x00007f315c0b9000 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=7599, stack(0x00007f3145648000,0x00007f3145749000)]
+  0x00007f315c0b6000 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=7598, stack(0x00007f3145749000,0x00007f314584a000)]
+  0x00007f315c0b4800 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=7597, stack(0x00007f314584a000,0x00007f314594b000)]
+  0x00007f315c07f000 JavaThread "Finalizer" daemon [_thread_blocked, id=7596, stack(0x00007f314615f000,0x00007f3146260000)]
+  0x00007f315c07d000 JavaThread "Reference Handler" daemon [_thread_blocked, id=7595, stack(0x00007f314c08e000,0x00007f314c18f000)]
+  0x00007f315c00a000 JavaThread "main" [_thread_blocked, id=7589, stack(0x00007f31647e2000,0x00007f31648e3000)]
+
+Other Threads:
+=>0x00007f315c077800 VMThread [stack: 0x00007f314c18f000,
