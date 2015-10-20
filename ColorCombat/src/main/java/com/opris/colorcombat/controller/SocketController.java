@@ -5,11 +5,9 @@
  */
 package com.opris.colorcombat.controller;
 
-import com.google.gson.Gson;
-import com.opris.colorcombat.classes.Game;
 import com.opris.colorcombat.classes.MapObject;
+import com.google.gson.Gson;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
@@ -25,7 +23,8 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/game/server")
 public class SocketController {
 
-    public static Game currentGame = new Game();
+    
+    public static com.opris.colorcombat.classes.Game currentGame = new com.opris.colorcombat.classes.Game();
 
     @OnMessage
     public void onMessage(String message, Session session) {
@@ -92,7 +91,7 @@ public class SocketController {
         }
         else
         {
-            currentGame = new Game();
+            currentGame = new com.opris.colorcombat.classes.Game();
         }
 
     }

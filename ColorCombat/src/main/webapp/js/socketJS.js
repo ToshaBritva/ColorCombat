@@ -16,14 +16,8 @@ websocket.onopen = function (evt) {
     onOpen(evt);
 };
 
-websocket.onmessage= function (evt) {
+websocket.onmessage = function (evt) {
     onMessage(evt);
-};
-
-
-window.onbeforeunload = function() {
-    websocket.onclose = function () {}; // disable onclose handler first
-    websocket.close();
 };
 
 //Действия по возникновению ошибки в соеденении с сокетом
@@ -39,6 +33,6 @@ function onOpen(evt) {
 //Действия при получении сообщения
 function onMessage(evt) {
     console.log(evt.data);
-    drawChanges(evt.data)
+    drawChanges(evt.data);
 }
 

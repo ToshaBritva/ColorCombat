@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author boris
  */
 @Controller
-@RequestMapping(value = {"/MainPage/game"})
-public class GameController {
-    @RequestMapping(value = {"/MainPage/game"})
+@RequestMapping(value = {"/", "game"})
+public class Game {
+    @RequestMapping(value = {"/game"})
     public String game() {
         return "game";
     }
