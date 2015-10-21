@@ -10,21 +10,34 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link href="<c:url value="/CSS/bootstrap.css"/>" rel="stylesheet" />
-        <title>JSP Page</title>
+        <link href="<c:url value="/CSS/MainPageCSS.css" />" rel="stylesheet" />
+        <title>ColorCombat</title>
     </head>
     <body>
+        
+        <form class="form-horizontal col-md-4 col-md-offset-4" action="j_security_check" method="post">
+            <fieldset>
 
-        <div class="container" style="width: 300px;">
+            <legend class="top-buffer">Вход в ColorCombat</legend>
 
-            <form action="j_security_check" method="post">
+            <div class="form-group">
+                  <input type="text" class="form-control input-md" name="j_username" placeholder="Логин" required autofocus value="">
+            </div>
 
-                <h2 class="form-signin-heading">Please sign in</h2>
+            <div class="form-group">
+                <input type="password" class="form-control input-md" name="j_password" placeholder="Пароль" required value="">
+                <%-- <span class="help-block text-right"><a href="<c:url value="#"/>">Забыли пароль?</a></span> --%> 
+            </div>
 
-                <input type="text" class="form-control" name="j_username" placeholder="Username" required autofocus value="">
-                <input type="password" class="form-control" name="j_password" placeholder="Password" required value="">
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
-            </form>
-        </div>
+            <div class="form-group">
+                <button class="btn btn-default btn-primary btn-block btn-success" type="submit">Войти</button>
+                <div class="top-buffer" style="text-align: center;">
+                    <a href="<c:url value="/register"/>">Создать аккаунт</a>
+                </div>
+            </div>
+
+            </fieldset>
+          </form>
 
     </body>
 </html>
