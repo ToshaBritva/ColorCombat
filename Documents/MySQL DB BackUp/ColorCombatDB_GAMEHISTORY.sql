@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `ColorCombatDB` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `ColorCombatDB`;
 -- MySQL dump 10.13  Distrib 5.6.24, for linux-glibc2.5 (x86_64)
 --
 -- Host: localhost    Database: ColorCombatDB
@@ -53,4 +55,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-10-21 13:51:01
+-- Dump completed on 2015-10-21 14:11:19

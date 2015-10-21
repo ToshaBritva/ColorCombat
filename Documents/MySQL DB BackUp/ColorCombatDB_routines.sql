@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `ColorCombatDB` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `ColorCombatDB`;
 -- MySQL dump 10.13  Distrib 5.6.24, for linux-glibc2.5 (x86_64)
 --
 -- Host: localhost    Database: ColorCombatDB
@@ -24,6 +26,7 @@ DROP TABLE IF EXISTS `VIEWROLE`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE VIEW `VIEWROLE` AS SELECT 
+ 1 AS `ID_ROLE`,
  1 AS `NICKNAME`,
  1 AS `NAME_ROLE`,
  1 AS `PASSWORD`*/;
@@ -42,7 +45,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `VIEWROLE` AS select `USER`.`NICKNAME` AS `NICKNAME`,`ROLELIST`.`NAME_ROLE` AS `NAME_ROLE`,`USER`.`PASSWORD` AS `PASSWORD` from ((`USER` join `ROLELIST`) join `USERROLE`) where ((`USER`.`ID` = `USERROLE`.`ID_USER`) and (`ROLELIST`.`ID_ROLE` = `USERROLE`.`ID_ROLE`)) */;
+/*!50001 VIEW `VIEWROLE` AS select `USERROLE`.`ID` AS `ID_ROLE`,`USER`.`NICKNAME` AS `NICKNAME`,`ROLELIST`.`NAME_ROLE` AS `NAME_ROLE`,`USER`.`PASSWORD` AS `PASSWORD` from ((`USER` join `ROLELIST`) join `USERROLE`) where ((`USER`.`ID` = `USERROLE`.`ID_USER`) and (`ROLELIST`.`ID_ROLE` = `USERROLE`.`ID_ROLE`)) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -56,4 +59,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-10-21 13:51:01
+-- Dump completed on 2015-10-21 14:11:19
