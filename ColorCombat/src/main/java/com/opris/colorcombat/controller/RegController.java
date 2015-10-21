@@ -37,8 +37,7 @@ public class RegController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public String checkuser(Model model, @Valid User user,
-            BindingResult bindingResult) {
+    public String checkuser(Model model, @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "register";
         }
@@ -50,8 +49,6 @@ public class RegController {
         a.setIdUser(user);
         uresRoleRepository.save(a);
         
-
-  
         return "login";
     }
 

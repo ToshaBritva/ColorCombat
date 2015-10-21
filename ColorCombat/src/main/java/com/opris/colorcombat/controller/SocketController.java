@@ -20,7 +20,7 @@ import javax.websocket.server.ServerEndpoint;
  *
  * @author boris
  */
-@ServerEndpoint("/game/server")
+@ServerEndpoint("/MainPage/Game/server")
 public class SocketController {
 
     
