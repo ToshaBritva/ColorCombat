@@ -20,18 +20,21 @@ public class Game {
 
     private final int[][] fieldMatrix = new int[fieldSize][fieldSize]; //Текущая матрица игрового поля
 
-    public final HashMap<Session, Player> players = new LinkedHashMap<>(); //Соответсвие сессий и игроков
+    public final HashMap<String, Player> players = new LinkedHashMap<>(); //Соответсвие ников и игроков
+
+    public final ArrayList<Session> listeners = new ArrayList<>(); //Список сессий прослушивающих эту игру
 
     private final ArrayList<Integer> cellsNumbers = new ArrayList<>(); //Цифры соответсвующие клеткам
 
     private final ArrayList<Integer> playersNumbers = new ArrayList<>(); //Цифры соответсвующие игрокам
 
-    public Game() {
+    public Game(ArrayList<String> nicknames) {
         cellsNumbers.add(0);
+        nicknames.forEach((nickname) -> addPlayer(nickname));
     }
 
     //Добавляем нового игрока в игру
-    public void addPlayer(Session session) {
+    public void addPlayer(String nickname) {
 
         //Определяем его место на карте
         int i = 0, j = 0;
@@ -55,10 +58,10 @@ public class Game {
         }
 
         //Создаем объект соответсвующий новому игроку
-        Player newPlayer = new Player(players.size() + 1, i, j);
+        Player newPlayer = new Player(players.size() + 1, i, j, nickname);
 
         //Добавляем его в список игроков
-        players.put(session, newPlayer);
+        players.put(nickname, newPlayer);
 
         //Добавляем цифры которые будут соответсвовать игрокам на матрице
         playersNumbers.add(newPlayer.number);
@@ -70,9 +73,8 @@ public class Game {
     }
 
     //Отрисовываем игрока на матрице
-    private MapObject drawPlayerMatrix(Player player) {
+    private void drawPlayerMatrix(Player player) {
         fieldMatrix[player.i][player.j] = player.number;
-        return new MapObject(player.number, player.i, player.j);
     }
 
     //Отрисовываем клетку на матирце
@@ -81,55 +83,110 @@ public class Game {
         return new MapObject(cellsNumbers.get(playerNumber), i, j);
     }
 
-    //Возвращаем список игроков на поле
-    public ArrayList<MapObject> getPlayers() {
-        ArrayList<MapObject> arr = new ArrayList<MapObject>();
-        for (Player p : players.values()) {
-            arr.add(p);
+    //Получаем все объекты на поле
+    public ArrayList<MapObject> getWholeField() {
+        ArrayList<MapObject> res = new ArrayList<>();
+        for (int i = 0; i < fieldSize; i++) {
+            for (int j = 0; j < fieldSize; j++) {
+                if (playersNumbers.contains(fieldMatrix[i][j])) {
+                    res.add(getPlayer(fieldMatrix[i][j]));
+                } else {
+                    res.add(new MapObject(fieldMatrix[i][j], i, j));
+                }
+            }
         }
-        return arr;
-
+        return res;
     }
 
-    public ArrayList<MapObject> movePlayer(Session session, String direction) {
+    //Возвращаем игрока по его номеру
+    public Player getPlayer(int number) {
+        for (Player p : players.values()) {
+            if (p.number == number) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<MapObject> movePlayer(String nickname, String direction) {
 
         //Получаем объект сходившего игрока
-        Player player = players.get(session);
+        Player player = players.get(nickname);
 
         //Изменения произведенные игроком
-        ArrayList<MapObject> changes = new ArrayList<MapObject>();
+        ArrayList<MapObject> changes = new ArrayList<>();
 
         //Количество движений игрока
         int moves = 0;
+
+        //Количество очков заработанных игроком за ход
+        int score = 0;
 
         //Определяем в каком направлении идет игрок
         switch (direction) {
             case "up":
                 while (canMoveUp(player) && moves < player.speed) {
 
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player.number));
+                    //Если игрок хочет сходить на клетку
+                    if (cellsNumbers.contains(fieldMatrix[player.i - 1][player.j])) {
 
-                    //Двигаем игрока
-                    player.moveUp();
+                        //Получаем владельца той клетки на которую хочет сходить игрок
+                        Player cellOwner = getPlayer(fieldMatrix[player.i - 1][player.j] - 4);
 
-                    //Отрисовываем изменения
-                    changes.add(drawPlayerMatrix(player));
+                        //Если клетка пустая
+                        if (cellOwner == null) {
+                            score++;
+                        } else {
+                            //Уменьшаем очки владельца и увеличиваем очки ходившего
+                            if (cellOwner != player) {
+                                cellOwner.score--;
+                                changes.add(cellOwner);
+                                score++;
+                            }
+                        }
+                       
+                        //Красим клетку и добавляем покрашенную клетку к изменениям
+                        changes.add(drawCellMatrix(player.i, player.j, player.number));
+
+                        //Двигаем игрока
+                        player.moveUp();
+                        
+                        
+
+                    }
 
                     moves++;
                 }
                 break;
+
             case "down":
                 while (canMoveDown(player) && moves < player.speed) {
 
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player.number));
+                    //Если игрок хочет сходить на клетку
+                    if (cellsNumbers.contains(fieldMatrix[player.i + 1][player.j])) {
 
-                    //Двигаем игрока
-                    player.moveDown();
+                        //Получаем владельца той клетки на которую хочет сходить игрок
+                        Player cellOwner = getPlayer(fieldMatrix[player.i + 1][player.j] - 4);
 
-                    //Отрисовываем изменения
-                    changes.add(drawPlayerMatrix(player));
+                         //Если клетка пустая
+                        if (cellOwner == null) {
+                            score++;
+                        } else {
+                            //Уменьшаем очки владельца и увеличиваем очки ходившего
+                            if (cellOwner != player) {
+                                cellOwner.score--;
+                                changes.add(cellOwner);
+                                score++;
+                            }
+                        }
+
+                        //Красим клетку и добавляем покрашенную клетку к изменениям
+                        changes.add(drawCellMatrix(player.i, player.j, player.number));
+
+                        //Двигаем игрока
+                        player.moveDown();
+
+                    }
 
                     moves++;
                 }
@@ -137,14 +194,31 @@ public class Game {
             case "left":
                 while (canMoveLeft(player) && moves < player.speed) {
 
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player.number));
+                    //Если игрок хочет сходить на клетку
+                    if (cellsNumbers.contains(fieldMatrix[player.i][player.j - 1])) {
 
-                    //Двигаем игрока
-                    player.moveLeft();
+                        //Получаем владельца той клетки на которую хочет сходить игрок
+                        Player cellOwner = getPlayer(fieldMatrix[player.i][player.j - 1] - 4);
 
-                    //Отрисовываем изменения
-                    changes.add(drawPlayerMatrix(player));
+                         //Если клетка пустая
+                        if (cellOwner == null) {
+                            score++;
+                        } else {
+                            //Уменьшаем очки владельца и увеличиваем очки ходившего
+                            if (cellOwner != player) {
+                                cellOwner.score--;
+                                changes.add(cellOwner);
+                                score++;
+                            }
+                        }
+
+                        //Красим клетку и добавляем покрашенную клетку к изменениям
+                        changes.add(drawCellMatrix(player.i, player.j, player.number));
+
+                        //Двигаем игрока
+                        player.moveLeft();
+
+                    }
 
                     moves++;
                 }
@@ -152,18 +226,40 @@ public class Game {
             case "right":
                 while (canMoveRight(player) && moves < player.speed) {
 
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player.number));
+                    //Если игрок хочет сходить на клетку
+                    if (cellsNumbers.contains(fieldMatrix[player.i][player.j + 1])) {
 
-                    //Двигаем игрока
-                    player.moveRight();
+                        //Получаем владельца той клетки на которую хочет сходить игрок
+                        Player cellOwner = getPlayer(fieldMatrix[player.i][player.j + 1] - 4);
 
-                    //Отрисовываем изменения
-                    changes.add(drawPlayerMatrix(player));
+                         //Если клетка пустая
+                        if (cellOwner == null) {
+                            score++;
+                        } else {
+                            //Уменьшаем очки владельца и увеличиваем очки ходившего
+                            if (cellOwner != player) {
+                                cellOwner.score--;
+                                changes.add(cellOwner);
+                                score++;
+                            }
+                        }
 
+                        //Красим клетку и добавляем покрашенную клетку к изменениям
+                        changes.add(drawCellMatrix(player.i, player.j, player.number));
+
+                        //Двигаем игрока
+                        player.moveRight();
+
+                    }
                     moves++;
                 }
         }
+
+        player.score += score;
+
+        //Отрисовываем изменения
+        drawPlayerMatrix(player);
+        changes.add(player);
 
         return changes;
     }
@@ -183,25 +279,6 @@ public class Game {
 
     private boolean canMoveRight(Player player) {
         return player.j <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i][player.j + 1]);
-    }
-
-    //Удаляем игрока из игры (для отладки)
-    public void removePlayer(Session session) {
-        Player player = players.get(session);
-        cellsNumbers.remove(playersNumbers.indexOf(player.number) + 1);
-        playersNumbers.remove(playersNumbers.indexOf(player.number));
-        fieldMatrix[player.i][player.j] = 0;
-        players.remove(session);
-    }
-
-    public ArrayList<MapObject> getWholeField() {
-        ArrayList<MapObject> res = new ArrayList<MapObject>();
-        for (int i = 0; i < fieldSize; i++) {
-            for (int j = 0; j < fieldSize; j++) {
-                res.add(new MapObject(fieldMatrix[i][j], i, j));
-            }
-        }
-        return res;
     }
 
 }

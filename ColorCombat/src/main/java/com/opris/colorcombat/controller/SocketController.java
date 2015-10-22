@@ -7,8 +7,12 @@ package com.opris.colorcombat.controller;
 
 import com.opris.colorcombat.classes.MapObject;
 import com.google.gson.Gson;
+import com.opris.colorcombat.classes.Game;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -23,76 +27,61 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/MainPage/Game/server")
 public class SocketController {
 
-    
-    public static com.opris.colorcombat.classes.Game currentGame = new com.opris.colorcombat.classes.Game();
+    //Список игроков по умолчанию
+    public static ArrayList<String> defaultPlayers = new ArrayList<String>() {
+        {
+            add("anton");
+            add("boris");
+            add("nizy");
+            add("pukan");
+        }
+    };
+
+    //Создаем игру
+    public static com.opris.colorcombat.classes.Game currentGame = new com.opris.colorcombat.classes.Game(defaultPlayers);
 
     @OnMessage
     public void onMessage(String message, Session session) {
 
         //Двигаем игрока и получаем все изменения
-        List<MapObject> changes = currentGame.movePlayer(session, message);
-
-        // Преобразуем их в JSON и отправляем
-        Gson gson = new Gson();
-        String json = gson.toJson(changes);
-
-        //Рассылаем всем клиентам игроков
-        try {
-            for (Session playerSession : currentGame.players.keySet()) {
-                playerSession.getBasicRemote().sendText(json);
-            }
-        } catch (Exception e) {
-
-        }
-
+        List<MapObject> changes = currentGame.movePlayer(session.getUserPrincipal().getName(), message);
+        
+        //Рассылаем их
+        sendChanges(currentGame, changes);  
     }
 
     @OnOpen
     public void onOpen(Session session) throws IOException, EncodeException {
 
-        //Добавляем новго игрока
-        currentGame.addPlayer(session);
-
-        //Получаем список игроков на поле
-//        List<MapObject> changes = currentGame.getPlayers();
+        //Добавляем новго листенера
+        currentGame.listeners.add(session);
+        
+        //Получем текущее состояние игры
         List<MapObject> changes = currentGame.getWholeField();
-        // Преобразуем его в JSON и отправляем
-        Gson gson = new Gson();
-        String json = gson.toJson(changes);
-
-        //Рассылаем всем клиентам игроков
-        try {
-            for (Session playerSession : currentGame.players.keySet()) {
-                playerSession.getBasicRemote().sendText(json);
-            }
-        } catch (Exception e) {
-
-        }
+        
+        //Отправляем его 
+        sendChanges(currentGame, changes);
     }
 
     @OnClose
     public void onClose(Session session) throws IOException, EncodeException {
-
-        currentGame.removePlayer(session);
-        if (currentGame.players.size() >= 1) {
-            List<MapObject> changes = currentGame.getWholeField();
-            // Преобразуем его в JSON и отправляем
-            Gson gson = new Gson();
-            String json = gson.toJson(changes);
-
-            //Рассылаем всем клиентам игроков
+        currentGame.listeners.remove(session);
+    }
+    
+    //Рассылаем изменения игрокам
+    private void sendChanges(Game game, List<MapObject> changes){
+        
+        // Преобразуем его в JSON и отправляем
+        Gson gson = new Gson();
+        String json = gson.toJson(changes);
+        
+        //Рассылаем всем клиентам игроков
+        game.listeners.forEach((playerSession) -> {
             try {
-                for (Session playerSession : currentGame.players.keySet()) {
-                    playerSession.getBasicRemote().sendText(json);
-                }
-            } catch (Exception e) {
-
+                playerSession.getBasicRemote().sendText(json);
+            } catch (IOException ex) {
+                Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        else
-        {
-            currentGame = new com.opris.colorcombat.classes.Game();
-        }
-
+        });
     }
 }

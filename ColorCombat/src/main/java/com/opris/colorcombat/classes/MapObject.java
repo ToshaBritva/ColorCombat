@@ -5,8 +5,6 @@
  */
 package com.opris.colorcombat.classes;
 
-import com.sun.corba.se.impl.orbutil.ObjectWriter;
-
 /**
  *
  * @author user

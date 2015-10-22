@@ -5,20 +5,21 @@
  */
 package com.opris.colorcombat.classes;
 
-import javax.websocket.Session;
-
 /**
  *
  * @author user
  */
 public class Player extends MapObject {
-
+    
+    public String nickname;
+    
     public int speed = 1; //Скорость игрока
     
     public int score = 0; //Очки игрока
 
-    public Player(int playerNumber, int i, int j) {
+    public Player(int playerNumber, int i, int j, String nickname) {
         super(playerNumber, i, j);
+        this.nickname = nickname;
     }
     
     //Двигаем игрока на клекту
@@ -34,7 +35,5 @@ public class Player extends MapObject {
     public void moveRight(){
         this.j++;
     }
-
-
 
 }

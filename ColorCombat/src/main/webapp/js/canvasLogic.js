@@ -4,10 +4,11 @@
  * and open the template in the editor.
  */
 
-var cellsArr = [0, 5, 6, 7, 8];
-var playersArr = [1, 2, 3, 4];
-var playersColors = ["red", "aqua", "#FFFF00", "lime"];
-var cellsColors = ["white", "#DB4D4D", "#33CCCC", "orange", "#00B800"];
+var cellsNumbers = [0, 5, 6, 7, 8]; //Цифры соответсвующие клеткам
+var playersNumbers = [1, 2, 3, 4]; //Цифры соответсвующие игрокам
+var playersColors = ["red", "aqua", "#FFFF00", "lime"]; //Цвета игроков
+var cellsColors = ["white", "#DB4D4D", "#33CCCC", "orange", "#00B800"]; //Цвета клеток
+var players = new Array(); //Игроки с их очками 
 
 var cellsCount = 10;
 
@@ -68,18 +69,51 @@ function drawChanges(changes) {
                 //Пытаемся получить фигуру соответсвующую игроку
                 var player = playersLayer.findOne('#player' + obj.number.toString());
 
-                //Если ее нет, то добавляем нового игрока
+                //Если ее нет
                 if (!player) {
+                    
+                    // Добавляем нового игрока
                     player = addNewPlayer(obj.i, obj.j, obj.number)
+                    players.push(obj);
+
                 } else {
+
+                    //Передвигаем игрока
                     player.setAbsolutePosition({x: getPlayerXCanvas(obj.j), y: getPlayerYCanvas(obj.i)});
+                    
+                    //Изменяем его очки
+                    var currentPlayerIndex = findIndexByKeyValue(players, obj.number)
+                    players[currentPlayerIndex].score = obj.score;
                 }
+                
             }
         }
 
     });
+    fillScoreTable();
     cellsLayer.draw();
     playersLayer.draw();
+    
+}
+
+function fillScoreTable() {
+
+    //Сортируем игроков по убыванию
+    players.sort(function (a, b) {
+        return b.score - a.score;
+    });
+
+    //Очищаем таблицу
+    var scoreTable = $("#ScoreTable");
+    $("#ScoreTable tr").remove();
+
+    //Заполняем заново
+    for (var i = 0; i < players.length; i++) {
+        var tr = $('<tr bgcolor = \'' + playersColors[players[i].number - 1] + '\'>').appendTo(scoreTable);
+        tr.append('<th id=\'' + players[i].nickname + '\'> ' + players[i].nickname + ' </th>');
+        tr.append('<th id=\'' + players[i].nickname + 'Score\'> ' + players[i].score + ' </th>');
+    }
+
 }
 
 //Добавление нового игрока
@@ -87,8 +121,8 @@ function addNewPlayer(i, j, id) {
     var circle = new Konva.Circle({
         x: getPlayerXCanvas(j),
         y: getPlayerXCanvas(i),
-        radius: cellWidth / 2 - 5,
-        fill: playersColors[playersArr.indexOf(id)],
+        radius: cellWidth / 2 - 3,
+        fill: playersColors[playersNumbers.indexOf(id)],
         stroke: 'black',
         strokeWidth: 2,
         id: "player" + id
@@ -97,6 +131,16 @@ function addNewPlayer(i, j, id) {
     return circle;
 }
 
+
+function findIndexByKeyValue(array, number)
+{
+    for (var i = 0; i < array.length; i++) {
+        if (array[i].number == number) {
+            return i;
+        }
+    }
+    return null;
+}
 
 //Возвращает координаты игрока на канвасе
 function getPlayerXCanvas(playerYMatrix) {
@@ -109,12 +153,12 @@ function getPlayerYCanvas(playerXMatrix) {
 
 //Функция возвращает true/false если указанное цифра соответсвует клетке
 function isCell(value) {
-    return cellsArr.indexOf(value) > -1;
+    return cellsNumbers.indexOf(value) > -1;
 }
 
 //Функция возвращает true/false если указанное цифра соответствует игроку
 function isPlayer(value) {
-    return playersArr.indexOf(value) > -1;
+    return playersNumbers.indexOf(value) > -1;
 }
 
 
