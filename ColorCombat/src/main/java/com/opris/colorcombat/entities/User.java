@@ -47,19 +47,19 @@ public class User implements Serializable {
     @Column(name = "ID")
     private Integer id;
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 45)
+    @NotNull(message = "Необходимо указать никнейм")
+    @Size(min = 1, max = 45, message = "Никнейм должен содержать от 1 до 45 символов")
     @Column(name = "NICKNAME")
     private String nickname;
     // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Недопустимый адрес электронной почты")//if the field contains email address consider using this annotation to enforce field validation
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 45)
+    @NotNull(message = "Необходимо указать e-mail")
+    @Size(min = 1, max = 45, message = "e-mail должен содержать от 1 до 45 символов")
     @Column(name = "EMAIL")
     private String email;
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 45)
+    @NotNull(message = "Необходимо указать пароль")
+    @Size(min = 1, max = 45, message = "Пароль должен содержать от 1 до 45 символов")
     @Column(name = "PASSWORD")
     private String password;
     @Basic(optional = false)

@@ -14,6 +14,7 @@
         <link href="<c:url value="/CSS/bootstrap.css"/>" rel="stylesheet" />
         <link href="<c:url value="/CSS/MainPageCSS.css" />" rel="stylesheet" />
         <title>Регистрация</title>
+        
     </head>
     <body>
 
@@ -21,20 +22,26 @@
             <fieldset>
 
             <legend class="top-buffer">Регистрация</legend>
-
+            
             <div class="form-group">
-              <sf:input class="form-control" path="nickname" size="15" id="nickname" placeholder="Введите никнейм"/>
-              <sf:errors path="nickname"/>
+                <sf:input path="email" class="form-control input-md" type="email" placeholder="e-mail" size="30" id="inputEmail"/>
+              <sf:errors class="text-danger" path="email" />
+            </div>
+            
+            <%-- Оп, костылек! --%>
+            <div class="form-group" style="display: none;">
+                <input type="text" />
+                <input type="password" />
             </div>
 
             <div class="form-group">
-              <sf:input path="email" class="form-control" type="email" placeholder="Email" size="30" id="inputEmail"/>
-              <sf:errors path="email" />
+                <sf:input class="form-control input-md" type="text" path="nickname" size="15" id="nickname" placeholder="Никнейм"/>
+                <sf:errors class="text-danger" path="nickname"/>
             </div>
 
               <div class="form-group">
-                <sf:password path="password" size="30" showPassword="true" class="form-control" id="inputPassword" placeholder="Введите пароль"/>
-                <sf:errors path="password" />
+                <sf:password path="password" size="30" showPassword="true" class="form-control input-md" id="inputPassword" placeholder="Пароль"/>
+                <sf:errors class="text-danger" path="password" />
             </div>
 
             <div class="form-group row">
