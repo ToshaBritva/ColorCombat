@@ -42,7 +42,9 @@ and open the template in the editor.
     text-align: center;
 }
 
-.top-buffer { margin-top:20px; } //Для отступов вверх
+.top-buffer { 
+    padding-top: 20px;
+}
 
 .bootstrapSwitch
 {
