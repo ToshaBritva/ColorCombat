@@ -20,8 +20,5 @@
         <div id="gameField"></div>
         <script src="<c:url value="/js/canvasLogic.js" />"></script>
         <table id='ScoreTable'/>
-        
-    </div>
-</body>
+    </body>
 </html>
-
