@@ -19,7 +19,7 @@
         <div class='container'>
             <div class='header row'>
                 <div id="NickName" class="col-sm-2">
-                    <h2>NAME</h2>
+                    <h2><%=request.getUserPrincipal().getName().toString()%></h2>
                 </div>
                 <div id="Rating" class="col-sm-3">
                     <h2><Рейтинг></h2>

@@ -24,7 +24,7 @@
             <div class="container">
                 <div class="row header">
                     <div id="NickName" class="col-sm-6">
-                        <h2>NAME</h2>
+                        <h2><%=request.getUserPrincipal().getName().toString()%></h2>
                     </div>
                 </div>
                 
