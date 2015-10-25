@@ -45,36 +45,41 @@ public class SocketController {
 
         //Двигаем игрока и получаем все изменения
         List<MapObject> changes = currentGame.movePlayer(session.getUserPrincipal().getName(), message);
-        
+
         //Рассылаем их
-        sendChanges(currentGame, changes);  
+        sendChanges(currentGame, changes);
     }
 
     @OnOpen
     public void onOpen(Session session) throws IOException, EncodeException {
 
-        //Добавляем новго листенера
-        currentGame.listeners.add(session);
-        
-        //Получем текущее состояние игры
-        List<MapObject> changes = currentGame.getWholeField();
-        
-        //Отправляем его 
-        sendChanges(currentGame, changes);
+        String nickname = session.getUserPrincipal().getName();
+        if (currentGame.players.keySet().contains(nickname)) {
+
+            //Добавляем новго листенера
+            currentGame.listeners.add(session);
+
+            //Получем текущее состояние игры
+            List<MapObject> changes = currentGame.getWholeField();
+
+            //Отправляем его 
+            sendChanges(currentGame, changes);
+        }
+
     }
 
     @OnClose
     public void onClose(Session session) throws IOException, EncodeException {
         currentGame.listeners.remove(session);
     }
-    
+
     //Рассылаем изменения игрокам
-    private void sendChanges(Game game, List<MapObject> changes){
-        
+    private void sendChanges(Game game, List<MapObject> changes) {
+
         // Преобразуем его в JSON и отправляем
         Gson gson = new Gson();
         String json = gson.toJson(changes);
-        
+
         //Рассылаем всем клиентам игроков
         game.listeners.forEach((playerSession) -> {
             try {

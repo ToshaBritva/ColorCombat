@@ -21,7 +21,7 @@
                 
                 <div class="row header">
                     <div id="NickName" class="col-sm-6">
-                        <h2>NAME</h2>
+                        <h2><%=request.getUserPrincipal().getName().toString()%></h2>
                     </div>
                     <div id="Profile" class="col-sm-2 col-sm-offset-2 top-buffer">
                         <button id="bntProfile" class="btn btn-primary btn-block" onClick='location.href="<c:url value="/MainPage/Profile"/>"'>

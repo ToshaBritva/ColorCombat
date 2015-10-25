@@ -108,6 +108,7 @@ public class Game {
         return null;
     }
 
+    //Двигаем игрока, возвращаем изменения
     public ArrayList<MapObject> movePlayer(String nickname, String direction) {
 
         //Получаем объект сходившего игрока
@@ -149,9 +150,7 @@ public class Game {
                         changes.add(drawCellMatrix(player.i, player.j, player.number));
 
                         //Двигаем игрока
-                        player.moveUp();
-                        
-                        
+                        player.moveUp();            
 
                     }
 
