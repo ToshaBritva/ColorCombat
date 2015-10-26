@@ -19,15 +19,15 @@ import com.opris.colorcombat.repository.*;
 @RequestMapping("/register")
 public class RegController {
 
-    private UserRepository studentRepository;
+    private UserRepository userRepository;
     private RolelistRepository roleRepository;
-    private UserroleRepository uresRoleRepository;
+    private UserroleRepository userRoleRepository;
 
     @Autowired
     public RegController(UserRepository studentRepository, UserroleRepository uresRoleRepository,RolelistRepository roleRepository) {
-        this.studentRepository = studentRepository;
+        this.userRepository = studentRepository;
         this.roleRepository = roleRepository;
-        this.uresRoleRepository =  uresRoleRepository;
+        this.userRoleRepository =  uresRoleRepository;
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -42,12 +42,12 @@ public class RegController {
             return "register";
         }
         
-        studentRepository.save(user);
+        userRepository.save(user);
         Rolelist role =  roleRepository.getOne(1);
         Userrole a = new Userrole();
         a.setIdRole(role);
         a.setIdUser(user);
-        uresRoleRepository.save(a);
+        userRoleRepository.save(a);
         
         return "login";
     }

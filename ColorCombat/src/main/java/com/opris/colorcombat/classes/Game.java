@@ -218,6 +218,7 @@ public class Game {
         return null;
     }
 
+    //Двигаем игрока, возвращаем изменения
     public ArrayList<MapObject> movePlayer(String nickname, String direction) {
 
         //Получаем объект сходившего игрока
