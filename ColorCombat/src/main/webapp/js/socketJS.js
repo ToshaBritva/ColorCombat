@@ -47,6 +47,9 @@ function onMessage(evt) {
         case "endGame":
             gameOver(json.value);
             break
+        case "clear":
+            clearField();
+            break
 
     }
 

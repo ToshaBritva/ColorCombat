@@ -65,8 +65,8 @@ public class SocketController {
                     currentGame = new Game(defaultPlayers);
                     currentGame.setListeners(listeners);
                     List<MapObject> changes = currentGame.getWholeField();
-                    currentGame.sendChanges(changes);
                     currentGame.start();
+                    currentGame.sendChanges(changes);
                     break;
             }
 

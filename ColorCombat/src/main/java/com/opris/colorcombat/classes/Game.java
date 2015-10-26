@@ -49,7 +49,7 @@ public class Game {
     public void setListeners(ArrayList<Session> listeners) {
         this.listeners = listeners;
     }
-    
+
     public Game(ArrayList<String> nicknames) {
         cellsNumbers.add(0);
         nicknames.forEach((nickname) -> addPlayer(nickname));
@@ -65,19 +65,29 @@ public class Game {
 
     //Начинаем новую игру(обнуляем таймер и очищаем поле)
     public void start() {
+        //Сигнализируем очистить поля на клиенте
+        JsonObject clearMessage = new JsonObject();
+        clearMessage.addProperty("target", "clear");
+        listeners.forEach((playerSession) -> {
+            try {
+                playerSession.getBasicRemote().sendText(clearMessage.toString());
+            } catch (Exception ex) {
+            }
+        });
         //Переводим игру в статус 
         status = "started";
-        
+
         //Создаем и запускаем задачу таймера
         timer.schedule(new GameSecondsTimer(this), 0, 1000);
+
     }
 
     //Заканчиваем игру и определяем победителя
     public void end() {
-        
+
         status = "ended";
         timer.cancel();
-        
+
         //Определяем победителя       
         Player winer = getWinner();
 
@@ -100,17 +110,17 @@ public class Game {
     }
 
     //Определяем победителя в игре
-    public Player getWinner(){
-        
+    public Player getWinner() {
+
         Player winer = new Player(0, 0, 0, null);
-        for (Player p : players.values()){
+        for (Player p : players.values()) {
             if (p.getScore() > winer.getScore()) {
                 winer = p;
             }
         }
         return winer;
     }
-    
+
     //Посылаем время
     public void sendTime(String time) {
         JsonObject timeMessage = new JsonObject();
@@ -192,7 +202,7 @@ public class Game {
     //Рассылаем изменения игрокам
     public void sendChanges(List<MapObject> changes) {
         try {
-            
+
             // Преобразуем его в JSON и отправляем
             Gson gson = new Gson();
             String json = gson.toJson(changes);
