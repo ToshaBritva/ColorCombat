@@ -6,14 +6,10 @@
 package com.opris.colorcombat.controller;
 
 import com.opris.colorcombat.classes.MapObject;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.opris.colorcombat.classes.Game;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -62,7 +58,6 @@ public class SocketController {
                         //Рассылаем их
                         currentGame.sendChanges(changes);
                     }
-
                     break;
                 case "startGame":
                     currentGame.end();

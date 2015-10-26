@@ -38,12 +38,9 @@ public class Game {
 
     private final ArrayList<Integer> playersNumbers = new ArrayList<>(); //Цифры соответсвующие игрокам
 
-    private Timer timer = new Timer();
+    private Timer timer = new Timer(); //Таймер игры
 
-    private String status = "wait";
-
-    //Вынесен в глобальную т.к. лямбда в end не хочет рабтать с локальной
-    Player winer = new Player(0, 0, 0, null);
+    private String status = "wait"; //Статус игры - ожидание, начата, закончена
 
     public ArrayList<Session> getListeners() {
         return listeners;
@@ -52,7 +49,7 @@ public class Game {
     public void setListeners(ArrayList<Session> listeners) {
         this.listeners = listeners;
     }
-
+    
     public Game(ArrayList<String> nicknames) {
         cellsNumbers.add(0);
         nicknames.forEach((nickname) -> addPlayer(nickname));
@@ -63,31 +60,28 @@ public class Game {
     }
 
     public boolean isStarted() {
-        if (status.equals("started")) {
-            return true;
-        } else {
-            return false;
-        }
+        return status.equals("started");
     }
 
     //Начинаем новую игру(обнуляем таймер и очищаем поле)
     public void start() {
+        //Переводим игру в статус 
         status = "started";
+        
         //Создаем и запускаем задачу таймера
-        GameSecondsTimer secTask = new GameSecondsTimer(getCurrentTime(), this);
-        timer.cancel();
-        timer = new Timer();
-        timer.schedule(secTask, 0, 1000);
+        timer.schedule(new GameSecondsTimer(this), 0, 1000);
     }
 
+    //Заканчиваем игру и определяем победителя
     public void end() {
+        
         status = "ended";
         timer.cancel();
-        players.forEach((String k, Player v) -> {
-            if (v.getScore() > winer.getScore()) {
-                winer = v;
-            }
-        });
+        
+        //Определяем победителя       
+        Player winer = getWinner();
+
+        //Формируем сообщения о завершении игры и победителе
         JsonObject endMessage = new JsonObject();
         JsonObject winerData = new JsonObject();
         winerData.addProperty("nickname", winer.getNickname());
@@ -95,6 +89,7 @@ public class Game {
         endMessage.addProperty("target", "endGame");
         endMessage.add("value", winerData);
 
+        //Рассылаем победителей
         listeners.forEach((playerSession) -> {
             try {
                 playerSession.getBasicRemote().sendText(endMessage.toString());
@@ -104,10 +99,19 @@ public class Game {
 
     }
 
-    //Очищаем поле
-    public void clear() {
+    //Определяем победителя в игре
+    public Player getWinner(){
+        
+        Player winer = new Player(0, 0, 0, null);
+        for (Player p : players.values()){
+            if (p.getScore() > winer.getScore()) {
+                winer = p;
+            }
+        }
+        return winer;
     }
-
+    
+    //Посылаем время
     public void sendTime(String time) {
         JsonObject timeMessage = new JsonObject();
         timeMessage.addProperty("target", "time");
@@ -188,6 +192,7 @@ public class Game {
     //Рассылаем изменения игрокам
     public void sendChanges(List<MapObject> changes) {
         try {
+            
             // Преобразуем его в JSON и отправляем
             Gson gson = new Gson();
             String json = gson.toJson(changes);

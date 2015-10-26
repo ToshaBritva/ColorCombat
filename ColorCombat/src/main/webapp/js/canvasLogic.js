@@ -27,31 +27,22 @@ var cellsLayer = new Konva.Layer();
 var playersLayer = new Konva.Layer();
 
 //Отрисовываем клетки
-initField();
-
-
-
-//Функция инициализирует поле, добавляет клетки, игроков
-function initField() {
-
-    //рисуем квадраты
-    for (var i = 0; i < field.height(); i = i + cellWidth)
-        for (var j = 0; j < field.width(); j = j + cellWidth) {
-            var rect = new Konva.Rect({
-                x: i,
-                y: j,
-                width: cellWidth,
-                height: cellWidth,
-                fill: 'white',
-                stroke: 'black',
-                id: i.toString() + "_" + j.toString(),
-                strokeWidth: cellBorderWidth
-            });
-            cellsLayer.add(rect);
-        }
-    field.add(cellsLayer);
-    field.add(playersLayer);
-}
+for (var i = 0; i < field.height(); i = i + cellWidth)
+    for (var j = 0; j < field.width(); j = j + cellWidth) {
+        var rect = new Konva.Rect({
+            x: i,
+            y: j,
+            width: cellWidth,
+            height: cellWidth,
+            fill: 'white',
+            stroke: 'black',
+            id: i.toString() + "_" + j.toString(),
+            strokeWidth: cellBorderWidth
+        });
+        cellsLayer.add(rect);
+    }
+field.add(cellsLayer);
+field.add(playersLayer);
 
 function drawChanges(changes) {
 
@@ -132,6 +123,7 @@ function addNewPlayer(i, j, id) {
 }
 
 
+//Ищем индекс элемента в массиве с указаным number
 function findIndexByKeyValue(array, number)
 {
     for (var i = 0; i < array.length; i++) {
@@ -192,16 +184,25 @@ function getCellId(i, j) {
     return shapeX.toString() + '_' + shapeY.toString();
 }
 
+//Игра закончена
 function gameOver(winer) {
-    initField();
     var t = "Игра окончена!!!\nПобедил " + winer.nickname + " со счетом " + winer.score;
     $("#timer").html(t);
 }
 
+//Начинаем игру
 function  startGame() {
+    clearField();
     websocket.send("{\"target\":\"startGame\"}");
 }
 
+//Устанавливаем время
 function  setTime(t) {
     $("#timer").html(t);
+}
+
+//Очистка поля (красит все клетки в белый цвет)
+function clearField() {
+    for (var i = 0; i < cellsLayer.children.length; i++)
+        cellsLayer.children[i].fill(cellsColors[0]);
 }

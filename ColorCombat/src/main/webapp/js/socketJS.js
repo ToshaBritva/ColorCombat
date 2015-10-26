@@ -36,6 +36,7 @@ function onMessage(evt) {
     var json = evt.data;
     json = JSON.parse(json);
 
+    //Определяем цель сообщения
     switch (json.target) {
         case "movePlayer":
             drawChanges(json.value);

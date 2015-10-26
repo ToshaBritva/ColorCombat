@@ -18,25 +18,24 @@ import java.util.TimerTask;
  */
 public class GameSecondsTimer extends TimerTask {
 
-    private LocalTime startTime;
-    private Game game = null;
+    
+    private Game game; //Игра
+    private DateTimeFormatter sdf = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH);
+    private LocalTime gameLongest = LocalTime.parse("00:00:30", sdf); //Максимальное время игры
+    private LocalTime currentTime = LocalTime.parse("00:00:00", sdf); //Начальное время
 
-    public GameSecondsTimer(LocalTime startTime, Game game) {
-        this.startTime = startTime;
+    public GameSecondsTimer(Game game) {
         this.game = game;
     }
 
     @Override
     public void run() {
-        //Получаем тукущее время
-        LocalTime currentTime = getCurrentTime();
-        currentTime = currentTime.minusMinutes(startTime.getMinute()).minusSeconds(startTime.getSecond()).minusHours(startTime.getHour());
-        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH);
-        LocalTime gameLongest = LocalTime.parse("00:00:30", sdf);
+
         if (currentTime.isAfter(gameLongest)) {
             game.end();
         } else {
             game.sendTime(currentTime.format(sdf));
+            currentTime = currentTime.plusSeconds(1);
         }
     }
 

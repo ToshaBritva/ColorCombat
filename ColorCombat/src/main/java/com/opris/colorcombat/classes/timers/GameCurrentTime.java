@@ -19,8 +19,7 @@ public class GameCurrentTime {
 
     public static LocalTime getCurrentTime() {
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-                "HH:mm:ss", Locale.ENGLISH);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
         String strDate = simpleDateFormat.format(calendar.getTime());
         DateTimeFormatter sdf = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH);
         LocalTime currentTime = LocalTime.parse(strDate, sdf);
