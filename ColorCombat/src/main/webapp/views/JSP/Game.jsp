@@ -20,6 +20,8 @@
         <div id="gameField"></div>
         <script src="<c:url value="/js/canvasLogic.js" />"></script>
         <table id='ScoreTable'/>
+        <button onclick="startGame()">Начать заново</button>
+        <p id="timer"></p>
         
     </div>
 </body>

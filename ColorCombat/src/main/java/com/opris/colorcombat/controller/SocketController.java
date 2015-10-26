@@ -7,6 +7,7 @@ package com.opris.colorcombat.controller;
 
 import com.opris.colorcombat.classes.MapObject;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.opris.colorcombat.classes.Game;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+import org.json.simple.*;
+import org.json.simple.parser.*;
 
 /**
  *
@@ -43,11 +46,39 @@ public class SocketController {
     @OnMessage
     public void onMessage(String message, Session session) {
 
-        //Двигаем игрока и получаем все изменения
-        List<MapObject> changes = currentGame.movePlayer(session.getUserPrincipal().getName(), message);
-        
-        //Рассылаем их
-        sendChanges(currentGame, changes);  
+        try {
+            //Парсим сообщение
+            JSONParser parser = new JSONParser();
+            JSONObject jsonMessage = (JSONObject) parser.parse(message);
+
+            String target = (String) jsonMessage.get("target");
+            //Проверяем цель сообщения
+            switch (target) {
+                case "movePlayer":
+                    if (currentGame.isStarted()) {
+                        //Двигаем игрока и получаем все изменения
+                        List<MapObject> changes = currentGame.movePlayer(session.getUserPrincipal().getName(), (String) jsonMessage.get("value"));
+
+                        //Рассылаем их
+                        currentGame.sendChanges(changes);
+                    }
+
+                    break;
+                case "startGame":
+                    currentGame.end();
+                    ArrayList<Session> listeners = currentGame.getListeners();
+                    currentGame = new Game(defaultPlayers);
+                    currentGame.setListeners(listeners);
+                    List<MapObject> changes = currentGame.getWholeField();
+                    currentGame.sendChanges(changes);
+                    currentGame.start();
+                    break;
+            }
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
     }
 
     @OnOpen
@@ -55,33 +86,17 @@ public class SocketController {
 
         //Добавляем новго листенера
         currentGame.listeners.add(session);
-        
+
         //Получем текущее состояние игры
         List<MapObject> changes = currentGame.getWholeField();
-        
+
         //Отправляем его 
-        sendChanges(currentGame, changes);
+        currentGame.sendChanges(changes);
     }
 
     @OnClose
     public void onClose(Session session) throws IOException, EncodeException {
         currentGame.listeners.remove(session);
     }
-    
-    //Рассылаем изменения игрокам
-    private void sendChanges(Game game, List<MapObject> changes){
-        
-        // Преобразуем его в JSON и отправляем
-        Gson gson = new Gson();
-        String json = gson.toJson(changes);
-        
-        //Рассылаем всем клиентам игроков
-        game.listeners.forEach((playerSession) -> {
-            try {
-                playerSession.getBasicRemote().sendText(json);
-            } catch (IOException ex) {
-                Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-    }
+
 }

@@ -71,7 +71,7 @@ function drawChanges(changes) {
 
                 //Если ее нет
                 if (!player) {
-                    
+
                     // Добавляем нового игрока
                     player = addNewPlayer(obj.i, obj.j, obj.number)
                     players.push(obj);
@@ -80,12 +80,12 @@ function drawChanges(changes) {
 
                     //Передвигаем игрока
                     player.setAbsolutePosition({x: getPlayerXCanvas(obj.j), y: getPlayerYCanvas(obj.i)});
-                    
+
                     //Изменяем его очки
                     var currentPlayerIndex = findIndexByKeyValue(players, obj.number)
                     players[currentPlayerIndex].score = obj.score;
                 }
-                
+
             }
         }
 
@@ -93,7 +93,7 @@ function drawChanges(changes) {
     fillScoreTable();
     cellsLayer.draw();
     playersLayer.draw();
-    
+
 }
 
 function fillScoreTable() {
@@ -167,19 +167,19 @@ $(document).keydown(function (event) {
     switch (event.keyCode) {
         case 38: //Вверх
         case 87: //W
-            websocket.send("up");
+            websocket.send("{\"target\":\"movePlayer\",\"value\":\"up\"}");
             break;
         case 40: //Вниз
         case 83: //S
-            websocket.send("down");
+            websocket.send("{\"target\":\"movePlayer\",\"value\":\"down\"}");
             break;
         case 37: //Лево
         case 65: //A
-            websocket.send("left");
+            websocket.send("{\"target\":\"movePlayer\",\"value\":\"left\"}");
             break;
         case 39: //Право
         case 68: //D
-            websocket.send("right");
+            websocket.send("{\"target\":\"movePlayer\",\"value\":\"right\"}");
             break;
 
     }
@@ -192,3 +192,16 @@ function getCellId(i, j) {
     return shapeX.toString() + '_' + shapeY.toString();
 }
 
+function gameOver(winer) {
+    initField();
+    var t = "Игра окончена!!!\nПобедил " + winer.nickname + " со счетом " + winer.score;
+    $("#timer").html(t);
+}
+
+function  startGame() {
+    websocket.send("{\"target\":\"startGame\"}");
+}
+
+function  setTime(t) {
+    $("#timer").html(t);
+}
