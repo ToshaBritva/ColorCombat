@@ -5,10 +5,20 @@
  */
 package com.opris.colorcombat.classes;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javax.websocket.Session;
+import com.opris.colorcombat.classes.timers.*;
+import static com.opris.colorcombat.classes.timers.GameCurrentTime.getCurrentTime;
+import com.opris.colorcombat.controller.SocketController;
+import java.io.IOException;
+import java.util.List;
+import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,15 +32,106 @@ public class Game {
 
     public final HashMap<String, Player> players = new LinkedHashMap<>(); //Соответсвие ников и игроков
 
-    public final ArrayList<Session> listeners = new ArrayList<>(); //Список сессий прослушивающих эту игру
+    public ArrayList<Session> listeners = new ArrayList<>(); //Список сессий прослушивающих эту игру
 
     private final ArrayList<Integer> cellsNumbers = new ArrayList<>(); //Цифры соответсвующие клеткам
 
     private final ArrayList<Integer> playersNumbers = new ArrayList<>(); //Цифры соответсвующие игрокам
 
+    private Timer timer = new Timer(); //Таймер игры
+
+    private String status = "wait"; //Статус игры - ожидание, начата, закончена
+
+    public ArrayList<Session> getListeners() {
+        return listeners;
+    }
+
+    public void setListeners(ArrayList<Session> listeners) {
+        this.listeners = listeners;
+    }
+
     public Game(ArrayList<String> nicknames) {
         cellsNumbers.add(0);
         nicknames.forEach((nickname) -> addPlayer(nickname));
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public boolean isStarted() {
+        return status.equals("started");
+    }
+
+    //Начинаем новую игру(обнуляем таймер и очищаем поле)
+    public void start() {
+        //Сигнализируем очистить поля на клиенте
+        JsonObject clearMessage = new JsonObject();
+        clearMessage.addProperty("target", "clear");
+        listeners.forEach((playerSession) -> {
+            try {
+                playerSession.getBasicRemote().sendText(clearMessage.toString());
+            } catch (Exception ex) {
+            }
+        });
+        //Переводим игру в статус 
+        status = "started";
+
+        //Создаем и запускаем задачу таймера
+        timer.schedule(new GameSecondsTimer(this), 0, 1000);
+
+    }
+
+    //Заканчиваем игру и определяем победителя
+    public void end() {
+
+        status = "ended";
+        timer.cancel();
+
+        //Определяем победителя       
+        Player winer = getWinner();
+
+        //Формируем сообщения о завершении игры и победителе
+        JsonObject endMessage = new JsonObject();
+        JsonObject winerData = new JsonObject();
+        winerData.addProperty("nickname", winer.getNickname());
+        winerData.addProperty("score", winer.getScore());
+        endMessage.addProperty("target", "endGame");
+        endMessage.add("value", winerData);
+
+        //Рассылаем победителей
+        listeners.forEach((playerSession) -> {
+            try {
+                playerSession.getBasicRemote().sendText(endMessage.toString());
+            } catch (Exception ex) {
+            }
+        });
+
+    }
+
+    //Определяем победителя в игре
+    public Player getWinner() {
+
+        Player winer = new Player(0, 0, 0, null);
+        for (Player p : players.values()) {
+            if (p.getScore() > winer.getScore()) {
+                winer = p;
+            }
+        }
+        return winer;
+    }
+
+    //Посылаем время
+    public void sendTime(String time) {
+        JsonObject timeMessage = new JsonObject();
+        timeMessage.addProperty("target", "time");
+        timeMessage.addProperty("value", time);
+        listeners.forEach((playerSession) -> {
+            try {
+                playerSession.getBasicRemote().sendText(timeMessage.toString());
+            } catch (Exception ex) {
+            }
+        });
     }
 
     //Добавляем нового игрока в игру
@@ -98,6 +199,30 @@ public class Game {
         return res;
     }
 
+    //Рассылаем изменения игрокам
+    public void sendChanges(List<MapObject> changes) {
+        try {
+
+            // Преобразуем его в JSON и отправляем
+            Gson gson = new Gson();
+            String json = gson.toJson(changes);
+            JsonObject moveMessage = new JsonObject();
+            moveMessage.addProperty("target", "movePlayer");
+            moveMessage.addProperty("value", json);
+
+            //Рассылаем всем клиентам игроков
+            listeners.forEach((playerSession) -> {
+                try {
+                    playerSession.getBasicRemote().sendText(moveMessage.toString());
+                } catch (IOException ex) {
+                    Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+        } catch (Exception e) {
+        }
+
+    }
+
     //Возвращаем игрока по его номеру
     public Player getPlayer(int number) {
         for (Player p : players.values()) {
@@ -145,12 +270,12 @@ public class Game {
                                 score++;
                             }
                         }
-                       
+
                         //Красим клетку и добавляем покрашенную клетку к изменениям
                         changes.add(drawCellMatrix(player.i, player.j, player.number));
 
                         //Двигаем игрока
-                        player.moveUp();            
+                        player.moveUp();
 
                     }
 
@@ -167,7 +292,7 @@ public class Game {
                         //Получаем владельца той клетки на которую хочет сходить игрок
                         Player cellOwner = getPlayer(fieldMatrix[player.i + 1][player.j] - 4);
 
-                         //Если клетка пустая
+                        //Если клетка пустая
                         if (cellOwner == null) {
                             score++;
                         } else {
@@ -199,7 +324,7 @@ public class Game {
                         //Получаем владельца той клетки на которую хочет сходить игрок
                         Player cellOwner = getPlayer(fieldMatrix[player.i][player.j - 1] - 4);
 
-                         //Если клетка пустая
+                        //Если клетка пустая
                         if (cellOwner == null) {
                             score++;
                         } else {
@@ -231,7 +356,7 @@ public class Game {
                         //Получаем владельца той клетки на которую хочет сходить игрок
                         Player cellOwner = getPlayer(fieldMatrix[player.i][player.j + 1] - 4);
 
-                         //Если клетка пустая
+                        //Если клетка пустая
                         if (cellOwner == null) {
                             score++;
                         } else {

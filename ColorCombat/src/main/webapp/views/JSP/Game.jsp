@@ -18,14 +18,12 @@
     </head>
     <body>
         <div id="gameField"></div>
-        <div id="currentTable"></div>
         <script src="<c:url value="/js/canvasLogic.js" />"></script>
-        <select onchange="change()" id = "Role">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-        </select>
-    </body>
+        <table id='ScoreTable'/>
+        <button onclick="startGame()">Начать заново</button>
+        <p id="timer"></p>
+        
+    </div>
+</body>
 </html>
 

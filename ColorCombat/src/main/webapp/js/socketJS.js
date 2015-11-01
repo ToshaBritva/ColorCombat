@@ -33,6 +33,25 @@ function onOpen(evt) {
 //Действия при получении сообщения
 function onMessage(evt) {
     console.log(evt.data);
-    drawChanges(evt.data);
+    var json = evt.data;
+    json = JSON.parse(json);
+
+    //Определяем цель сообщения
+    switch (json.target) {
+        case "movePlayer":
+            drawChanges(json.value);
+            break
+        case "time":
+            setTime(json.value)
+            break
+        case "endGame":
+            gameOver(json.value);
+            break
+        case "clear":
+            clearField();
+            break
+
+    }
+
 }
 

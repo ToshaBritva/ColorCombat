@@ -27,31 +27,22 @@ var cellsLayer = new Konva.Layer();
 var playersLayer = new Konva.Layer();
 
 //Отрисовываем клетки
-initField();
-
-
-
-//Функция инициализирует поле, добавляет клетки, игроков
-function initField() {
-
-    //рисуем квадраты
-    for (var i = 0; i < field.height(); i = i + cellWidth)
-        for (var j = 0; j < field.width(); j = j + cellWidth) {
-            var rect = new Konva.Rect({
-                x: i,
-                y: j,
-                width: cellWidth,
-                height: cellWidth,
-                fill: 'white',
-                stroke: 'black',
-                id: i.toString() + "_" + j.toString(),
-                strokeWidth: cellBorderWidth
-            });
-            cellsLayer.add(rect);
-        }
-    field.add(cellsLayer);
-    field.add(playersLayer);
-}
+for (var i = 0; i < field.height(); i = i + cellWidth)
+    for (var j = 0; j < field.width(); j = j + cellWidth) {
+        var rect = new Konva.Rect({
+            x: i,
+            y: j,
+            width: cellWidth,
+            height: cellWidth,
+            fill: 'white',
+            stroke: 'black',
+            id: i.toString() + "_" + j.toString(),
+            strokeWidth: cellBorderWidth
+        });
+        cellsLayer.add(rect);
+    }
+field.add(cellsLayer);
+field.add(playersLayer);
 
 function drawChanges(changes) {
 
@@ -71,7 +62,7 @@ function drawChanges(changes) {
 
                 //Если ее нет
                 if (!player) {
-                    
+
                     // Добавляем нового игрока
                     player = addNewPlayer(obj.i, obj.j, obj.number)
                     players.push(obj);
@@ -80,12 +71,12 @@ function drawChanges(changes) {
 
                     //Передвигаем игрока
                     player.setAbsolutePosition({x: getPlayerXCanvas(obj.j), y: getPlayerYCanvas(obj.i)});
-                    
+
                     //Изменяем его очки
                     var currentPlayerIndex = findIndexByKeyValue(players, obj.number)
                     players[currentPlayerIndex].score = obj.score;
                 }
-                
+
             }
         }
 
@@ -93,7 +84,7 @@ function drawChanges(changes) {
     fillScoreTable();
     cellsLayer.draw();
     playersLayer.draw();
-    
+
 }
 
 function fillScoreTable() {
@@ -132,6 +123,7 @@ function addNewPlayer(i, j, id) {
 }
 
 
+//Ищем индекс элемента в массиве с указаным number
 function findIndexByKeyValue(array, number)
 {
     for (var i = 0; i < array.length; i++) {
@@ -167,19 +159,19 @@ $(document).keydown(function (event) {
     switch (event.keyCode) {
         case 38: //Вверх
         case 87: //W
-            websocket.send("up");
+            websocket.send("{\"target\":\"movePlayer\",\"value\":\"up\"}");
             break;
         case 40: //Вниз
         case 83: //S
-            websocket.send("down");
+            websocket.send("{\"target\":\"movePlayer\",\"value\":\"down\"}");
             break;
         case 37: //Лево
         case 65: //A
-            websocket.send("left");
+            websocket.send("{\"target\":\"movePlayer\",\"value\":\"left\"}");
             break;
         case 39: //Право
         case 68: //D
-            websocket.send("right");
+            websocket.send("{\"target\":\"movePlayer\",\"value\":\"right\"}");
             break;
 
     }
@@ -192,3 +184,25 @@ function getCellId(i, j) {
     return shapeX.toString() + '_' + shapeY.toString();
 }
 
+//Игра закончена
+function gameOver(winer) {
+    var t = "Игра окончена!!!\nПобедил " + winer.nickname + " со счетом " + winer.score;
+    $("#timer").html(t);
+}
+
+//Начинаем игру
+function  startGame() {
+    clearField();
+    websocket.send("{\"target\":\"startGame\"}");
+}
+
+//Устанавливаем время
+function  setTime(t) {
+    $("#timer").html(t);
+}
+
+//Очистка поля (красит все клетки в белый цвет)
+function clearField() {
+    for (var i = 0; i < cellsLayer.children.length; i++)
+        cellsLayer.children[i].fill(cellsColors[0]);
+}
