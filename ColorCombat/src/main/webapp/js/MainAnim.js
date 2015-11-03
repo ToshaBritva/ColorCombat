@@ -39,20 +39,26 @@ function changeStatus(nickname) ///Сменить статус игрока (п�
 {
     var slotNum = getSlotNum(nickname);
     
-    var curStatus = $("#CrLPModal #Slot" + slotNum + " #Status").text();
-    $("#CrLPModal #Slot" + slotNum).removeClass();
-    if(curStatus==='Готов')
+    var curStatus = $("#CrLPModal #Slot" + slotNum + " .bootstrap-switch-on").text()=="";
+    if (curStatus)
     {
-        $("#CrLPModal #Slot" + slotNum + " #Status").text('Не готов');
-        $("#CrLPModal #Slot" + slotNum).toggleClass('danger');
+        $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-off').click();
     }
     else
     {
-        $("#CrLPModal #Slot" + slotNum + " #Status").text('Готов');
-        $("#CrLPModal #Slot" + slotNum).toggleClass('success');
+        $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-on').click();
     }
 }
-
+function setStatusOn(nickname)
+{
+    var slotNum = getSlotNum(nickname);
+    $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-off').click();
+}
+function setStatusOff(nickname)
+{
+    var slotNum = getSlotNum(nickname);
+    $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-on').click();
+}
 function addPlayerToTable(nickname) //Добавить игрока в таблицу лобби
 {
     var slotNum = getSlotNum('Свободный слот');
