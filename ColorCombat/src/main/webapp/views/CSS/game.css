@@ -4,74 +4,60 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
 /* 
-    Created on : 10.10.2015, 15:31:07
+    Created on : 05.11.2015, 10:47:48
     Author     : Pushkin
 */
-
-#content
+html
 {
-    //height: 100%;
-     //background-color: black;
-  text-align: center;
-  -webkit-border-radius: 3px;
-     -moz-border-radius: 3px;
-          border-radius: 3px;
-  min-height: 40px;
-  line-height: 40px;
+    background-color: #ffffff;
 }
-
-.new_Btn
+body>.row
 {
-    margin-bottom: 15px;
-    width:  100%;
+    width: 700px;
+    margin-top: 15px;
+    margin: auto;
 }
-
-#Contacts
+#gameField
 {
-    max-height:300px;
-    overflow-y: auto;
+    width: 400px;
+    height: 400px;
+    margin: auto;
+    /* border: 5px solid #337ab7; */
+    margin-top: 20px;
+        
 }
-
-#Menu
+.table-responsive
 {
-    padding-left: 40px;
+    margin-top: 20px;
+   
 }
-
-#Slots
+.table-responsive tr
 {
-    text-align: center;
-}
-
-.top-buffer { 
-    padding-top: 20px;
-}
-
-.bootstrapSwitch
-{
-    height: 20px;
-    width: 208px
+    margin: 2px;
 }
 #MsgDng
 {
     position: fixed;
-    top:0;
+    top:40%;
     left: auto;
     right: auto;
     width: 100%;
     text-align: center;
     display: none;
+    font-size: 40px;
     //background: rgba(200,0,0,0.7);
     /*/background: red;*/
 }
 #Msg
 {
     position: fixed;
-    top:0;
+    top:40%;
     left: auto;
     right: auto;
     width: 100%;
     text-align: center;
     display: none;
+    font-size: 40px;
     //background: rgba(200,0,0,0.7);
     /*/background: red;*/
 }

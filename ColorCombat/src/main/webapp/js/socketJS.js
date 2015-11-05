@@ -22,12 +22,14 @@ websocket.onmessage = function (evt) {
 
 //Действия по возникновению ошибки в соеденении с сокетом
 function onError(evt) {
-    alert("ошибка подключения");
+    ShowMSGDng("ошибка подключения");
+    //alert("ошибка подключения");
 }
 
 //Действия по открытию соеденения с сокетом
 function onOpen(evt) {
-    alert("подключено");
+    ShowMSG("подключено");
+    //alert("подключено");
 }
 
 //Действия при получении сообщения
@@ -42,6 +44,7 @@ function onMessage(evt) {
             drawChanges(json.value);
             break
         case "time":
+            
             setTime(json.value)
             break
         case "endGame":

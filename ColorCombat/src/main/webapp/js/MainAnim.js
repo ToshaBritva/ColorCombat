@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 function onloadPage (){
+    $('#MsgDng').fadeOut(0);
     $.fn.bootstrapSwitch.defaults.size = 'large';
     $.fn.bootstrapSwitch.defaults.onColor = 'success';
     $.fn.bootstrapSwitch.defaults.onText = 'готов';
@@ -19,7 +20,24 @@ function addContact(contactName)
     var Contact = '<a href="#" class="list-group-item text-left">' + contactName + '</a>'; //Заменить # на валидную ссылку
     $("#Contacts").append(Contact);
 }
-
+function ShowMSGDng(MSG)
+{
+    $('#MsgDng p').text(MSG);
+    $('#MsgDng').fadeIn();
+    setTimeout(function()
+    {
+        $('#MsgDng').fadeOut(); ;
+    }, 5000);
+}
+function ShowMSG(MSG)
+{
+    $('#Msg p').text(MSG);
+    $('#Msg').fadeIn();
+    setTimeout(function()
+    {
+        $('#Msg').fadeOut(); ;
+    }, 1000);
+}
 
 //Скрипты лобби
 function getSlotNum(nickname)

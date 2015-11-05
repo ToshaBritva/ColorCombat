@@ -18,6 +18,6 @@ public class GameController {
     
     @RequestMapping(value = {"/Game"})
     public String Game() {
-        return "Game";
+        return "game";
     }
 }

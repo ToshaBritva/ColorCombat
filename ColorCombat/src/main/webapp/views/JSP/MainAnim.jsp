@@ -12,6 +12,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>ColorCombat</title>
+        
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
         <link href="<c:url value="/CSS/MainPageCSS.css" />" rel="stylesheet" />
@@ -20,6 +21,7 @@
         <script src="<c:url value="/js/bootstrap.min.js" />"></script>
         <script src="<c:url value="/js/bootstrap-switch.min.js" />"></script>
         <script src="<c:url value="/js/MainAnim.js" />"></script>
+        
 
     </head>
     <body>
@@ -145,18 +147,18 @@
                                 </thead>
                                 <tr id='Slot0'>
                                     <th>1</th>
-                                    <th id='Nick'>Свободный слот </th> 
-                                    <th id='Status'> </th>
+                                    <th id='Nick'>вася </th> 
+                                    <th id='Col'>12312331 </th>
                                 </tr>
                                 <tr id='Slot1'>
                                     <th>2</th>
-                                    <th id='Nick'>Свободный слот</th>
-                                    <th id='Status'></th>
+                                    <th id='Nick'>Петя</th>
+                                    <th id='Col'>2132134</th>
                                 </tr>
                                 <tr id='Slot2'>
                                     <th>3</th>
-                                    <th id='Nick'>Свободный слот</th>
-                                    <th id='Status'></th>
+                                    <th id='Nick'>Repz</th>
+                                    <th id='Col'>123</th>
                                 </tr>
                             </table>
                         </div>
@@ -287,7 +289,14 @@
             </div>
         </div>  
 
-
+    <div id="MsgDng" class="alert alert-warning ">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <p>warning</p>
+    </div> 
+    <div id="Msg" class="alert alert-success ">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <p>success</p>
+    </div>
     </body> 
 
     <script type="text/javascript"> $(document).ready(onloadPage());</script>

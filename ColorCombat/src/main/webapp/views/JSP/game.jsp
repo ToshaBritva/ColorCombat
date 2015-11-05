@@ -15,15 +15,45 @@
         <script src="https://cdn.rawgit.com/konvajs/konva/0.9.5/konva.min.js"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
         <script src="<c:url value="/js/socketJS.js" />"></script>
+        <script src="../js/game.js" type="text/javascript"></script>
+        
+        <link href="../CSS/stylesTimr.css" rel="stylesheet" type="text/css"/>
+        <link href="../CSS/materialize.min.css" rel="stylesheet" type="text/css"/>
+        <link href="../CSS/bootstrap.css" rel="stylesheet" type="text/css"/>
+        <link href="../CSS/game.css" rel="stylesheet" type="text/css"/>
     </head>
     <body>
-        <div id="gameField"></div>
-        <script src="<c:url value="/js/canvasLogic.js" />"></script>
-        <table id='ScoreTable'/>
-        <button onclick="startGame()">Начать заново</button>
-        <p id="timer"></p>
+        <div class="row">
+            <div class="col-xs-8 ">
+                <div id="gameField" class="inactive z-depth-2" ></div>
+            </div>
+            <div class="col-xs-4 ">
+                <div class="table-responsive inactive z-depth-1">
+                    <table class="table table-condensed" id='ScoreTable'></table>
+                </div>
+                <div class="timerDiv clock inactive z-depth-1 ">
+                       00:00:00 
+                    </div>
+                <button class="btn btn-primary " onclick="startGame()">Начать заново</button>
+            </div>
+        </div>
         
+        
+    <div id="MsgDng" class="alert alert-warning ">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <p>warning</p>
+    </div> 
+    <div id="Msg" class="alert alert-success ">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <p>success</p>
     </div>
+        
+        <script src="<c:url value="/js/canvasLogic.js" />"></script>
+        
+       
+       
+        
+    
 </body>
 </html>
 

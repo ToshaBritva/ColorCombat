@@ -187,7 +187,8 @@ function getCellId(i, j) {
 //Игра закончена
 function gameOver(winer) {
     var t = "Игра окончена!!!\nПобедил " + winer.nickname + " со счетом " + winer.score;
-    $("#timer").html(t);
+    ShowMSG(t);
+    //$("#timer").html(t);
 }
 
 //Начинаем игру
@@ -198,6 +199,8 @@ function  startGame() {
 
 //Устанавливаем время
 function  setTime(t) {
+    $('.timerDiv').html(t);
+        
     $("#timer").html(t);
 }
 

@@ -2246,7 +2246,7 @@ table th[class*="col-"] {
   background-color: #ebcccc;
 }
 .table-responsive {
-  overflow-x: auto;
+  //overflow-x: auto;
   min-height: 0.01%;
 }
 @media screen and (max-width: 767px) {
@@ -4716,7 +4716,7 @@ a.thumbnail.active {
   color: inherit;
 }
 .alert-success {
-  background-color: #dff0d8;
+  background-color: rgba(223,240,216,0.9);//#dff0d8;
   border-color: #d6e9c6;
   color: #3c763d;
 }
@@ -4738,7 +4738,7 @@ a.thumbnail.active {
   color: #245269;
 }
 .alert-warning {
-  background-color: #fcf8e3;
+  background-color: rgba(240,134,144,0.8);//#fcf8e3;
   border-color: #faebcc;
   color: #8a6d3b;
 }
