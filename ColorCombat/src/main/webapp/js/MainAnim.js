@@ -35,7 +35,7 @@ function getSlotNum(nickname)
 }
     
 
-function changeStatus(nickname) ///Сменить статус игрока (поменять цвет и текст)
+function changeStatus(nickname) ///Сменить статус игрока 
 {
     var slotNum = getSlotNum(nickname);
     
