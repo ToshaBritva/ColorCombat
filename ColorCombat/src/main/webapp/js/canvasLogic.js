@@ -7,6 +7,8 @@
 var cellsNumbers = [0, 5, 6, 7, 8]; //Цифры соответсвующие клеткам
 var playersNumbers = [1, 2, 3, 4]; //Цифры соответсвующие игрокам
 var playersColors = ["red", "aqua", "#FFFF00", "lime"]; //Цвета игроков
+var playersTableColors = ["rgba(255,0,0,0.5)", "rgba(0, 255, 255, 0.5)",
+                        "rgba(255, 255, 0, 0.5)", "rgba(0, 255, 0, 0.5)"];
 var cellsColors = ["white", "#DB4D4D", "#33CCCC", "orange", "#00B800"]; //Цвета клеток
 var players = new Array(); //Игроки с их очками 
 
@@ -104,7 +106,6 @@ function fillScoreTable() {
         tr.append('<th id=\'' + players[i].nickname + '\'> ' + players[i].nickname + ' </th>');
         tr.append('<th id=\'' + players[i].nickname + 'Score\'> ' + players[i].score + ' </th>');
     }
-
 }
 
 //Добавление нового игрока
@@ -200,7 +201,7 @@ function  startGame() {
 //Устанавливаем время
 function  setTime(t) {
     $('.timerDiv').html(t);
-        
+
     $("#timer").html(t);
 }
 

@@ -45,7 +45,7 @@ public class CheckNameNewUser {
                 b = "1";
             }
         } catch (Exception e) {
-
+                b="ASD";
             }
         return b;
     }
