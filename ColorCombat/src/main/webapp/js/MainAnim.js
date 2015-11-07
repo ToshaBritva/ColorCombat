@@ -67,16 +67,7 @@ function changeStatus(nickname) ///Сменить статус игрока
         $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-on').click();
     }
 }
-function setStatusOn(nickname)
-{
-    var slotNum = getSlotNum(nickname);
-    $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-off').click();
-}
-function setStatusOff(nickname)
-{
-    var slotNum = getSlotNum(nickname);
-    $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-on').click();
-}
+
 function addPlayerToTable(nickname) //Добавить игрока в таблицу лобби
 {
     var slotNum = getSlotNum('Свободный слот');
