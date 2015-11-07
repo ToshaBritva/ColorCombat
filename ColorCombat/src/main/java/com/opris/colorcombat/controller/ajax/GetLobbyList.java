@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 
 @Controller
-@RequestMapping(value = {"/MainPage/Animate/getLobbyList"})
+@RequestMapping(value = {"/MainPage/getLobbyList"})
 public class GetLobbyList
 {
     @RequestMapping(method = RequestMethod.GET)

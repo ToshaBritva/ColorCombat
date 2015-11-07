@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 
 @Controller
-@RequestMapping(value = {"/MainPage/Animate/getLobby"})
+@RequestMapping(value = {"/MainPage/getLobby"})
 public class GetLobby
 {
     @RequestMapping(method = RequestMethod.GET)

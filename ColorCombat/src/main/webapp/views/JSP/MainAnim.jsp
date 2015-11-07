@@ -22,6 +22,8 @@
         <script src="<c:url value="/js/bootstrap-switch.min.js" />"></script>
         <script src="<c:url value="/js/MainAnim.js" />"></script>
         
+        <script src="<c:url value="/js/socialSocket.js" />"></script>
+        
 
     </head>
     <body>
@@ -43,18 +45,24 @@
             <div id="content" class="top-buffer">
                 <div id="Menu" class="col-sm-6">
                     <div id="new_Btn1" class="row new_Btn">
-                        <button type="button" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#CrLPModal">
+                        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="createLobby()" data-toggle="modal" data-target="#CrLPModal">
                             Создать лобби
                         </button>
                     </div>
                     <div id="new_Btn2" class="row new_Btn">
-                        <button id="FindLobby" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#FindLobbyModal">Найти лобби</button>
+                        <button id="FindLobby" class="btn btn-primary btn-lg btn-block" data-toggle="modal" onclick="showLobbyList()" data-target="#FindLobbyModal">
+                            Найти лобби
+                        </button>
                     </div>
                     <div id="new_Btn3" class="row new_Btn">
-                        <button id="FindGame" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#GoFindModal">Найти игру</button>
+                        <button id="FindGame" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#GoFindModal">
+                            Найти игру
+                        </button>
                     </div>
                     <div id="new_Btn4" class="row new_Btn ">
-                        <button id="Scoreboard" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#TOfLiders">Таблица лидеров</button>
+                        <button id="Scoreboard" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#TOfLiders">
+                            Таблица лидеров
+                        </button>
                     </div>
                 </div>
 
@@ -83,7 +91,7 @@
         </div>
 
 
-        <!-- создать лобби -->
+        <!-- показать лобби -->
         <div class="modal fade" id="CrLPModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -120,8 +128,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-                        <button type="button" class="btn btn-primary">Начать</button>
+                        <button type="button" class="btn btn-default" id="leaveLobby" data-dismiss="modal">Покинуть лобби</button>
+                        <button type="button" class="btn btn-primary" id="startGame">Начать</button>
                     </div>
                 </div>
             </div>
@@ -189,12 +197,7 @@
                             </thead>
                             <tbody id="LobbiesBody">
                                 <tr class='lobbyRow'>
-                                    <th id='Nick'>Вася</th>
-                                    <th id='Slots'>3/4</th>
-                                    <th> <span class="glyphicon glyphicon-plus"></span> </th>
-                                </tr>
-                                <tr class='lobbyRow'>
-                                    <th id='Nick'>Петя</th>
+                                    <th id='Host'>Петя</th>
                                     <th id='Slots'>1/4</th>
                                     <th><span class="glyphicon glyphicon-plus"></span></th>
                                 </tr>

@@ -7,6 +7,7 @@ package com.opris.colorcombat.classes;
 
 import java.util.ArrayList;
 import javax.websocket.Session;
+import com.opris.colorcombat.classes.Member;
 
 /**
  *
@@ -16,49 +17,6 @@ import javax.websocket.Session;
 
 public class Lobby
 {
-
-    enum Status {ready, notReady};
-    class Member
-    {
-        Session user;
-        Status status;
-        
-        public Member(Session user)
-        {
-            this.user = user;
-            status = Status.notReady;
-        }
-        
-        public void setStatus(Status s)
-        {
-            status = s;
-        }
-        
-        public boolean isReady()
-        {
-            return (status == Status.ready);
-        }
-        
-        public String getUserNickname()
-        {
-            return user.getUserPrincipal().getName();
-        }
-        
-        @Override
-        public boolean equals(Object other) // Работает только со string (ником пользователя)
-        {
-            String nickname = (String) other;
-            return getUserNickname().equals(nickname);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return getUserNickname().hashCode();
-        }
-    }
-    
-    
     Session host;
     ArrayList<Member> members = new ArrayList<>();
     ArrayList<Session> listeners = new ArrayList<>();
@@ -69,12 +27,16 @@ public class Lobby
         listeners.add(host);
     }
     
-    public void join(Session member)
+    public void join(Session member) throws Exception
     {
         if(members.size()<4)
         {
             members.add(new Member(member));
             listeners.add(member);
+        }
+        else
+        {
+            throw new Exception("В лобби нет свободных мест");
         }
     }
     
@@ -92,11 +54,11 @@ public class Lobby
         Member user = getMember(nickname);
         if(ready)
         {
-            user.setStatus(Status.ready);
+            user.setStatus(Member.Status.ready);
         }
         else
         {
-            user.setStatus(Status.notReady);
+            user.setStatus(Member.Status.notReady);
         }
     }
     
@@ -109,6 +71,21 @@ public class Lobby
     public ArrayList<Session> getLobbyListeners()
     {
         return listeners;
+    }
+    
+    public String getName()
+    {
+        return host.getUserPrincipal().getName();
+    }
+    
+    public int getBusySlotNum()
+    {
+        return members.size() + 1;
+    }
+    
+    public ArrayList<Member> getMembers()
+    {
+        return members;
     }
     
 }

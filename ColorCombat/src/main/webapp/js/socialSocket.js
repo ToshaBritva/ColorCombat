@@ -6,10 +6,11 @@ socSocket.onerror = function (evt) {
 };
 
 socSocket.onopen = function (evt) {
-    alert("Подключено");
+    
 };
 
-socSocket.onmessage = function (evt) {
+socSocket.onmessage = function (evt) 
+{
     var json = evt.data;
     json = JSON.parse(json);
 
@@ -24,6 +25,9 @@ socSocket.onmessage = function (evt) {
             break;
         case "setStatus":
             
+            break;
+        case "kicked":
+            $('.modal').modal('hide');
             break;
     }
     
