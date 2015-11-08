@@ -18,20 +18,13 @@ socSocket.onmessage = function (evt)
     switch (json.target) 
     {
         case "removePlayer":
-            removePlayerFromTable(json.nickname);
+            lobbyNow.delete(json.nickname);
             break;
         case "joinPlayer":
-            addPlayerToTable(json.nickname);
+            lobbyNow.add(json.nickname);
             break;
         case "setStatus":
-            if(json.status === "ready")
-            {
-                setStatusOn(json.nickname);
-            }
-            else
-            {
-                setStatusOff(json.nickname);
-            }
+            lobbyNow.setStatus(json.nickname, json.status);
             break;
         case "kicked":
             $('.modal').modal('hide');

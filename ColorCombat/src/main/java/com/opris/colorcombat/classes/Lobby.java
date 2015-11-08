@@ -64,8 +64,14 @@ public class Lobby
     
     Member getMember(String nickname)
     {
-        int ind = members.indexOf(nickname);
-        return members.get(ind);
+        for(Member mem: members)
+        {
+            if(mem.getUserNickname().equals(nickname))
+            {
+                return mem;
+            }
+        }
+        return null;
     }
     
     public ArrayList<Session> getLobbyListeners()
