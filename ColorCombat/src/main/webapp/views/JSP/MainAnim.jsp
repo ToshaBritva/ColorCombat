@@ -17,9 +17,9 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
         <link href="<c:url value="/CSS/MainPageCSS.css" />" rel="stylesheet" />
         <link href="<c:url value="/CSS/bootstrap.css"/>" rel="stylesheet" />
-        <link href="<c:url value="/CSS/bootstrap-switch.min.css"/>" rel="stylesheet" />
         <script src="<c:url value="/js/bootstrap.min.js" />"></script>
-        <script src="<c:url value="/js/bootstrap-switch.min.js" />"></script>
+        <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+        <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
         <script src="<c:url value="/js/MainAnim.js" />"></script>
         
         <script src="<c:url value="/js/socialSocket.js" />"></script>
@@ -91,7 +91,7 @@
         </div>
 
 
-        <!-- показать лобби -->
+        <!-- Создать лобби -->
         <div class="modal fade" id="CrLPModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -110,31 +110,73 @@
                                     </tr>
                                 </thead>
                                 <tr id='Slot0'>
-                                    <th id='Nick'>Свободный слот<button type="button" class="close" aria-label="Close"></button></th> 
-                                    <th id='Kick'><span aria-hidden="true">&times;</span></th>
-                                    <th id='Status'> </th>
+                                    <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th> 
+                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Status'> </th>
                                 </tr>
                                 <tr id='Slot1'>
-                                    <th id='Nick'>Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
-                                    <th id='Kick'><span aria-hidden="true">&times;</span></th>
-                                    <th id='Status'></th>
+                                    <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
+                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Status'></th>
                                 </tr>
                                 <tr id='Slot2'>
-                                    <th id='Nick'>Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
-                                    <th id='Kick'><span aria-hidden="true">&times;</span></th>
-                                    <th id='Status'></th>
+                                    <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
+                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Status'></th>
                                 </tr>
                             </table>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" id="leaveLobby" data-dismiss="modal">Покинуть лобби</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Покинуть лобби</button>
                         <button type="button" class="btn btn-primary" id="startGame">Начать</button>
                     </div>
                 </div>
             </div>
         </div>
-
+        <!-- показать лобби -->
+        <div class="modal fade" id="JoinLobby" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel1">Лобби <%=request.getUserPrincipal().getName().toString()%></h4>
+                    </div>
+                    <div class="modal-body">               
+                        <div id='Content' >
+                            <table id='LobbyTable' class='table'>
+                                <thead>
+                                    <tr class="info ">
+                                        <th style="width: 70%">Ник</th>
+                                        <th style="width: 5%"></th>
+                                        <th style="width: 25%; text-align: center"   >Готовность</th>
+                                    </tr>
+                                </thead>
+                                <tr id='Slot0'>
+                                    <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th> 
+                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Status'> </th>
+                                </tr>
+                                <tr id='Slot1'>
+                                    <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
+                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Status'></th>
+                                </tr>
+                                <tr id='Slot2'>
+                                    <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
+                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Status'></th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Покинуть лобби</button>
+                        <button type="button" class="btn btn-primary" id="startGame">Начать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Таблица лидеров -->
         <div class="modal fade" id="TOfLiders" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">

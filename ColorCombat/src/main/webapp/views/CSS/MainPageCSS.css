@@ -80,3 +80,7 @@ and open the template in the editor.
 {
     width: 633px !important;
 }
+.toggle.btn-xs
+{
+    min-width: 100% !important;
+}

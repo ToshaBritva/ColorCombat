@@ -45,7 +45,7 @@ public class LobbySocket
                 case "createLobby":
                     lobby = new Lobby(session);
                     hosts.put(username, lobby);
-                    listeners.put(username, lobby);
+                    //listeners.put(username, lobby);
                     System.out.println("createLobby");
                     break;
                 case "destroyLobby":
@@ -62,7 +62,7 @@ public class LobbySocket
                 case "joinLobby":
                     String host = (String) jsonMessage.get("userHost");
                     lobby = hosts.get(host);
-                    if(lobby.getBusySlotNum() != 4)
+                    if(lobby.getBusySlotNum() < 4)
                     {
                         lobbyMessage.addProperty("target", "joinPlayer");
                         lobbyMessage.addProperty("nickname", username);
@@ -72,24 +72,29 @@ public class LobbySocket
                     }
                     break;
                 case "setStatus":
-                    lobby = listeners.get(username); 
+                    lobby = listeners.get(username);
+                    System.out.println("1");
                     lobbyMessage.addProperty("target", "setStatus");
                     lobbyMessage.addProperty("nickname", username);
-                    if(jsonMessage.get("status").equals("ready"))
+                    if (jsonMessage.get("status").equals("ready")) 
                     {
                         lobby.setStatus(session, true);
                         lobbyMessage.addProperty("status", "ready");
+                        System.out.println("ready");
                     }
                     else
                     {
                         lobby.setStatus(session, false);
                         lobbyMessage.addProperty("status", "notReady");
+                        System.out.println("notReady");
                     }
-                    sendToLobby(lobby, lobbyMessage);
+                    System.out.println(lobbyMessage.toString());
+                    sendToLobby(lobby, lobbyMessage.toString(), session);
                     break;
                 case "leaveLobby":
                     lobby = listeners.get(username);
                     listeners.remove(username);
+                    lobby.remove(session);
                     lobbyMessage.addProperty("target", "removePlayer");
                     lobbyMessage.addProperty("nickname", username);
                     sendToLobby(lobby, lobbyMessage.toString());
@@ -101,7 +106,7 @@ public class LobbySocket
         }
         catch(Exception ex)
         {
-            
+            System.out.println(ex.getMessage());
         }
     }
     
@@ -109,14 +114,28 @@ public class LobbySocket
     public void onClose(Session session)
     {
         String username = session.getUserPrincipal().getName();
-        listeners.remove(username);
+        JsonObject lobbyMessage = new JsonObject();
+        
         if(hosts.containsKey(username))
         {
+            Lobby lobby = hosts.get(username);
+            
+            lobbyMessage.addProperty("target", "kicked");
+            sendToLobby(lobby, lobbyMessage.toString());
             for(Session s : hosts.get(username).getLobbyListeners())
             {
                 listeners.remove(s.getUserPrincipal().getName());
             }
         }
+        else
+        {
+            Lobby lobby = listeners.get(username);
+            lobby.remove(session);
+            lobbyMessage.addProperty("target", "removePlayer");
+            lobbyMessage.addProperty("nickname", username);
+            sendToLobby(lobby, lobbyMessage.toString());
+        }
+        listeners.remove(username);
     }
     
     public void sendToLobby(Lobby lobby, String message)
@@ -128,6 +147,25 @@ public class LobbySocket
                 try
                 {
                     x.getBasicRemote().sendText(message);
+                }
+                catch(IOException ex)
+                {
+                    Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        );          
+    }
+    
+    public void sendToLobby(Lobby lobby, String message, Session exclude)
+    {
+        ArrayList<Session> lobbyListeners = new ArrayList<>(lobby.getLobbyListeners());
+        
+        lobbyListeners.forEach(x -> 
+            {
+                try
+                {
+                    if(x!=exclude)
+                        x.getBasicRemote().sendText(message);
                 }
                 catch(IOException ex)
                 {
