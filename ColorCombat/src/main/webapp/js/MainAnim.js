@@ -11,7 +11,6 @@ function onloadPage (){
     $.fn.bootstrapSwitch.defaults.offText = 'не готов';
     $.fn.bootstrapSwitch.defaults.offColor = 'danger';
     $(".switchBTM").bootstrapSwitch();
-    addPlayerToTable('asdsad');
 }
 
 //Скрипты MainPage
@@ -53,7 +52,6 @@ function getSlotNum(nickname)
     return -1;
 }
     
-
 function changeStatus(nickname) ///Сменить статус игрока 
 {
     var slotNum = getSlotNum(nickname);
@@ -69,14 +67,10 @@ function changeStatus(nickname) ///Сменить статус игрока
     }
 }
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 function createLobby()
 {
+    clearLobby();
+    
     socSocket.send('{"target":"createLobby"}');
     
     $( "#leaveLobby" ).click(function() 
@@ -92,19 +86,23 @@ function destroyLobby()
 
 function joinLobby(userHost)
 {
-    
-    socSocket.send('{"target":"joinLobby", "userHost":"' + userHost + '"}');
-    //Нужно дописать, проверить получилось ли подключение
+    clearLobby();
     
     $.getJSON('MainPage/getLobby?host=' + userHost, {}, function(json)
     { 
         $('#CrLPModal .modal-title').text(userHost);
         
-        for (var i = 0, len = json.members; i < len; i++)
+        for (var i = 0, len = json.members.length; i < len; i++)
         {
             addPlayerToTable(json.members[i].nickname);
-            
-            //Тут должна быть установка статуса игрока. Пушкин, соберись!
+            if(json.members[i].status === "ready")
+            {
+                setStatusOn(json.members[i].nickname);
+            }
+            else
+            {
+                setStatusOff(json.members[i].nickname);
+            }
         }
         
         $('.modal').modal('hide');
@@ -114,12 +112,17 @@ function joinLobby(userHost)
         });
         
         $('#CrLPModal').modal('show');
+        
+        socSocket.send('{"target":"joinLobby", "userHost":"' + userHost + '"}');
+        var nickname = $(".header #NickName h2").text();
+        addPlayerToTable(nickname);
     }); 
+    
+
 }
 
 function leaveLobby()
 {
-    $('.modal').modal('hide');
     socSocket.send('{"target":"leaveLobby"}');
 }
 
@@ -128,7 +131,7 @@ function addPlayerToTable(nickname)
 {
     var slotNum = getSlotNum('Свободный слот');
     $("#CrLPModal #Slot" + slotNum + " #Nick").text(nickname);
-    $("#CrLPModal #Slot" + slotNum + " #Status").append('<input class="switchBTM" type="checkbox"  data-size="mini">');
+    $("#CrLPModal #Slot" + slotNum + " #Status").append('<input class="switchBTM" type="checkbox" readonly="" data-size="mini">');
 
     $(".switchBTM").bootstrapSwitch();
 }
@@ -138,7 +141,6 @@ function setSlotEmpty(slotNum)
 {
     $("#CrLPModal #Slot" + slotNum + " #Nick").text('Свободный слот');
     $("#CrLPModal #Slot" + slotNum + " #Status").text('');
-    $("#CrLPModal #Slot" + slotNum).removeClass();
 }
 
 function clearLobby()

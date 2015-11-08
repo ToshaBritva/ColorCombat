@@ -24,10 +24,18 @@ socSocket.onmessage = function (evt)
             addPlayerToTable(json.nickname);
             break;
         case "setStatus":
-            
+            if(json.status === "ready")
+            {
+                setStatusOn(json.nickname);
+            }
+            else
+            {
+                setStatusOff(json.nickname);
+            }
             break;
         case "kicked":
             $('.modal').modal('hide');
+            ShowMSGDng("Хост расформировал лобби или вы были выгнаны :(");
             break;
     }
     

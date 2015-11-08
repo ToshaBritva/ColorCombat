@@ -50,6 +50,8 @@ public class LobbySocket
                     break;
                 case "destroyLobby":
                     lobby = hosts.get(username);
+                    lobbyMessage.addProperty("target", "kicked");
+                    sendToLobby(lobby, lobbyMessage.toString());
                     for(Session s : lobby.getLobbyListeners())
                     {
                         listeners.remove(s.getUserPrincipal().getName());
