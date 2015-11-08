@@ -50,6 +50,7 @@ public class LobbySocket
                     break;
                 case "destroyLobby":
                     lobby = hosts.get(username);
+                    lobby.remove(session); //Удаляем хоста, чтобы не слать ему сообщение
                     lobbyMessage.addProperty("target", "kicked");
                     sendToLobby(lobby, lobbyMessage.toString());
                     for(Session s : lobby.getLobbyListeners())
@@ -84,7 +85,7 @@ public class LobbySocket
                         lobby.setStatus(session, false);
                         lobbyMessage.addProperty("status", "notReady");
                     }
-                    
+                    sendToLobby(lobby, lobbyMessage);
                     break;
                 case "leaveLobby":
                     lobby = listeners.get(username);
