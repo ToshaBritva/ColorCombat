@@ -761,10 +761,51 @@ public class Game {
         //Рассыалем изменение статуса
         SendGameStatus();
 
+        //Заносим результаты в БД
+        resultInDB();
+
         SendWinner();
 
         SocketController.destroyGame(this);
 
+    }
+
+    //Заносим результаты в БД
+    private void resultInDB() {
+        try {
+            InitialContext co = new InitialContext();
+            DataSource ds = (DataSource) co.lookup("jdbc/ColComDS");
+            Connection conn = ds.getConnection();
+            PreparedStatement psUp = conn.prepareStatement("UPDATE ColorCombatDB.USER SET RATING=? WHERE NICKNAME=?");
+            PreparedStatement psSel = conn.prepareStatement("SELECT RATING, ID FROM ColorCombatDB.USER WHERE NICKNAME=?");
+            PreparedStatement psHis = conn.prepareStatement("INSERT INTO ColorCombatDB.GAMEHISTORY (DATE, ID_USER, SCORE, RESULT) VALUES (?, ?, ?, ?)");
+            for (Player p : players) {
+                psSel.setString(1, p.getNickname());
+                ResultSet rs = psSel.executeQuery();
+                int olaRating = 0;
+                int idUser = 0;
+                if (rs.next()) {
+                    olaRating = rs.getInt("RATING");
+                    idUser = rs.getInt("ID");
+                }
+                psUp.setInt(1, olaRating + p.getScore());
+                psUp.setString(2, p.getNickname());
+                psUp.executeUpdate();
+
+                psHis.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
+                psHis.setInt(2, idUser);
+                psHis.setInt(3, p.score);
+                psHis.setBoolean(4, isWiner(p));
+                psHis.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
+
+    //Определяем помебедителя поэкземпляру класс игрока
+    private boolean isWiner(Player p) {
+        return p.equals(getWinner());
     }
 
     //Определяем победителя в игре
