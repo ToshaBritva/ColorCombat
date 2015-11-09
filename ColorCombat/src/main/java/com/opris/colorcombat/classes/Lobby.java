@@ -44,7 +44,7 @@ public class Lobby
     {
         Member user = getMember(member);
         members.remove(user);
-        listeners.remove(member);
+        listeners.remove(user.user);
     }
     
     public void setStatus(Session session, boolean ready)
@@ -96,6 +96,16 @@ public class Lobby
     public ArrayList<Member> getMembers()
     {
         return members;
+    }
+    
+    public boolean isReady()
+    {
+        boolean isReady = true;
+        for(Member mem : members)
+        {
+            isReady = isReady && mem.isReady();
+        }
+        return isReady;
     }
     
 }

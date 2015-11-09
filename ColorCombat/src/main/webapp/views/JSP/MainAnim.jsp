@@ -60,7 +60,7 @@
                         </button>
                     </div>
                     <div id="new_Btn4" class="row new_Btn ">
-                        <button id="Scoreboard" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#TOfLiders">
+                        <button id="Scoreboard" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#TOfLiders" onclick="showLeaders()">
                             Таблица лидеров
                         </button>
                     </div>
@@ -183,7 +183,7 @@
                     </div>
                     <div class="modal-body">
                         <div id='ContentTBL' >
-                            <table id='ReitingTable' class='table'>
+                            <table id='RaitingTable' class='table'>
                                 <thead>
                                     <tr class="info ">
                                         <th style="width: 10%">№</th>
@@ -191,21 +191,24 @@
                                         <th style="width: 30%">Очки</th>
                                     </tr>
                                 </thead>
-                                <tr id='Slot0'>
-                                    <th>1</th>
-                                    <th id='Nick'>вася </th> 
-                                    <th id='Col'>12312331 </th>
-                                </tr>
-                                <tr id='Slot1'>
-                                    <th>2</th>
-                                    <th id='Nick'>Петя</th>
-                                    <th id='Col'>2132134</th>
-                                </tr>
-                                <tr id='Slot2'>
-                                    <th>3</th>
-                                    <th id='Nick'>Repz</th>
-                                    <th id='Col'>123</th>
-                                </tr>
+                                <tbody id="RaitingTableBody">
+                                    <tr id='Slot0'>
+                                        <th>1</th>
+                                        <th>вася</th>
+                                        <th id='Col'>12312331 </th>
+                                    </tr>
+                                    <tr id='Slot1'>
+                                        <th>2</th>
+                                        <th id='Nick'>Петя</th>
+                                        <th id='Col'>2132134</th>
+                                    </tr>
+                                    <tr id='Slot2'>
+                                        <th>3</th>
+                                        <th id='Nick'>Repz</th>
+                                        <th id='Col'>123</th>
+                                    </tr>
+                                </tbody>
+
                             </table>
                         </div>
                     </div>
@@ -234,18 +237,13 @@
                                 </tr>
                             </thead>
                             <tbody id="LobbiesBody">
-                                <tr class='lobbyRow'>
-                                    <th id='Host'>Петя</th>
-                                    <th id='Slots'>1/4</th>
-                                    <th><span class="glyphicon glyphicon-plus"></span></th>
-                                </tr>
                             </tbody>
                         </table>                    
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
                         <button type="button" class="btn btn-primary  " onclick="createLobby()" data-dismiss="modal" data-toggle="modal" data-target="#CrLPModal">Создать лобби</button>
-                        <button type="button" class="btn btn-success " onclick="removePlayerFromTable('Петя')">Обновить</button>
+                        <button type="button" class="btn btn-success " onclick="showLobbyList()">Обновить</button>
                     </div>
                 </div>
             </div>
@@ -330,14 +328,14 @@
             </div>
         </div>  
 
-    <div id="MsgDng" class="alert alert-warning ">
-        <a class="close" data-dismiss="alert" href="#">×</a>
-        <p>warning</p>
-    </div> 
-    <div id="Msg" class="alert alert-success ">
-        <a class="close" data-dismiss="alert" href="#">×</a>
-        <p>success</p>
-    </div>
+        <div id="MsgDng" class="alert alert-warning ">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            <p>warning</p>
+        </div> 
+        <div id="Msg" class="alert alert-success">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            <p>success</p>
+        </div>
     </body> 
 
     <script type="text/javascript"> $(document).ready(onloadPage());</script>
