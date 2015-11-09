@@ -5,7 +5,6 @@
  */
 package com.opris.colorcombat.controller;
 
-import com.opris.colorcombat.classes.Bonus;
 import com.opris.colorcombat.classes.MapObject;
 import com.opris.colorcombat.classes.Game;
 import com.opris.colorcombat.classes.Lobby;
@@ -28,16 +27,16 @@ import org.json.simple.parser.*;
  */
 @ServerEndpoint("/MainPage/Game/server")
 public class SocketController {
-    
+
     //Список игр
     static HashMap<String, Game> games = new HashMap<>();
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        
+
         //Получаем имя пользователя
         String nickname = session.getUserPrincipal().getName();
-        
+
         try {
 
             //Получаем игру
@@ -53,7 +52,7 @@ public class SocketController {
                 case "movePlayer":
                     //Если игра начата
                     if (game.IsStarted()) {
-                        
+
                         //Двигаем игрока и получаем все изменения
                         List<MapObject> changes = game.movePlayer(nickname, (String) jsonMessage.get("value"));
 
@@ -86,7 +85,7 @@ public class SocketController {
 
             //Отправляем текущее состояние игры
             game.SendCurrentGameState(session);
-            
+
         }
 
     }
@@ -112,12 +111,11 @@ public class SocketController {
         //Добавляем для каждого игрока пару - ник-игра.
         playersNicknames.forEach(x -> games.put(x, game));
     }
-    
-    public static void destroyGame(Game game)
-    {
+
+    //Уничтожаем игру
+    public static void destroyGame(Game game) {
         ArrayList<String> playersNicknames = game.GetPlayersNicknames();
-        for(String p: playersNicknames)
-        {
+        for (String p : playersNicknames) {
             games.remove(p);
         }
     }

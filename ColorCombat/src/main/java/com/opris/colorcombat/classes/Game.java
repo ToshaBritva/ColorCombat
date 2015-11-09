@@ -46,7 +46,7 @@ public class Game {
         public String toString() {
             return this.name;
         }
-        
+
     }
 
     private Random gameRandom = new Random(); //Генератор случайных чисел для игры
@@ -183,7 +183,7 @@ public class Game {
 
             ArrayList<Bonus> bonuses = new ArrayList<>();
             bonuses.add(bonus);
-            
+
             // Преобразуем его в JSON и отправляем
             Gson gson = new Gson();
             String json = gson.toJson(bonuses);
@@ -269,7 +269,7 @@ public class Game {
 
         //Отправляем все бонусы на карте
         sendAllCurrentBonuses(session);
-        
+
         //Отправляем статус игры
         SendGameStatus();
 
@@ -287,8 +287,8 @@ public class Game {
             }
         });
     }
-    
-    public void SendWinner(){
+
+    public void SendWinner() {
         //Определяем победителя       
         Player winer = getWinner();
 
@@ -745,20 +745,20 @@ public class Game {
     //**********************************************************************
     //Заканчиваем игру и определяем победителя
     public void End() {
-        
+
         //Останавливаем таймер игры
         timer.cancel();
-        
+
         //Изменяем статус игры
         Status = GameStatus.ENDED;
-        
+
         //Рассыалем изменение статуса
         SendGameStatus();
-        
+
         SendWinner();
-        
+
         SocketController.destroyGame(this);
-        
+
     }
 
     //Определяем победителя в игре
@@ -788,9 +788,9 @@ public class Game {
         SendGameStatus();
 
     }
-    
+
     //Влзвращает начата ли игра
-    public boolean IsStarted(){
+    public boolean IsStarted() {
         return Status.equals(GameStatus.IN_PROGRESS);
     }
 
@@ -871,15 +871,14 @@ public class Game {
         return nicknames.size();
 
     }
-    
-    public ArrayList<String> GetPlayersNicknames()
-    {
+
+    //Возвращаем список имен игроков
+    public ArrayList<String> GetPlayersNicknames() {
         ArrayList<String> playersNicknames = new ArrayList<>();
-        for(Player p: players)
-        {
+        players.stream().forEach((p) -> {
             playersNicknames.add(p.nickname);
-        }
+        });
         return playersNicknames;
-        
+
     }
 }
