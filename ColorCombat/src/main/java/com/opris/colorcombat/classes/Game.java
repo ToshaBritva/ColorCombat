@@ -32,7 +32,7 @@ public class Game {
 
     private int[][] fieldMatrix = new int[fieldSize][fieldSize]; //Текущая матрица игрового поля
 
-    public HashMap<String, Player> players = new LinkedHashMap<>(); //Соответсвие ников и игроков
+    public ArrayList<Player> players = new ArrayList<>(); //Соответсвие ников и игроков
 
     public ArrayList<Session> listeners = new ArrayList<>(); //Список сессий прослушивающих эту игру
 
@@ -117,7 +117,7 @@ public class Game {
     public Player getWinner() {
 
         Player winer = new Player(0, 0, 0, null);
-        for (Player p : players.values()) {
+        for (Player p : players) {
             if (p.getScore() > winer.getScore()) {
                 winer = p;
             }
@@ -166,7 +166,7 @@ public class Game {
         Player newPlayer = new Player(players.size() + 1, i, j, nickname);
 
         //Добавляем его в список игроков
-        players.put(nickname, newPlayer);
+        players.add(newPlayer);
 
         //Добавляем цифры которые будут соответсвовать игрокам на матрице
         playersNumbers.add(newPlayer.number);
@@ -194,7 +194,7 @@ public class Game {
         for (int i = 0; i < fieldSize; i++) {
             for (int j = 0; j < fieldSize; j++) {
                 if (playersNumbers.contains(fieldMatrix[i][j])) {
-                    res.add(getPlayer(fieldMatrix[i][j]));
+                    res.add(getPlayerByNumber(fieldMatrix[i][j]));
                 } else {
                     res.add(new MapObject(fieldMatrix[i][j], i, j));
                 }
@@ -228,9 +228,19 @@ public class Game {
     }
 
     //Возвращаем игрока по его номеру
-    public Player getPlayer(int number) {
-        for (Player p : players.values()) {
+    public Player getPlayerByNumber(int number) {
+        for (Player p : players) {
             if (p.number == number) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    //Возвращаем игро по его никнейму
+    public Player getPlayerByNickname(String nickname) {
+        for (Player p : players) {
+            if (p.nickname == nickname) {
                 return p;
             }
         }
@@ -241,7 +251,7 @@ public class Game {
     public ArrayList<MapObject> movePlayer(String nickname, String direction) {
 
         //Получаем объект сходившего игрока
-        Player player = players.get(nickname);
+        Player player = getPlayerByNickname(nickname);
 
         //Изменения произведенные игроком
         ArrayList<MapObject> changes = new ArrayList<>();
@@ -261,7 +271,7 @@ public class Game {
                     if (cellsNumbers.contains(fieldMatrix[player.i - 1][player.j])) {
 
                         //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayer(fieldMatrix[player.i - 1][player.j] - 4);
+                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i - 1][player.j] - 4);
 
                         //Если клетка пустая
                         if (cellOwner == null) {
@@ -303,7 +313,7 @@ public class Game {
                     if (cellsNumbers.contains(fieldMatrix[player.i + 1][player.j])) {
 
                         //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayer(fieldMatrix[player.i + 1][player.j] - 4);
+                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i + 1][player.j] - 4);
 
                         //Если клетка пустая
                         if (cellOwner == null) {
@@ -344,7 +354,7 @@ public class Game {
                     if (cellsNumbers.contains(fieldMatrix[player.i][player.j - 1])) {
 
                         //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayer(fieldMatrix[player.i][player.j - 1] - 4);
+                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i][player.j - 1] - 4);
 
                         //Если клетка пустая
                         if (cellOwner == null) {
@@ -386,7 +396,7 @@ public class Game {
                     if (cellsNumbers.contains(fieldMatrix[player.i][player.j + 1])) {
 
                         //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayer(fieldMatrix[player.i][player.j + 1] - 4);
+                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i][player.j + 1] - 4);
 
                         //Если клетка пустая
                         if (cellOwner == null) {
@@ -473,7 +483,7 @@ public class Game {
             bonus.j = jBonus;
 
             //Получаем владельца той клетки на которую хочет сходить игрок
-            Player cellOwner = getPlayer(fieldMatrix[bonus.i][bonus.j] - 4);
+            Player cellOwner = getPlayerByNumber(fieldMatrix[bonus.i][bonus.j] - 4);
 
             if (cellOwner != null) {
                 cellOwner.score--;
@@ -636,7 +646,7 @@ public class Game {
                 for (int i = 0; i < fieldSize; i++) {
 
                     if (cellsNumbers.contains(fieldMatrix[i][bonus.j])) {
-                        Player cellOwner = getPlayer(fieldMatrix[i][bonus.j] - 4);
+                        Player cellOwner = getPlayerByNumber(fieldMatrix[i][bonus.j] - 4);
 
                         //Если клетка пустая
                         if (cellOwner == null) {
@@ -661,7 +671,7 @@ public class Game {
                 //Красим горизонталь
                 for (int j = 0; j < fieldSize; j++) {
                     if (cellsNumbers.contains(fieldMatrix[bonus.i][j])) {
-                        Player cellOwner = getPlayer(fieldMatrix[bonus.i][j] - 4);
+                        Player cellOwner = getPlayerByNumber(fieldMatrix[bonus.i][j] - 4);
 
                         //Если клетка пустая
                         if (cellOwner == null) {
@@ -691,7 +701,7 @@ public class Game {
                 break;
             case "Freeze":
                 player.score++;
-                for (Player p : players.values()) {
+                for (Player p : players) {
                     if (p != player) {
                         p.speed = 0;
                     }
