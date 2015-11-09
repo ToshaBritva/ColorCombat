@@ -29,6 +29,7 @@ function lobby()
     this.slots = [new slot(0),new slot(1), new slot(2)];
     this.host;
     this.nameModal;
+    
     this.init=function(nameModal,host)
     {
         //установить имя лобби
@@ -37,10 +38,8 @@ function lobby()
         this.nameModal=nameModal;
         for (i=0;i<3;i++)
             this.slots[i].clear();
-        
-        
-       
     };
+    
     this.add=function(name)
     {
         temp=this.slots[0];
@@ -57,6 +56,15 @@ function lobby()
         else
             temp.locked='enable';
         $('#'+this.nameModal+" #Slot" + temp.slot + " .Nick").text(temp.name);
+        
+        if(this.nameModal === "CrLPModal")
+        {
+//            var joinButton = $('<a href=#></a>');
+//            joinButton = joinButton.append($('<span/>', {class: 'glyphicon glyphicon-remove', onclick: 'joinLobby("' + json[i].lobbyName + '")'}));
+//            joinButton = $('<th/>').append(joinButton);
+//            row.append(joinButton);
+        }
+        
         $('#'+this.nameModal+" #Slot" + temp.slot + " .Status").append('<input name="'+name+'" type="checkbox" data-toggle="toggle" data-on="готов" data-off="не готов" data-onstyle="success" data-offstyle="danger" data-size="mini">');
         $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").bootstrapToggle();
         $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").bootstrapToggle(temp.locked);
@@ -67,7 +75,6 @@ function lobby()
                     sendStatus('ready');
                 else
                     sendStatus('notReady');
-
             });
         else
         {
@@ -109,53 +116,41 @@ function onloadPage (){
     $('#CrLPModal').on('hidden.bs.modal', function (e) {
         // do something...
         destroyLobby();
-        ShowMSG("Закрыто создание лобби")
     });
     $('#CrLPModal').on('show.bs.modal', function (e) {
         // do something...
         lobbyNow.init("CrLPModal", $(".header #NickName h2").text());
-        ShowMSG("Открыто создание лобби");
     });
     $('#JoinLobby').on('hidden.bs.modal', function (e) {
         // do something...
         leaveLobby();
-        ShowMSG("Закрыто показать лобби")
     });
     $('#JoinLobby').on('show.bs.modal', function (e) {
         // do something...
-        ShowMSG("Открыто показать лобби");
     });
     $('#TOfLiders').on('hidden.bs.modal', function (e) {
         // do something...
-        ShowMSG("Закрыто Таблица лидеров ")
     });
     $('#TOfLiders').on('show.bs.modal', function (e) {
         // do something...
-        ShowMSG("Открыто Таблица лидеров ")
     });
     $('#FindLobbyModal').on('hidden.bs.modal', function (e) {
         // do something...
-        ShowMSG("Закрыто Поиск лобби  ")
     });
     $('#FindLobbyModal').on('show.bs.modal', function (e) {
         // do something...
-        ShowMSG("Открыто Поиск лобби  ")
     });
     $('#GoFindModal').on('hidden.bs.modal', function (e) {
         // do something...
-        ShowMSG("Закрыто Быстрый Поиск лобби  ")
     });
     $('#GoFindModal').on('show.bs.modal', function (e) {
         // do something...
-        ShowMSG("Открыто Быстрый Поиск лобби  ")
     });
     $('#ProfileModal').on('hidden.bs.modal', function (e) {
         // do something...
-        ShowMSG("Закрыто Профиль  ")
     });
     $('#ProfileModal').on('show.bs.modal', function (e) {
         // do something...
-        ShowMSG("Открыто Профиль")
     });
    
 }
@@ -240,6 +235,11 @@ function leaveLobby()
 function sendStatus(status)
 {
     socSocket.send('{"target":"setStatus", "status":"' + status + '"}');
+}
+
+function kickPlayer(username)
+{
+    socSocket.send('{"target":"kickPlayer", "username":"' + username + '"}');
 }
 
 //показать список лобби

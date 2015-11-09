@@ -23,8 +23,167 @@ import org.json.simple.parser.*;
 @ServerEndpoint("/MainPage/socialsocket")
 public class LobbySocket
 {
-    static LinkedHashMap<String, Lobby> listeners = new LinkedHashMap<>(); //для навигации по всем пользователям лобби
+    static LinkedHashMap<String, Lobby> listeners = new LinkedHashMap<>(); //для навигации по клиентам
     static LinkedHashMap<String, Lobby> hosts = new LinkedHashMap<>(); //для навигации только по хостам
+    
+    void createLobby(Session session)
+    {
+        String username = session.getUserPrincipal().getName();
+        Lobby lobby = new Lobby(session);
+        hosts.put(username, lobby);
+    }
+    
+    void destroyLobby(Session session)
+    {
+        String username = session.getUserPrincipal().getName();
+        Lobby lobby = hosts.get(username);
+        if(lobby!=null)
+        {
+            lobby.remove(session); //Удаляем хоста, чтобы не слать ему сообщение
+
+            JsonObject lobbyMessage = new JsonObject();
+            lobbyMessage.addProperty("target", "kicked");
+            sendToLobby(lobby, lobbyMessage.toString());
+
+            for(Session s : lobby.getLobbyListeners())
+            {
+                listeners.remove(s.getUserPrincipal().getName());
+            }
+            hosts.remove(username);
+        }
+        else
+        {
+            sendError(session, "Произошла неизвестная ошибка");
+        }
+    }
+    
+    void sendError(Session session, String message)
+    {
+        JsonObject JSONMEssage = new JsonObject();
+        JSONMEssage.addProperty("target", "errorMessage");
+        JSONMEssage.addProperty("message", message);
+        try
+        {
+            session.getBasicRemote().sendText(JSONMEssage.toString());
+        }
+        catch(Exception ex)
+        {
+            Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    void joinLobby(String host, Session session)
+    {
+        Lobby lobby = hosts.get(host);
+        String username = session.getUserPrincipal().getName();
+        
+        if(lobby != null && !host.equals(username))
+        {   
+            if(lobby.getBusySlotNum() < 4)
+            {
+                JsonObject lobbyMessage = new JsonObject();
+                lobbyMessage.addProperty("target", "joinPlayer");
+                lobbyMessage.addProperty("nickname", username);
+
+                sendToLobby(lobby, lobbyMessage.toString());
+                lobby.join(session);
+                listeners.put(username, lobby);
+            }
+            else
+            {
+                sendError(session, "В лобби нет свободных мест");
+            }
+        }
+        else
+        {
+            sendError(session, "Произошла неизвестная ошибка");
+        }
+
+    }
+    
+    void setStatus(Session session, boolean status)
+    {
+        String username = session.getUserPrincipal().getName();
+        Lobby lobby = listeners.get(username);
+
+        if(lobby != null)
+        {
+            JsonObject lobbyMessage = new JsonObject();
+            lobbyMessage.addProperty("target", "setStatus");
+            lobbyMessage.addProperty("nickname", username);
+
+            lobby.setStatus(session, status);
+            if (status) 
+            {
+                lobbyMessage.addProperty("status", "ready");
+            }
+            else
+            {
+                lobbyMessage.addProperty("status", "notReady");
+            }
+            sendToLobby(lobby, lobbyMessage.toString(), session);
+        }
+        else
+        {
+            sendError(session, "Произошла неизвестная ошибка");
+        }
+
+    }
+    
+    void kick(Session session, String username)
+    {
+        String host = session.getUserPrincipal().getName();
+        Lobby lobby = hosts.get(host);
+        
+        if(lobby != null)
+        {
+            try
+            {
+                JsonObject kickMessage = new JsonObject();
+                kickMessage.addProperty("target", "kicked");
+                lobby.getSession(username).getBasicRemote().sendText(kickMessage.toString());
+                
+                lobby.remove(username);
+                listeners.remove(username);
+                
+                JsonObject lobbyMessage = new JsonObject();
+                lobbyMessage.addProperty("target", "removePlayer");
+                lobbyMessage.addProperty("nickname", username);
+                sendToLobby(lobby, lobbyMessage.toString());
+                
+            }
+            catch(Exception ex)
+            {
+                Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        else
+        {
+            sendError(session, "Произошла неизвестная ошибка");
+        }
+    }
+    
+    void leaveLobby(Session session)
+    {
+        String username = session.getUserPrincipal().getName();
+        Lobby lobby = listeners.get(username);
+        
+        if(lobby != null)
+        {
+            listeners.remove(username);
+            lobby.remove(session);
+
+            JsonObject lobbyMessage = new JsonObject();
+            lobbyMessage.addProperty("target", "removePlayer");
+            lobbyMessage.addProperty("nickname", username);
+            sendToLobby(lobby, lobbyMessage.toString());
+        }
+        else
+        {
+            sendError(session, "Произошла неизвестная ошибка");
+        }
+
+    }
     
     @OnMessage
     public void onMessage(String message, Session session) throws IOException
@@ -38,75 +197,38 @@ public class LobbySocket
             JSONObject jsonMessage = (JSONObject) parser.parse(message);
             String target = (String) jsonMessage.get("target");
             
-            JsonObject lobbyMessage = new JsonObject();
-            
             switch (target) 
             {
                 case "createLobby":
-                    lobby = new Lobby(session);
-                    hosts.put(username, lobby);
-                    //listeners.put(username, lobby);
-                    System.out.println("createLobby");
+                    createLobby(session);
                     break;
                 case "destroyLobby":
-                    lobby = hosts.get(username);
-                    lobby.remove(session); //Удаляем хоста, чтобы не слать ему сообщение
-                    lobbyMessage.addProperty("target", "kicked");
-                    sendToLobby(lobby, lobbyMessage.toString());
-                    for(Session s : lobby.getLobbyListeners())
-                    {
-                        listeners.remove(s.getUserPrincipal().getName());
-                    }
-                    hosts.remove(username);
+                    destroyLobby(session);
                     break;
                 case "joinLobby":
                     String host = (String) jsonMessage.get("userHost");
-                    lobby = hosts.get(host);
-                    if(lobby.getBusySlotNum() < 4)
-                    {
-                        lobbyMessage.addProperty("target", "joinPlayer");
-                        lobbyMessage.addProperty("nickname", username);
-                        sendToLobby(lobby, lobbyMessage.toString());
-                        lobby.join(session);
-                        listeners.put(username, lobby);
-                    }
+                    joinLobby(host, session);
                     break;
                 case "setStatus":
-                    lobby = listeners.get(username);
-                    System.out.println("1");
-                    lobbyMessage.addProperty("target", "setStatus");
-                    lobbyMessage.addProperty("nickname", username);
-                    if (jsonMessage.get("status").equals("ready")) 
-                    {
-                        lobby.setStatus(session, true);
-                        lobbyMessage.addProperty("status", "ready");
-                        System.out.println("ready");
-                    }
-                    else
-                    {
-                        lobby.setStatus(session, false);
-                        lobbyMessage.addProperty("status", "notReady");
-                        System.out.println("notReady");
-                    }
-                    System.out.println(lobbyMessage.toString());
-                    sendToLobby(lobby, lobbyMessage.toString(), session);
+                    boolean status = jsonMessage.get("status").equals("ready");
+                    setStatus(session, status);
                     break;
                 case "leaveLobby":
-                    lobby = listeners.get(username);
-                    listeners.remove(username);
-                    lobby.remove(session);
-                    lobbyMessage.addProperty("target", "removePlayer");
-                    lobbyMessage.addProperty("nickname", username);
-                    sendToLobby(lobby, lobbyMessage.toString());
+                    leaveLobby(session);
+                    break;
+                case "kickPlayer":
+                    String kickedUsername = (String) jsonMessage.get("username");
+                    kick(session, kickedUsername);
                     break;
             }
             
+            System.out.println("Цель:" + target);
             System.out.println("Количество хостов:" + hosts.size());
             System.out.println("Количество слушателей:" + listeners.size());
         }
         catch(Exception ex)
         {
-            System.out.println(ex.getMessage());
+            Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -119,13 +241,14 @@ public class LobbySocket
         if(hosts.containsKey(username))
         {
             Lobby lobby = hosts.get(username);
-            
+            lobby.remove(session); //Удаляем хоста, чтобы не слать ему сообщение
             lobbyMessage.addProperty("target", "kicked");
             sendToLobby(lobby, lobbyMessage.toString());
-            for(Session s : hosts.get(username).getLobbyListeners())
+            for(Session s : lobby.getLobbyListeners())
             {
                 listeners.remove(s.getUserPrincipal().getName());
             }
+            hosts.remove(username);
         }
         else
         {
@@ -136,6 +259,10 @@ public class LobbySocket
             sendToLobby(lobby, lobbyMessage.toString());
         }
         listeners.remove(username);
+        
+        System.out.println("Цель: onClose");
+        System.out.println("Количество хостов:" + hosts.size());
+        System.out.println("Количество слушателей:" + listeners.size());
     }
     
     public void sendToLobby(Lobby lobby, String message)
@@ -159,12 +286,12 @@ public class LobbySocket
     public void sendToLobby(Lobby lobby, String message, Session exclude)
     {
         ArrayList<Session> lobbyListeners = new ArrayList<>(lobby.getLobbyListeners());
+        lobbyListeners.remove(exclude);
         
         lobbyListeners.forEach(x -> 
             {
                 try
                 {
-                    if(x!=exclude)
                         x.getBasicRemote().sendText(message);
                 }
                 catch(IOException ex)
