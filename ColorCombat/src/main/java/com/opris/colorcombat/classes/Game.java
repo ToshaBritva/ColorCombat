@@ -14,6 +14,10 @@ import javax.websocket.Session;
 import com.opris.colorcombat.classes.timers.*;
 import com.opris.colorcombat.controller.SocketController;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,6 +26,8 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 /**
  *
