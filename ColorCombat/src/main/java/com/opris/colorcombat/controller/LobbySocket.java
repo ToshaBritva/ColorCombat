@@ -185,6 +185,18 @@ public class LobbySocket
 
     }
     
+    void startGame(Session session)
+    {
+        String username = session.getUserPrincipal().getName();
+        Lobby lobby = hosts.get(username);
+        SocketController.addGame(lobby);
+        
+        JsonObject lobbyMessage = new JsonObject();
+        lobbyMessage.addProperty("target", "startGame");
+        
+        sendToLobby(lobby, lobbyMessage.toString());
+    }
+    
     @OnMessage
     public void onMessage(String message, Session session) throws IOException
     {   
@@ -220,6 +232,9 @@ public class LobbySocket
                     String kickedUsername = (String) jsonMessage.get("username");
                     kick(session, kickedUsername);
                     break;
+                case "startGame":
+                    startGame(session);
+                    break;
             }
             
             System.out.println("Цель:" + target);
@@ -253,10 +268,14 @@ public class LobbySocket
         else
         {
             Lobby lobby = listeners.get(username);
-            lobby.remove(session);
-            lobbyMessage.addProperty("target", "removePlayer");
-            lobbyMessage.addProperty("nickname", username);
-            sendToLobby(lobby, lobbyMessage.toString());
+            if(lobby != null)
+            {
+                lobby.remove(session);
+                lobbyMessage.addProperty("target", "removePlayer");
+                lobbyMessage.addProperty("nickname", username);
+                sendToLobby(lobby, lobbyMessage.toString());
+            }
+
         }
         listeners.remove(username);
         

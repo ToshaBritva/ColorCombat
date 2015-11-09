@@ -186,6 +186,11 @@ function createLobby()
     socSocket.send('{"target":"createLobby"}');
 }
 
+function startGame()
+{
+    socSocket.send('{"target":"startGame"}');
+}
+
 function destroyLobby()
 {
     socSocket.send('{"target":"destroyLobby"}');

@@ -33,6 +33,9 @@ socSocket.onmessage = function (evt)
         case "errorMessage":
             ShowMSGDng(json.message);
             break;
+        case "startGame":
+            window.location.replace("http://" + document.location.host + document.location.pathname + "/Game");
+            break;
     }
     
 };
