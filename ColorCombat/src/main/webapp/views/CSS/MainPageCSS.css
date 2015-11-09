@@ -75,3 +75,12 @@ and open the template in the editor.
     //background: rgba(200,0,0,0.7);
     /*/background: red;*/
 }
+
+.modal-dialog
+{
+    width: 633px !important;
+}
+.toggle.btn-xs
+{
+    min-width: 100% !important;
+}

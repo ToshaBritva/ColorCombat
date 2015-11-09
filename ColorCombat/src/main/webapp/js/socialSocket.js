@@ -6,10 +6,11 @@ socSocket.onerror = function (evt) {
 };
 
 socSocket.onopen = function (evt) {
-    alert("Подключено");
+    
 };
 
-socSocket.onmessage = function (evt) {
+socSocket.onmessage = function (evt) 
+{
     var json = evt.data;
     json = JSON.parse(json);
 
@@ -17,13 +18,17 @@ socSocket.onmessage = function (evt) {
     switch (json.target) 
     {
         case "removePlayer":
-            removePlayerFromTable(json.nickname);
+            lobbyNow.delete(json.nickname);
             break;
         case "joinPlayer":
-            addPlayerToTable(json.nickname);
+            lobbyNow.add(json.nickname);
             break;
         case "setStatus":
-            
+            lobbyNow.setStatus(json.nickname, json.status);
+            break;
+        case "kicked":
+            $('.modal').modal('hide');
+            ShowMSGDng("Хост расформировал лобби или вы были выгнаны :(");
             break;
     }
     

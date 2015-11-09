@@ -12,10 +12,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Pushkin
  */
 @Controller
-@RequestMapping(value = {"/","MainPage/Animate","1"})
+@RequestMapping(value = {"/","MainPage"})
 public class MainAnimController {
-    @RequestMapping(value = {"MainPage/Animate","1"})
-    public String game() {
+    @RequestMapping(value = {"MainPage"})
+    public String game() 
+    {
         return "MainAnim";
+    }
+    
+    @RequestMapping(value = {"/"})
+    public String reMainPage() 
+    {
+        return "redirect:/MainPage";
     }
 }
