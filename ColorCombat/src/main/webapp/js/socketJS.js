@@ -4,32 +4,35 @@
  * and open the template in the editor.
  */
 
-var wsUri = "ws://" + document.location.host + document.location.pathname + "/server";
-var websocket = new WebSocket(wsUri);
+var websocket;
 
+//При загрузке страницы коннектимся к сокету
+function onloadPage() {
+    
+    var wsUri = "ws://" + document.location.host + document.location.pathname + "/server";
+    websocket = new WebSocket(wsUri);
+    
+    websocket.onerror = function (evt) {
+        onError(evt);
+    };
 
-websocket.onerror = function (evt) {
-    onError(evt);
-};
+    websocket.onopen = function (evt) {
+        onOpen(evt);
+    };
 
-websocket.onopen = function (evt) {
-    onOpen(evt);
-};
-
-websocket.onmessage = function (evt) {
-    onMessage(evt);
-};
+    websocket.onmessage = function (evt) {
+        onMessage(evt);
+    };
+}
 
 //Действия по возникновению ошибки в соеденении с сокетом
 function onError(evt) {
-    ShowMSGDng("ошибка подключения");
-    //alert("ошибка подключения");
+    ShowMSG("Ошибка подключения. Попробуйте перезагрузить страницу.");
 }
 
 //Действия по открытию соеденения с сокетом
 function onOpen(evt) {
-    ShowMSG("подключено");
-    //alert("подключено");
+    console.log("подключено");
 }
 
 //Действия при получении сообщения
@@ -52,14 +55,12 @@ function onMessage(evt) {
         case "time":
             setTime(json.value)
             break
-        case "endGame":
+        case "gameStatus":
+            changeStatus(json.value);
+            break
+        case "winner":
             gameOver(json.value);
-            break
-        case "clear":
-            clearField();
-            break
-
+            break;
     }
 
 }
-

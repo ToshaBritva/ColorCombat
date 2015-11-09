@@ -204,73 +204,65 @@ function gameOver(winer) {
     //$("#timer").html(t);
 }
 
-//Начинаем игру
-function  startGame() {
-    clearField();
-    websocket.send("{\"target\":\"startGame\"}");
-}
-
 //Устанавливаем время
-function  setTime(t) {
+function setTime(t) {
     $('.timerDiv').html(t);
 
     $("#timer").html(t);
 }
 
-//Очистка поля (красит все клетки в белый цвет)
-function clearField() {
-    for (var i = 0; i < cellsLayer.children.length; i++)
-        cellsLayer.children[i].fill(cellsColors[0]);
-    cellsLayer.draw();
-    for (var i = 0; i < bonusLayer.children.length; i++)
-        bonusLayer.children[i].remove();
-    bonusLayer.draw();
+//Спавнит бонусы
+function spawnBonus(bonusesJSON) {
+
+    var bonuses = JSON.parse(bonusesJSON);
+
+    bonuses.forEach(function draw(bonus) {
+        var cell = cellsLayer.findOne('#' + getCellId(bonus.j, bonus.i));
+        cell.fill(cellsColors[0]);
+        cellsLayer.draw();
+
+        var imageObj = new Image();
+        imageObj.onload = function () {
+            var bonusImg = new Konva.Image({
+                x: getLeftCellCornerX(bonus.j),
+                y: getLeftCellCornerY(bonus.i),
+                image: imageObj,
+                width: cellWidth - cellBorderWidth,
+                height: cellWidth - cellBorderWidth * 1.25,
+                id: bonus.name
+            });
+            bonusLayer.add(bonusImg);
+            bonusImg.draw();
+        };
+
+        switch (bonus.number) {
+            case 10:
+                imageObj.src = '../Images/Game/Bonus/cross.png';
+                break;
+            case 11:
+                imageObj.src = '../Images/Game/Bonus/speedUp.png';
+                break;
+            case 12:
+                imageObj.src = '../Images/Game/Bonus/freeze.png';
+                break;
+        }
+    });
+
 }
 
-function spawnBonus(bonusJSON) {
-
-    var bonus = JSON.parse(bonusJSON)
-    
-    var cell = cellsLayer.findOne('#' + getCellId(bonus.j, bonus.i));
-    cell.fill(cellsColors[0]);
-    cellsLayer.draw();
-    
-    var imageObj = new Image();
-    imageObj.onload = function () {
-        var bonusImg = new Konva.Image({
-            x: getLeftCellCornerX(bonus.j),
-            y: getLeftCellCornerY(bonus.i),
-            image: imageObj,
-            width: cellWidth - cellBorderWidth,
-            height: cellWidth - cellBorderWidth * 1.25,
-            id: bonus.name
-        });
-        bonusLayer.add(bonusImg);
-        bonusImg.draw();
-    };
-    
-    switch (bonus.number) {
-        case 10:
-            imageObj.src = '../Images/Game/Bonus/cross.png';
-            break;
-        case 11:
-            imageObj.src = '../Images/Game/Bonus/speedUp.png';
-            break;
-        case 12:
-            imageObj.src = '../Images/Game/Bonus/freeze.png';
-            break;
-    }
-    
-}
-
+//Убирает бонусы
 function removeBonus(bonusJSON) {
-    
+
     var bonus = JSON.parse(bonusJSON);
-    
+
     var bonusObj = bonusLayer.findOne('#' + bonus.name);
-    
+
     bonusObj.remove();
-    
+
     bonusLayer.draw();
-    
+
+}
+
+function changeStatus(statusJSON){
+    $("#Status div h3").text(statusJSON);
 }

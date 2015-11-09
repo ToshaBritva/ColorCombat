@@ -14,6 +14,7 @@ import javax.websocket.Session;
 import com.opris.colorcombat.classes.timers.*;
 import com.opris.colorcombat.controller.SocketController;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,13 +29,37 @@ import java.util.logging.Logger;
  */
 public class Game {
 
+    //Статусы игры
+    public enum GameStatus {
+
+        WAITING("Ожидание игроков"),
+        IN_PROGRESS("В процессе"),
+        ENDED("Завершена");
+
+        private final String name;
+
+        private GameStatus(String s) {
+            name = s;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+        
+    }
+
+    private Random gameRandom = new Random(); //Генератор случайных чисел для игры
+
+    private static int bonusSpawnProbability = 30; //Вероятность спавна бонуса
+
     private static int fieldSize = 10; //Размер поля
 
     private int[][] fieldMatrix = new int[fieldSize][fieldSize]; //Текущая матрица игрового поля
 
     public ArrayList<Player> players = new ArrayList<>(); //Соответсвие ников и игроков
 
-    public ArrayList<Session> listeners = new ArrayList<>(); //Список сессий прослушивающих эту игру
+    private ArrayList<Session> listeners = new ArrayList<>(); //Список сессий прослушивающих эту игру
 
     private ArrayList<Integer> cellsNumbers = new ArrayList<>(); //Цифры соответсвующие клеткам
 
@@ -42,104 +67,26 @@ public class Game {
 
     private Timer timer = new Timer(); //Таймер игры
 
-    private String status = "wait"; //Статус игры - ожидание, начата, закончена
+    public GameStatus Status = GameStatus.WAITING; //Статус игры - ожидание, начата, закончена
 
     public ArrayList<Bonus> bonusesList = new ArrayList<>(); //Бонусы на карте
 
-    public ArrayList<Session> getListeners() {
-        return listeners;
-    }
-
-    public void setListeners(ArrayList<Session> listeners) {
-        this.listeners = listeners;
-    }
-
+    //**********************************************************************
+    //************************СОЗДАНИЕ ИГРЫ*********************************
+    //**********************************************************************
+    //Конструктор игры, создает игру с указанными игроками
     public Game(ArrayList<String> nicknames) {
+
+        //Добавляем игроков
         cellsNumbers.add(0);
         nicknames.forEach((nickname) -> addPlayer(nickname));
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public boolean isStarted() {
-        return status.equals("started");
-    }
-
-    //Начинаем новую игру(обнуляем таймер и очищаем поле)
-    public void start() {
-        //Сигнализируем очистить поля на клиенте
-        JsonObject clearMessage = new JsonObject();
-        clearMessage.addProperty("target", "clear");
-        listeners.forEach((playerSession) -> {
-            try {
-                playerSession.getBasicRemote().sendText(clearMessage.toString());
-            } catch (Exception ex) {
-            }
-        });
-        //Переводим игру в статус 
-        status = "started";
 
         //Создаем и запускаем задачу таймера
         timer.schedule(new GameSecondsTimer(this), 0, 1000);
-
-    }
-
-    //Заканчиваем игру и определяем победителя
-    public void end() {
-
-        status = "ended";
-        timer.cancel();
-
-        //Определяем победителя       
-        Player winer = getWinner();
-
-        //Формируем сообщения о завершении игры и победителе
-        JsonObject endMessage = new JsonObject();
-        JsonObject winerData = new JsonObject();
-        winerData.addProperty("nickname", winer.getNickname());
-        winerData.addProperty("score", winer.getScore());
-        endMessage.addProperty("target", "endGame");
-        endMessage.add("value", winerData);
-
-        //Рассылаем победителей
-        listeners.forEach((playerSession) -> {
-            try {
-                playerSession.getBasicRemote().sendText(endMessage.toString());
-            } catch (Exception ex) {
-            }
-        });
-
-    }
-
-    //Определяем победителя в игре
-    public Player getWinner() {
-
-        Player winer = new Player(0, 0, 0, null);
-        for (Player p : players) {
-            if (p.getScore() > winer.getScore()) {
-                winer = p;
-            }
-        }
-        return winer;
-    }
-
-    //Посылаем время
-    public void sendTime(String time) {
-        JsonObject timeMessage = new JsonObject();
-        timeMessage.addProperty("target", "time");
-        timeMessage.addProperty("value", time);
-        listeners.forEach((playerSession) -> {
-            try {
-                playerSession.getBasicRemote().sendText(timeMessage.toString());
-            } catch (Exception ex) {
-            }
-        });
     }
 
     //Добавляем нового игрока в игру
-    public void addPlayer(String nickname) {
+    private void addPlayer(String nickname) {
 
         //Определяем его место на карте
         int i = 0, j = 0;
@@ -188,21 +135,9 @@ public class Game {
         return new MapObject(cellsNumbers.get(playerNumber), i, j);
     }
 
-    //Получаем все объекты на поле
-    public ArrayList<MapObject> getWholeField() {
-        ArrayList<MapObject> res = new ArrayList<>();
-        for (int i = 0; i < fieldSize; i++) {
-            for (int j = 0; j < fieldSize; j++) {
-                if (playersNumbers.contains(fieldMatrix[i][j])) {
-                    res.add(getPlayerByNumber(fieldMatrix[i][j]));
-                } else {
-                    res.add(new MapObject(fieldMatrix[i][j], i, j));
-                }
-            }
-        }
-        return res;
-    }
-
+    //**********************************************************************
+    //***********************РАССЫЛКА СООБЩЕНИЙ*****************************
+    //**********************************************************************
     //Рассылаем изменения игрокам
     public void sendChanges(List<MapObject> changes) {
         try {
@@ -218,8 +153,10 @@ public class Game {
             listeners.forEach((playerSession) -> {
                 try {
                     playerSession.getBasicRemote().sendText(moveMessage.toString());
+
                 } catch (IOException ex) {
-                    Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SocketController.class
+                            .getName()).log(Level.SEVERE, null, ex);
                 }
             });
         } catch (Exception e) {
@@ -227,26 +164,154 @@ public class Game {
 
     }
 
-    //Возвращаем игрока по его номеру
-    public Player getPlayerByNumber(int number) {
-        for (Player p : players) {
-            if (p.number == number) {
-                return p;
+    //Посылаем время
+    public void sendTime(String time) {
+        JsonObject timeMessage = new JsonObject();
+        timeMessage.addProperty("target", "time");
+        timeMessage.addProperty("value", time);
+        listeners.forEach((playerSession) -> {
+            try {
+                playerSession.getBasicRemote().sendText(timeMessage.toString());
+            } catch (Exception ex) {
             }
-        }
-        return null;
+        });
     }
 
-    //Возвращаем игро по его никнейму
-    public Player getPlayerByNickname(String nickname) {
-        for (Player p : players) {
-            if (p.nickname == nickname) {
-                return p;
-            }
+    //Рассылает игрокам сообщение о новом бонусе
+    public void sendSpawnBonus(Bonus bonus) {
+        try {
+
+            ArrayList<Bonus> bonuses = new ArrayList<>();
+            bonuses.add(bonus);
+            
+            // Преобразуем его в JSON и отправляем
+            Gson gson = new Gson();
+            String json = gson.toJson(bonuses);
+            JsonObject moveMessage = new JsonObject();
+            moveMessage.addProperty("target", "spawnBonus");
+            moveMessage.addProperty("value", json);
+
+            //Рассылаем всем клиентам игроков
+            listeners.forEach((playerSession) -> {
+                try {
+                    playerSession.getBasicRemote().sendText(moveMessage.toString());
+
+                } catch (IOException ex) {
+                    Logger.getLogger(SocketController.class
+                            .getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+        } catch (Exception e) {
         }
-        return null;
     }
 
+    //Рассылает игрокам сообщение об удалении бонуса
+    private void sendRemoveBonus(Bonus bonus) {
+        try {
+
+            // Преобразуем его в JSON и отправляем
+            Gson gson = new Gson();
+            String json = gson.toJson(bonus);
+            JsonObject moveMessage = new JsonObject();
+            moveMessage.addProperty("target", "removeBonus");
+            moveMessage.addProperty("value", json);
+
+            //Рассылаем всем клиентам игроков
+            listeners.forEach((playerSession) -> {
+                try {
+                    playerSession.getBasicRemote().sendText(moveMessage.toString());
+
+                } catch (IOException ex) {
+                    Logger.getLogger(SocketController.class
+                            .getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+        } catch (Exception e) {
+        }
+    }
+
+    //Отправляет листенеру все бонусы на карте
+    private void sendAllCurrentBonuses(Session session) {
+
+        // Преобразуем его в JSON и отправляем
+        Gson gson = new Gson();
+        String json = gson.toJson(bonusesList);
+        JsonObject moveMessage = new JsonObject();
+        moveMessage.addProperty("target", "spawnBonus");
+        moveMessage.addProperty("value", json);
+
+        try {
+            session.getBasicRemote().sendText(moveMessage.toString());
+        } catch (Exception e) {
+
+        }
+
+    }
+
+    //Отправляем листенеру текущее состояние игры
+    public void SendCurrentGameState(Session session) {
+
+        //Получем текущее состояние игры
+        List<MapObject> changes = getWholeField();
+
+        // Преобразуем его в JSON и отправляем
+        Gson gson = new Gson();
+        String json = gson.toJson(changes);
+        JsonObject moveMessage = new JsonObject();
+        moveMessage.addProperty("target", "movePlayer");
+        moveMessage.addProperty("value", json);
+
+        try {
+            session.getBasicRemote().sendText(moveMessage.toString());
+        } catch (Exception e) {
+
+        }
+
+        //Отправляем все бонусы на карте
+        sendAllCurrentBonuses(session);
+        
+        //Отправляем статус игры
+        SendGameStatus();
+
+    }
+
+    //Рассылаем всем слушателям статус игры
+    public void SendGameStatus() {
+        JsonObject statusMessage = new JsonObject();
+        statusMessage.addProperty("target", "gameStatus");
+        statusMessage.addProperty("value", Status.toString());
+        listeners.forEach((playerSession) -> {
+            try {
+                playerSession.getBasicRemote().sendText(statusMessage.toString());
+            } catch (Exception ex) {
+            }
+        });
+    }
+    
+    public void SendWinner(){
+        //Определяем победителя       
+        Player winer = getWinner();
+
+        //Формируем сообщения о завершении игры и победителе
+        JsonObject endMessage = new JsonObject();
+        JsonObject winerData = new JsonObject();
+        winerData.addProperty("nickname", winer.getNickname());
+        winerData.addProperty("score", winer.getScore());
+        endMessage.addProperty("target", "winner");
+        endMessage.add("value", winerData);
+
+        //Рассылаем победителей
+        listeners.forEach((playerSession) -> {
+            try {
+                playerSession.getBasicRemote().sendText(endMessage.toString());
+            } catch (Exception ex) {
+            }
+        });
+    }
+
+    //**********************************************************************
+    //***********************ДВИЖЕНИЕ ИГРОКА********************************
+    //**********************************************************************
     //Двигаем игрока, возвращаем изменения
     public ArrayList<MapObject> movePlayer(String nickname, String direction) {
 
@@ -460,174 +525,56 @@ public class Game {
     //Спавнит случайны бонус на поле
     public void spawnRandomBonus() {
 
-        if (getOnFieldBonusesCount() < BonusesCollection.bonusesList.size()) {
-            //Инициализируем рандомайзер
-            Random random = new Random();
+        //Спавним с определенной вероятностью бонус
+        if (gameRandom.nextInt(100) < bonusSpawnProbability) {
+            if (getOnFieldBonusesCount() < BonusesCollection.bonusesList.size()) {
 
-            //Генерируем случайное число - индекс бонуса
-            int bonusNumber = random.nextInt(BonusesCollection.bonusesList.size());
-            while (isAlreadySpawned(bonusNumber)) {
-                bonusNumber = random.nextInt(BonusesCollection.bonusesList.size());
-            }
-
-            //Генерируем координаты, пока не получим свободное место
-            int iBonus, jBonus;
-            do {
-                iBonus = random.nextInt(fieldSize);
-                jBonus = random.nextInt(fieldSize);
-            } while (!isFree(iBonus, jBonus));
-
-            //Создаем объект типа бонус
-            Bonus bonus = BonusesCollection.getBonusCopy(bonusNumber);
-            bonus.i = iBonus;
-            bonus.j = jBonus;
-
-            //Получаем владельца той клетки на которую хочет сходить игрок
-            Player cellOwner = getPlayerByNumber(fieldMatrix[bonus.i][bonus.j] - 4);
-
-            if (cellOwner != null) {
-                cellOwner.score--;
-                sendChanges(new ArrayList<MapObject>() {
-                    {
-                        add(cellOwner);
-                    }
-                });
-            }
-
-            //Отрисовываем его на поле
-            fieldMatrix[bonus.i][bonus.j] = bonus.number;
-
-            //Добавляем его в коллекцию бонусов
-            bonusesList.add(bonus);
-
-            //Отправляем бонус клиентам
-            sendSpawnBonus(bonus);
-        }
-
-    }
-
-    //Рассылает игрокам сообщение о новом бонусе
-    public void sendSpawnBonus(Bonus bonus) {
-        try {
-
-            // Преобразуем его в JSON и отправляем
-            Gson gson = new Gson();
-            String json = gson.toJson(bonus);
-            JsonObject moveMessage = new JsonObject();
-            moveMessage.addProperty("target", "spawnBonus");
-            moveMessage.addProperty("value", json);
-
-            //Рассылаем всем клиентам игроков
-            listeners.forEach((playerSession) -> {
-                try {
-                    playerSession.getBasicRemote().sendText(moveMessage.toString());
-                } catch (IOException ex) {
-                    Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
+                //Генерируем случайное число - индекс бонуса
+                int bonusNumber = gameRandom.nextInt(BonusesCollection.bonusesList.size());
+                while (isAlreadySpawned(bonusNumber)) {
+                    bonusNumber = gameRandom.nextInt(BonusesCollection.bonusesList.size());
                 }
-            });
-        } catch (Exception e) {
-        }
-    }
 
-    //Рассылает игрокам сообщение об удалении бонуса
-    private void sendRemoveBonus(Bonus bonus) {
-        try {
+                //Генерируем координаты, пока не получим свободное место
+                int iBonus, jBonus;
+                do {
+                    iBonus = gameRandom.nextInt(fieldSize);
+                    jBonus = gameRandom.nextInt(fieldSize);
+                } while (!isCell(iBonus, jBonus));
 
-            // Преобразуем его в JSON и отправляем
-            Gson gson = new Gson();
-            String json = gson.toJson(bonus);
-            JsonObject moveMessage = new JsonObject();
-            moveMessage.addProperty("target", "removeBonus");
-            moveMessage.addProperty("value", json);
+                //Создаем объект типа бонус
+                Bonus bonus = BonusesCollection.getBonusCopy(bonusNumber);
+                bonus.i = iBonus;
+                bonus.j = jBonus;
 
-            //Рассылаем всем клиентам игроков
-            listeners.forEach((playerSession) -> {
-                try {
-                    playerSession.getBasicRemote().sendText(moveMessage.toString());
-                } catch (IOException ex) {
-                    Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            });
-        } catch (Exception e) {
-        }
-    }
+                //Получаем владельца той клетки на которую хочет сходить игрок
+                Player cellOwner = getPlayerByNumber(fieldMatrix[bonus.i][bonus.j] - 4);
 
-    //Проверяет свободна ли клетка i, j
-    private boolean isFree(int i, int j) {
-        return cellsNumbers.contains(fieldMatrix[i][j]);
-    }
-
-    //Проверяет лежит ли на поле указанный бонус
-    private boolean isAlreadySpawned(int number) {
-        for (Bonus b : bonusesList) {
-            if (b.number == BonusesCollection.bonusesList.get(number).number && !b.picked) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //Получает количество бонусов на поле
-    private int getOnFieldBonusesCount() {
-        int count = 0;
-        for (Bonus b : bonusesList) {
-            if (!b.picked) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    //Изменяет время существования бонусов, удаляет те которые не подобрали
-    public void checkBonuses() {
-
-        //Пробегаем коллецию с помощью итератора (для безопасного удаления элементов)
-        for (Iterator<Bonus> iterator = bonusesList.iterator(); iterator.hasNext();) {
-
-            //Получаем сделующий элемент коллекции
-            Bonus bonus = iterator.next();
-
-            if (!bonus.picked) {
-                if (bonus.existTime <= 0) {
-                    //Убираем его с карты
-                    fieldMatrix[bonus.i][bonus.j] = 0;
-
-                    //Отправляем сообщение клиентам
-                    sendRemoveBonus(bonus);
-                    iterator.remove();
-                } else {
-                    //Если бонус не подобран, уменьшаем его время существования
-                    bonus.existTime--;
-                }
-            } else {
-                if (bonus.effectTime <= 0) {
-                    //Восстанавливаем состояние игрока до бонуса
-                    bonus.affectedPlayers.forEach((player) -> {
-                        player.restoreDefaultState();
+                if (cellOwner != null) {
+                    cellOwner.score--;
+                    sendChanges(new ArrayList<MapObject>() {
+                        {
+                            add(cellOwner);
+                        }
                     });
-
-                    //Отправляем сообщение клиентам
-                    sendRemoveBonus(bonus);
-                    iterator.remove();
-                } else {
-                    bonus.effectTime--;
                 }
 
-            }
-            //Если бонус не подобран слишком долгое время, удаляем его
+                //Отрисовываем его на поле
+                fieldMatrix[bonus.i][bonus.j] = bonus.number;
 
+                //Добавляем его в коллекцию бонусов
+                bonusesList.add(bonus);
+
+                //Отправляем бонус клиентам
+                sendSpawnBonus(bonus);
+            }
         }
     }
 
-    public Bonus getBonusByCoordinates(int i, int j) {
-        for (Bonus b : bonusesList) {
-            if (b.i == i && b.j == j && b.number == fieldMatrix[i][j]) {
-                return b;
-            }
-        }
-        return null;
-    }
-
+    //**********************************************************************
+    //****************************БОНУСЫ************************************
+    //**********************************************************************
+    //Применяем изменения бонуса
     public List<MapObject> applyBonus(Player player, Bonus bonus) {
 
         //Изменения на поле произошедшие в реузльтате подбора бонуса
@@ -716,4 +663,210 @@ public class Game {
         return changes;
     }
 
+    //Изменяет время существования бонусов, удаляет те которые не подобрали
+    public void checkBonuses() {
+
+        //Пробегаем коллецию с помощью итератора (для безопасного удаления элементов)
+        for (Iterator<Bonus> iterator = bonusesList.iterator(); iterator.hasNext();) {
+
+            //Получаем сделующий элемент коллекции
+            Bonus bonus = iterator.next();
+
+            if (!bonus.picked) {
+                if (bonus.existTime <= 0) {
+                    //Убираем его с карты
+                    fieldMatrix[bonus.i][bonus.j] = 0;
+
+                    //Отправляем сообщение клиентам
+                    sendRemoveBonus(bonus);
+                    iterator.remove();
+                } else {
+                    //Если бонус не подобран, уменьшаем его время существования
+                    bonus.existTime--;
+                }
+            } else {
+                if (bonus.effectTime <= 0) {
+                    //Восстанавливаем состояние игрока до бонуса
+                    bonus.affectedPlayers.forEach((player) -> {
+                        player.restoreDefaultState();
+                    });
+
+                    //Отправляем сообщение клиентам
+                    sendRemoveBonus(bonus);
+                    iterator.remove();
+                } else {
+                    bonus.effectTime--;
+                }
+
+            }
+            //Если бонус не подобран слишком долгое время, удаляем его
+
+        }
+    }
+
+    //Получаем бонус который находиться в указанной точке
+    public Bonus getBonusByCoordinates(int i, int j) {
+        for (Bonus b : bonusesList) {
+            if (b.i == i && b.j == j && b.number == fieldMatrix[i][j]) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    //Проверяет свободна ли клетка i, j
+    private boolean isCell(int i, int j) {
+        return cellsNumbers.contains(fieldMatrix[i][j]);
+    }
+
+    //Проверяет лежит ли на поле указанный бонус
+    private boolean isAlreadySpawned(int number) {
+        for (Bonus b : bonusesList) {
+            if (b.number == BonusesCollection.bonusesList.get(number).number && !b.picked) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Получает количество бонусов на поле
+    private int getOnFieldBonusesCount() {
+        int count = 0;
+        for (Bonus b : bonusesList) {
+            if (!b.picked) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    //**********************************************************************
+    //**********************ИЗМЕНЕНИЕ СТАТУСЫ ИГРЫ**************************
+    //**********************************************************************
+    //Заканчиваем игру и определяем победителя
+    public void End() {
+
+        //Останавливаем таймер игры
+        timer.cancel();
+        
+        //Изменяем статус игры
+        Status = GameStatus.ENDED;
+        
+        //Рассыалем изменение статуса
+        SendGameStatus();
+        
+        SendWinner();
+        
+    }
+
+    //Определяем победителя в игре
+    public Player getWinner() {
+
+        Player winer = new Player(0, 0, 0, null);
+        for (Player p : players) {
+            if (p.getScore() > winer.getScore()) {
+                winer = p;
+            }
+        }
+        return winer;
+    }
+
+    //Возвращает статус игры
+    public GameStatus getStatus() {
+        return Status;
+    }
+
+    //Начинаем новую игру(обнуляем таймер и очищаем поле)
+    public void Start() {
+
+        //Переводим игру в статус 
+        Status = GameStatus.IN_PROGRESS;
+
+        //Сигнализируем очистить поля на клиенте
+        SendGameStatus();
+
+    }
+    
+    //Влзвращает начата ли игра
+    public boolean IsStarted(){
+        return Status.equals(GameStatus.IN_PROGRESS);
+    }
+
+    //**********************************************************************
+    //************************ВСЯКИЕ ПРОЧИЕ ШТУКИ***************************
+    //**********************************************************************
+    //Возрващает всех слушателей игры
+    public ArrayList<Session> getListeners() {
+        return listeners;
+    }
+
+    //Устанавливает слушателей игры
+    public void setListeners(ArrayList<Session> listeners) {
+        this.listeners = listeners;
+    }
+
+    //Возвращаем игрока по его номеру
+    public Player getPlayerByNumber(int number) {
+        for (Player p : players) {
+            if (p.number == number) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    //Возвращаем игро по его никнейму
+    public Player getPlayerByNickname(String nickname) {
+        for (Player p : players) {
+            if (p.nickname == nickname) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    //Получаем все объекты на поле
+    public ArrayList<MapObject> getWholeField() {
+        ArrayList<MapObject> res = new ArrayList<>();
+        for (int i = 0; i < fieldSize; i++) {
+            for (int j = 0; j < fieldSize; j++) {
+                if (playersNumbers.contains(fieldMatrix[i][j])) {
+                    res.add(getPlayerByNumber(fieldMatrix[i][j]));
+                } else {
+                    if (cellsNumbers.contains(fieldMatrix[i][j])) {
+                        res.add(new MapObject(fieldMatrix[i][j], i, j));
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    //Добавляет нового листенера
+    public void AddListener(Session session) {
+        listeners.add(session);
+    }
+
+    //Убирает листенера
+    public void RemoveListener(Session session) {
+        listeners.remove(session);
+    }
+
+    //Возвращает количество листенеров
+    public int ListenersCount() {
+        return listeners.size();
+    }
+
+    //Возвращает количество реально слушающих игроков
+    public int GetListenPlayersCount() {
+
+        HashSet<String> nicknames = new HashSet<>();
+
+        for (Session s : listeners) {
+            nicknames.add(s.getUserPrincipal().getName());
+        }
+
+        return nicknames.size();
+
+    }
 }
