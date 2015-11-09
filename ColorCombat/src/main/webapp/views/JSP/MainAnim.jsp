@@ -90,7 +90,6 @@
             </div>
         </div>
 
-
         <!-- Создать лобби -->
         <div class="modal fade" id="CrLPModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
             <div class="modal-dialog" role="document">
@@ -111,29 +110,30 @@
                                 </thead>
                                 <tr id='Slot0'>
                                     <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th> 
-                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Kick'></th>
                                     <th class='Status'> </th>
                                 </tr>
                                 <tr id='Slot1'>
                                     <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
-                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Kick'></th>
                                     <th class='Status'></th>
                                 </tr>
                                 <tr id='Slot2'>
                                     <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
-                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
+                                    <th class='Kick'></th>
                                     <th class='Status'></th>
                                 </tr>
                             </table>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Покинуть лобби</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Расформировать лобби</button>
                         <button type="button" class="btn btn-primary" id="startGame">Начать</button>
                     </div>
                 </div>
             </div>
         </div>
+                    
         <!-- показать лобби -->
         <div class="modal fade" id="JoinLobby" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
             <div class="modal-dialog" role="document">
@@ -148,23 +148,19 @@
                                 <thead>
                                     <tr class="info ">
                                         <th style="width: 70%">Ник</th>
-                                        <th style="width: 5%"></th>
-                                        <th style="width: 25%; text-align: center"   >Готовность</th>
+                                        <th style="width: 30%; text-align: center"   >Готовность</th>
                                     </tr>
                                 </thead>
                                 <tr id='Slot0'>
                                     <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th> 
-                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
                                     <th class='Status'> </th>
                                 </tr>
                                 <tr id='Slot1'>
                                     <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
-                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
                                     <th class='Status'></th>
                                 </tr>
                                 <tr id='Slot2'>
                                     <th id='Nick' class="Nick">Свободный слот<button type="button" class="close" aria-label="Close"></button></th>
-                                    <th class='Kick'><span aria-hidden="true">&times;</span></th>
                                     <th class='Status'></th>
                                 </tr>
                             </table>
@@ -172,11 +168,11 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Покинуть лобби</button>
-                        <button type="button" class="btn btn-primary" id="startGame">Начать</button>
                     </div>
                 </div>
             </div>
         </div>
+                    
         <!-- Таблица лидеров -->
         <div class="modal fade" id="TOfLiders" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
@@ -248,7 +244,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-                        <button type="button" class="btn btn-primary  " data-dismiss="modal" data-toggle="modal" data-target="#CrLPModal">Создать лобби</button>
+                        <button type="button" class="btn btn-primary  " onclick="createLobby()" data-dismiss="modal" data-toggle="modal" data-target="#CrLPModal">Создать лобби</button>
                         <button type="button" class="btn btn-success " onclick="removePlayerFromTable('Петя')">Обновить</button>
                     </div>
                 </div>

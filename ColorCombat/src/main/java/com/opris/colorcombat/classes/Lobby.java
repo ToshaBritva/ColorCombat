@@ -26,23 +26,23 @@ public class Lobby
         listeners.add(host);
     }
     
-    public void join(Session member) throws Exception
+    public void join(Session member)
     {
-        if(members.size()<4)
-        {
-            members.add(new Member(member));
-            listeners.add(member);
-        }
-        else
-        {
-            throw new Exception("В лобби нет свободных мест");
-        }
+        members.add(new Member(member));
+        listeners.add(member);
     }
     
     public void remove(Session member)
     {
         String nickname = member.getUserPrincipal().getName();
         Member user = getMember(nickname);
+        members.remove(user);
+        listeners.remove(member);
+    }
+    
+    public void remove(String member)
+    {
+        Member user = getMember(member);
         members.remove(user);
         listeners.remove(member);
     }
@@ -71,6 +71,11 @@ public class Lobby
             }
         }
         return null;
+    }
+    
+    public Session getSession(String nickname)
+    {
+        return getMember(nickname).user;
     }
     
     public ArrayList<Session> getLobbyListeners()

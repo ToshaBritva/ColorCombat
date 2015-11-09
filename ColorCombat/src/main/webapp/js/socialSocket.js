@@ -30,6 +30,9 @@ socSocket.onmessage = function (evt)
             $('.modal').modal('hide');
             ShowMSGDng("Хост расформировал лобби или вы были выгнаны :(");
             break;
+        case "errorMessage":
+            ShowMSGDng(json.message);
+            break;
     }
     
 };
