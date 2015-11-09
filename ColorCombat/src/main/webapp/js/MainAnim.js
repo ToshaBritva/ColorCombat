@@ -18,6 +18,7 @@ function slot(num)
     {
         $("#Slot" + this.slot + " .Nick").text('Свободный слот');
         $("#Slot" + this.slot + " .Status").text('');
+        $("#Slot" + this.slot + " .Kick").text('');
         this.empty=true;
         //установка в след значение автомат лок
     };
@@ -59,10 +60,9 @@ function lobby()
         
         if(this.nameModal === "CrLPModal")
         {
-//            var joinButton = $('<a href=#></a>');
-//            joinButton = joinButton.append($('<span/>', {class: 'glyphicon glyphicon-remove', onclick: 'joinLobby("' + json[i].lobbyName + '")'}));
-//            joinButton = $('<th/>').append(joinButton);
-//            row.append(joinButton);
+            var kickButton = $('<a href=#></a>');
+            kickButton = kickButton.append($('<span/>', {class: 'glyphicon glyphicon-remove', onclick: 'kickPlayer("' + name + '")'}));
+            $('#'+this.nameModal+" #Slot" + temp.slot + " .Kick").append(kickButton);
         }
         
         $('#'+this.nameModal+" #Slot" + temp.slot + " .Status").append('<input name="'+name+'" type="checkbox" data-toggle="toggle" data-on="готов" data-off="не готов" data-onstyle="success" data-offstyle="danger" data-size="mini">');
@@ -202,18 +202,16 @@ function joinLobby(userHost)
     
     $.getJSON('MainPage/getLobby?host=' + userHost, {}, function(json)
     { 
-        
-        
         for (var i = 0, len = json.members.length; i < len; i++)
         {
             lobbyNow.add(json.members[i].nickname);
             if(json.members[i].status === "ready")
             {
-                
+                lobbyNow.setStatus(json.members[i].nickname, "ready");
             }
             else
             {
-                
+                lobbyNow.setStatus(json.members[i].nickname, "notReady");
             }
         }
         
@@ -250,20 +248,64 @@ function kickPlayer(username)
 //показать список лобби
 function showLobbyList()
 {
-    $("#LobbiesBody").empty();
-
-    $.getJSON('MainPage/getLobbyList', {}, function(json)
-    { 
-        for (var i = 0, len = json.length; i < len; i++) 
+    $.ajax({
+        url: 'MainPage/getLobbyList',    
+        dataType : "json",   
+        
+        beforeSend: function() 
         {
-            var row = $('<tr/>', {class:  'lobbyRow' });
-            row.append('<th id="Host">' + json[i].lobbyName + '</th>');
-            row.append('<th id="Slots">' + json[i].busySlotNum + '/4' + '</th>');
-            var joinButton = $('<a href=#></a>');
-            joinButton = joinButton.append($('<span/>', {class: 'glyphicon glyphicon-plus', onclick: 'joinLobby("' + json[i].lobbyName + '")'}));
-            joinButton = $('<th/>').append(joinButton);
-            row.append(joinButton);
-            $("#LobbiesBody").append(row);
+            $("#LobbiesBody").empty();
+        },
+        
+        success: function (json) 
+        {
+            for (var i = 0, len = json.length; i < len; i++) 
+            {
+                var row = $('<tr/>', {class:  'lobbyRow' });
+                row.append('<th id="Host">' + json[i].lobbyName + '</th>');
+                row.append('<th id="Slots">' + json[i].busySlotNum + '/4' + '</th>');
+                var joinButton = $('<a href=#></a>');
+                joinButton = joinButton.append($('<span/>', {class: 'glyphicon glyphicon-plus', onclick: 'joinLobby("' + json[i].lobbyName + '")'}));
+                joinButton = $('<th/>').append(joinButton);
+                row.append(joinButton);
+                $("#LobbiesBody").append(row);
+            }
+        },
+        
+        error: function ()
+        {
+            ShowMSGDng("Не удалось соединиться с сервером");
         }
-    }); 
+    });
+}
+
+//показать список лидеров
+function showLeaders()
+{
+    $.ajax({
+        url: 'MainPage/getLeaders',    
+        dataType : "json",   
+        
+        beforeSend: function() 
+        {
+            $("#RaitingTableBody").empty();
+        },
+        
+        success: function (json) 
+        {
+            for (var i = 0, len = json.length; i < len; i++) 
+            {
+                var row = $('<tr/>');
+                row.append('<th>' + json[i].place + '</th>');
+                row.append('<th>' + json[i].nickname + '</th>');
+                row.append('<th>' + json[i].score + '</th>');
+                $("#RaitingTable").append(row);
+            }
+        },
+        
+        error: function ()
+        {
+            ShowMSGDng("Не удалось соединиться с сервером");
+        }
+    });
 }
