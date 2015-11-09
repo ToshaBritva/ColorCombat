@@ -12,13 +12,18 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javax.websocket.Session;
 import com.opris.colorcombat.classes.timers.*;
-import static com.opris.colorcombat.classes.timers.GameCurrentTime.getCurrentTime;
 import com.opris.colorcombat.controller.SocketController;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 /**
  *
@@ -82,6 +87,38 @@ public class Game {
 
     }
 
+    private void resultInDB() {
+        try {
+            InitialContext co = new InitialContext();
+            DataSource ds = (DataSource) co.lookup("jdbc/ColComDS");
+            Connection conn = ds.getConnection();
+            PreparedStatement psUp = conn.prepareStatement("UPDATE ColorCombatDB.USER SET RATING=? WHERE NICKNAME=?");
+            PreparedStatement psSel = conn.prepareStatement("SELECT RATING, ID FROM ColorCombatDB.USER WHERE NICKNAME=?");
+            PreparedStatement psHis = conn.prepareStatement("INSERT INTO ColorCombatDB.GAMEHISTORY (DATE, ID_USER, SCORE, RESULT) VALUES (?, ?, ?, ?)");
+            for (Player p : players.values()) {
+                psSel.setString(1, p.getNickname());
+                ResultSet rs = psSel.executeQuery();
+                int olaRating = 0;
+                int idUser = 0;
+                if (rs.next()) {
+                    olaRating = rs.getInt("RATING");
+                    idUser = rs.getInt("ID");
+                }
+                psUp.setInt(1, olaRating + p.getScore());
+                psUp.setString(2, p.getNickname());
+                psUp.executeUpdate();
+                
+                psHis.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
+                psHis.setInt(2, idUser);
+                psHis.setInt(3, p.score);
+                psHis.setBoolean(4, isWiner(p));
+                psHis.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
+
     //Заканчиваем игру и определяем победителя
     public void end() {
 
@@ -90,6 +127,9 @@ public class Game {
 
         //Определяем победителя       
         Player winer = getWinner();
+
+        //Заносим резултьаты в бд
+        resultInDB();
 
         //Формируем сообщения о завершении игры и победителе
         JsonObject endMessage = new JsonObject();
@@ -109,6 +149,10 @@ public class Game {
 
     }
 
+    private boolean isWiner(Player p){
+        return p.equals(getWinner());
+    }
+    
     //Определяем победителя в игре
     public Player getWinner() {
 
