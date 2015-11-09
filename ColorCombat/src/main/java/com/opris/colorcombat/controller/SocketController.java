@@ -112,5 +112,14 @@ public class SocketController {
         //Добавляем для каждого игрока пару - ник-игра.
         playersNicknames.forEach(x -> games.put(x, game));
     }
+    
+    public static void destroyGame(Game game)
+    {
+        ArrayList<String> playersNicknames = game.GetPlayersNicknames();
+        for(String p: playersNicknames)
+        {
+            games.remove(p);
+        }
+    }
 
 }

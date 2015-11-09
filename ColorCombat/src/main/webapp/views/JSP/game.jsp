@@ -24,10 +24,8 @@
     </head>
 
     <body onload="onloadPage()">
-        <div class="row" id="Status">
-            <div class="col-xs-3">
+        <div id="Status">
                 <h3>В ожидании</h3>
-            </div>
         </div>
         <div class="row">
             <div class="col-xs-8 ">
@@ -44,7 +42,7 @@
         </div>
 
 
-        <div id="MsgDng" class="alert alert-warning ">
+        <div id="MsgDng" class="alert alert-warning">
             <a class="close" data-dismiss="alert" href="#">×</a>
             <p>warning</p>
         </div> 

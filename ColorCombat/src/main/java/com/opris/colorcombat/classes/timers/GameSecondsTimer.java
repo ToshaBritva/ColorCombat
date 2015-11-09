@@ -66,7 +66,7 @@ public class GameSecondsTimer extends TimerTask {
                 if (waitingTime.isAfter(maxWaitingTime) || game.GetListenPlayersCount() >= minPlayersToStart) {
                     game.Start();
                 } else {
-                    waitingTime.plusSeconds(1);
+                    waitingTime = waitingTime.plusSeconds(1);
                 }
 
                 break;

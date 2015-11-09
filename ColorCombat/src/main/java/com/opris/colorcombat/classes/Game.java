@@ -745,7 +745,7 @@ public class Game {
     //**********************************************************************
     //Заканчиваем игру и определяем победителя
     public void End() {
-
+        
         //Останавливаем таймер игры
         timer.cancel();
         
@@ -756,6 +756,8 @@ public class Game {
         SendGameStatus();
         
         SendWinner();
+        
+        SocketController.destroyGame(this);
         
     }
 
@@ -868,5 +870,16 @@ public class Game {
 
         return nicknames.size();
 
+    }
+    
+    public ArrayList<String> GetPlayersNicknames()
+    {
+        ArrayList<String> playersNicknames = new ArrayList<>();
+        for(Player p: players)
+        {
+            playersNicknames.add(p.nickname);
+        }
+        return playersNicknames;
+        
     }
 }

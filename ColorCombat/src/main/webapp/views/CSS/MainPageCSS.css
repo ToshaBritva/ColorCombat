@@ -63,6 +63,7 @@ and open the template in the editor.
     //background: rgba(200,0,0,0.7);
     /*/background: red;*/
 }
+
 #Msg
 {
     position: fixed;
@@ -80,6 +81,7 @@ and open the template in the editor.
 {
     width: 633px !important;
 }
+
 .toggle.btn-xs
 {
     min-width: 100% !important;

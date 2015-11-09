@@ -264,5 +264,5 @@ function removeBonus(bonusJSON) {
 }
 
 function changeStatus(statusJSON){
-    $("#Status div h3").text(statusJSON);
+    $("#Status h3").text(statusJSON);
 }
