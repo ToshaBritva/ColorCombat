@@ -52,7 +52,7 @@ public class Game {
         public String toString() {
             return this.name;
         }
-        
+
     }
 
     private Random gameRandom = new Random(); //Генератор случайных чисел для игры
@@ -189,7 +189,7 @@ public class Game {
 
             ArrayList<Bonus> bonuses = new ArrayList<>();
             bonuses.add(bonus);
-            
+
             // Преобразуем его в JSON и отправляем
             Gson gson = new Gson();
             String json = gson.toJson(bonuses);
@@ -275,7 +275,7 @@ public class Game {
 
         //Отправляем все бонусы на карте
         sendAllCurrentBonuses(session);
-        
+
         //Отправляем статус игры
         SendGameStatus();
 
@@ -293,8 +293,8 @@ public class Game {
             }
         });
     }
-    
-    public void SendWinner(){
+
+    public void SendWinner() {
         //Определяем победителя       
         Player winer = getWinner();
 
@@ -751,20 +751,61 @@ public class Game {
     //**********************************************************************
     //Заканчиваем игру и определяем победителя
     public void End() {
-        
+
         //Останавливаем таймер игры
         timer.cancel();
-        
+
         //Изменяем статус игры
         Status = GameStatus.ENDED;
-        
+
         //Рассыалем изменение статуса
         SendGameStatus();
-        
+
+        //Заносим результаты в БД
+        resultInDB();
+
         SendWinner();
-        
+
         SocketController.destroyGame(this);
-        
+
+    }
+
+    //Заносим результаты в БД
+    private void resultInDB() {
+        try {
+            InitialContext co = new InitialContext();
+            DataSource ds = (DataSource) co.lookup("jdbc/ColComDS");
+            Connection conn = ds.getConnection();
+            PreparedStatement psUp = conn.prepareStatement("UPDATE ColorCombatDB.USER SET RATING=? WHERE NICKNAME=?");
+            PreparedStatement psSel = conn.prepareStatement("SELECT RATING, ID FROM ColorCombatDB.USER WHERE NICKNAME=?");
+            PreparedStatement psHis = conn.prepareStatement("INSERT INTO ColorCombatDB.GAMEHISTORY (DATE, ID_USER, SCORE, RESULT) VALUES (?, ?, ?, ?)");
+            for (Player p : players) {
+                psSel.setString(1, p.getNickname());
+                ResultSet rs = psSel.executeQuery();
+                int olaRating = 0;
+                int idUser = 0;
+                if (rs.next()) {
+                    olaRating = rs.getInt("RATING");
+                    idUser = rs.getInt("ID");
+                }
+                psUp.setInt(1, olaRating + p.getScore());
+                psUp.setString(2, p.getNickname());
+                psUp.executeUpdate();
+
+                psHis.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
+                psHis.setInt(2, idUser);
+                psHis.setInt(3, p.score);
+                psHis.setBoolean(4, isWiner(p));
+                psHis.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
+
+    //Определяем помебедителя поэкземпляру класс игрока
+    private boolean isWiner(Player p) {
+        return p.equals(getWinner());
     }
 
     //Определяем победителя в игре
@@ -794,9 +835,9 @@ public class Game {
         SendGameStatus();
 
     }
-    
+
     //Влзвращает начата ли игра
-    public boolean IsStarted(){
+    public boolean IsStarted() {
         return Status.equals(GameStatus.IN_PROGRESS);
     }
 
@@ -877,15 +918,13 @@ public class Game {
         return nicknames.size();
 
     }
-    
-    public ArrayList<String> GetPlayersNicknames()
-    {
+
+    public ArrayList<String> GetPlayersNicknames() {
         ArrayList<String> playersNicknames = new ArrayList<>();
-        for(Player p: players)
-        {
+        for (Player p : players) {
             playersNicknames.add(p.nickname);
         }
         return playersNicknames;
-        
+
     }
 }
