@@ -37,18 +37,4 @@ public class Member
     {
         return user.getUserPrincipal().getName();
     }
-
-    @Override
-    public boolean equals(Object other) // Работает только со string (ником пользователя)
-    {
-        String nickname = (String) other;
-        return getUserNickname().equals(nickname);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return getUserNickname().hashCode();
-    }
-    
 }

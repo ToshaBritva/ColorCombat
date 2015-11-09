@@ -5,10 +5,13 @@
  */
 package com.opris.colorcombat.controller;
 
+import com.opris.colorcombat.classes.Bonus;
 import com.opris.colorcombat.classes.MapObject;
 import com.opris.colorcombat.classes.Game;
+import com.opris.colorcombat.classes.Lobby;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
@@ -25,48 +28,38 @@ import org.json.simple.parser.*;
  */
 @ServerEndpoint("/MainPage/Game/server")
 public class SocketController {
-
-    //Список игроков по умолчанию
-    public static ArrayList<String> defaultPlayers = new ArrayList<String>() {
-        {
-            add("anton");
-            add("boris");
-            add("nizy");
-            add("pukan");
-        }
-    };
-
-    //Создаем игру
-    public static com.opris.colorcombat.classes.Game currentGame = new com.opris.colorcombat.classes.Game(defaultPlayers);
+    
+    //Список игр
+    static HashMap<String, Game> games = new HashMap<>();
 
     @OnMessage
     public void onMessage(String message, Session session) {
-
+        
+        //Получаем имя пользователя
+        String nickname = session.getUserPrincipal().getName();
+        
         try {
+
+            //Получаем игру
+            Game game = games.get(nickname);
+
             //Парсим сообщение
             JSONParser parser = new JSONParser();
             JSONObject jsonMessage = (JSONObject) parser.parse(message);
 
-            String target = (String) jsonMessage.get("target");
             //Проверяем цель сообщения
+            String target = (String) jsonMessage.get("target");
             switch (target) {
                 case "movePlayer":
-                    if (currentGame.isStarted()) {
+                    //Если игра начата
+                    if (game.IsStarted()) {
+                        
                         //Двигаем игрока и получаем все изменения
-                        List<MapObject> changes = currentGame.movePlayer(session.getUserPrincipal().getName(), (String) jsonMessage.get("value"));
+                        List<MapObject> changes = game.movePlayer(nickname, (String) jsonMessage.get("value"));
 
                         //Рассылаем их
-                        currentGame.sendChanges(changes);
+                        game.sendChanges(changes);
                     }
-                    break;
-                case "startGame":
-                    currentGame.end();
-                    ArrayList<Session> listeners = currentGame.getListeners();
-                    currentGame = new Game(defaultPlayers);
-                    currentGame.setListeners(listeners);
-                    List<MapObject> changes = currentGame.getWholeField();
-                    currentGame.start();
-                    currentGame.sendChanges(changes);
                     break;
             }
 
@@ -79,19 +72,54 @@ public class SocketController {
     @OnOpen
     public void onOpen(Session session) throws IOException, EncodeException {
 
-        //Добавляем новго листенера
-        currentGame.listeners.add(session);
+        //Получаем никнейм из сессии
+        String nickname = session.getUserPrincipal().getName();
 
-        //Получем текущее состояние игры
-        List<MapObject> changes = currentGame.getWholeField();
+        //Если имеется игра с таким игроком
+        if (games.containsKey(nickname)) {
 
-        //Отправляем его 
-        currentGame.sendChanges(changes);
+            //Получаем эту игру
+            Game game = games.get(nickname);
+
+            //Добавляем новго листенера
+            game.AddListener(session);
+
+            //Отправляем текущее состояние игры
+            game.SendCurrentGameState(session);
+            
+        }
+
     }
 
     @OnClose
     public void onClose(Session session) throws IOException, EncodeException {
-        currentGame.listeners.remove(session);
+        Game game = games.get(session.getUserPrincipal().getName());
+        if (game != null) {
+            game.RemoveListener(session);
+        }
+    }
+
+    //Создание новой игры
+    public static void addGame(Lobby lobby) {
+
+        //Список имен игроков
+        ArrayList<String> playersNicknames = new ArrayList<>();
+        lobby.getLobbyListeners().forEach(x -> playersNicknames.add(x.getUserPrincipal().getName()));
+
+        //Создаем новую игру
+        Game game = new Game(playersNicknames);
+
+        //Добавляем для каждого игрока пару - ник-игра.
+        playersNicknames.forEach(x -> games.put(x, game));
+    }
+    
+    public static void destroyGame(Game game)
+    {
+        ArrayList<String> playersNicknames = game.GetPlayersNicknames();
+        for(String p: playersNicknames)
+        {
+            games.remove(p);
+        }
     }
 
 }

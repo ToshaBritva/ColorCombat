@@ -3,14 +3,156 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+var lobbyNow=new lobby();
+function slot(num)
+{
+    this.empty=true;
+    this.name;
+    this.slot=num;
+    this.locked;
+    this.setStatus=function(StatBool)
+    {
+        //установка в след значение автомат лок
+    };
+    this.clear=function()
+    {
+        $("#Slot" + this.slot + " .Nick").text('Свободный слот');
+        $("#Slot" + this.slot + " .Status").text('');
+        $("#Slot" + this.slot + " .Kick").text('');
+        this.empty=true;
+        //установка в след значение автомат лок
+    };
+
+    
+}
+function lobby()
+{
+    this.slots = [new slot(0),new slot(1), new slot(2)];
+    this.host;
+    this.nameModal;
+    
+    this.init=function(nameModal,host)
+    {
+        //установить имя лобби
+        $('#'+nameModal+' #myModalLabel1').text(host);
+        this.host=host;
+        this.nameModal=nameModal;
+        for (i=0;i<3;i++)
+            this.slots[i].clear();
+    };
+    
+    this.add=function(name)
+    {
+        temp=this.slots[0];
+        i=0;
+        while (!temp.empty)
+        {
+            i++;
+            temp=this.slots[i];
+        }
+        temp.name=name;
+        temp.empty=false;
+        if (name !== $(".header #NickName h2").text())
+            temp.locked='disable';
+        else
+            temp.locked='enable';
+        $('#'+this.nameModal+" #Slot" + temp.slot + " .Nick").text(temp.name);
+        
+        if(this.nameModal === "CrLPModal")
+        {
+            var kickButton = $('<a href=#></a>');
+            kickButton = kickButton.append($('<span/>', {class: 'glyphicon glyphicon-remove', onclick: 'kickPlayer("' + name + '")'}));
+            $('#'+this.nameModal+" #Slot" + temp.slot + " .Kick").append(kickButton);
+        }
+        
+        $('#'+this.nameModal+" #Slot" + temp.slot + " .Status").append('<input name="'+name+'" type="checkbox" data-toggle="toggle" data-on="готов" data-off="не готов" data-onstyle="success" data-offstyle="danger" data-size="mini">');
+        $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").bootstrapToggle();
+        $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").bootstrapToggle(temp.locked);
+        if (temp.locked==='enable')
+            $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").change(function() 
+            {
+                if($(this).prop('checked'))
+                    sendStatus('ready');
+                else
+                    sendStatus('notReady');
+            });
+        else
+        {
+            $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").change(function() {});
+        }
+    };
+    this.delete=function(name)
+    {
+        temp=this.slots[0];
+        i=0;
+        while (temp.name!==name && i<3)
+        {
+            i++;
+            temp=this.slots[i];
+        }
+        temp.clear();
+        //в сокет сообщение
+    };
+    this.setStatus=function(name,status)
+    {
+        temp=this.slots[0];
+        i=0;
+        while (temp.name!==name && i<3)
+        {
+            i++;
+            temp=this.slots[i];
+        }
+        $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").bootstrapToggle('enable');
+        if (status === "ready")
+            $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").bootstrapToggle('on');
+        else
+            $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").bootstrapToggle('off');
+        
+        $('#'+this.nameModal+" #Slot" + temp.slot + " .Status input").bootstrapToggle(temp.locked);
+    };
+};
 function onloadPage (){
     $('#MsgDng').fadeOut(0);
-    $.fn.bootstrapSwitch.defaults.size = 'large';
-    $.fn.bootstrapSwitch.defaults.onColor = 'success';
-    $.fn.bootstrapSwitch.defaults.onText = 'готов';
-    $.fn.bootstrapSwitch.defaults.offText = 'не готов';
-    $.fn.bootstrapSwitch.defaults.offColor = 'danger';
-    $(".switchBTM").bootstrapSwitch();
+    $('#CrLPModal').on('hidden.bs.modal', function (e) {
+        // do something...
+        destroyLobby();
+    });
+    $('#CrLPModal').on('show.bs.modal', function (e) {
+        // do something...
+        lobbyNow.init("CrLPModal", $(".header #NickName h2").text());
+    });
+    $('#JoinLobby').on('hidden.bs.modal', function (e) {
+        // do something...
+        leaveLobby();
+    });
+    $('#JoinLobby').on('show.bs.modal', function (e) {
+        // do something...
+    });
+    $('#TOfLiders').on('hidden.bs.modal', function (e) {
+        // do something...
+    });
+    $('#TOfLiders').on('show.bs.modal', function (e) {
+        // do something...
+    });
+    $('#FindLobbyModal').on('hidden.bs.modal', function (e) {
+        // do something...
+    });
+    $('#FindLobbyModal').on('show.bs.modal', function (e) {
+        // do something...
+    });
+    $('#GoFindModal').on('hidden.bs.modal', function (e) {
+        // do something...
+    });
+    $('#GoFindModal').on('show.bs.modal', function (e) {
+        // do something...
+    });
+    $('#ProfileModal').on('hidden.bs.modal', function (e) {
+        // do something...
+    });
+    $('#ProfileModal').on('show.bs.modal', function (e) {
+        // do something...
+    });
+   
 }
 
 //Скрипты MainPage
@@ -39,44 +181,14 @@ function ShowMSG(MSG)
     }, 1000);
 }
 
-//Скрипты лобби
-function getSlotNum(nickname)
-{
-    for (var i=0; i<3; i++)
-    {
-        if($("#CrLPModal #Slot" + i + " #Nick" ).text()===nickname)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-    
-function changeStatus(nickname) ///Сменить статус игрока 
-{
-    var slotNum = getSlotNum(nickname);
-    
-    var curStatus = $("#CrLPModal #Slot" + slotNum + " .bootstrap-switch-on").text()=="";
-    if (curStatus)
-    {
-        $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-off').click();
-    }
-    else
-    {
-        $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-on').click();
-    }
-}
-
 function createLobby()
 {
-    clearLobby();
-    
     socSocket.send('{"target":"createLobby"}');
-    
-    $( "#leaveLobby" ).click(function() 
-    {
-        destroyLobby();
-    });
+}
+
+function startGame()
+{
+    socSocket.send('{"target":"startGame"}');
 }
 
 function destroyLobby()
@@ -86,22 +198,20 @@ function destroyLobby()
 
 function joinLobby(userHost)
 {
-    clearLobby();
+    lobbyNow.init('JoinLobby', userHost);
     
     $.getJSON('MainPage/getLobby?host=' + userHost, {}, function(json)
     { 
-        $('#CrLPModal .modal-title').text(userHost);
-        
         for (var i = 0, len = json.members.length; i < len; i++)
         {
-            addPlayerToTable(json.members[i].nickname);
+            lobbyNow.add(json.members[i].nickname);
             if(json.members[i].status === "ready")
             {
-                setStatusOn(json.members[i].nickname);
+                lobbyNow.setStatus(json.members[i].nickname, "ready");
             }
             else
             {
-                setStatusOff(json.members[i].nickname);
+                lobbyNow.setStatus(json.members[i].nickname, "notReady");
             }
         }
         
@@ -111,14 +221,13 @@ function joinLobby(userHost)
             leaveLobby();
         });
         
-        $('#CrLPModal').modal('show');
+        $('#JoinLobby').modal('show');
         
         socSocket.send('{"target":"joinLobby", "userHost":"' + userHost + '"}');
         var nickname = $(".header #NickName h2").text();
-        addPlayerToTable(nickname);
+        lobbyNow.add(nickname);
     }); 
     
-
 }
 
 function leaveLobby()
@@ -126,80 +235,77 @@ function leaveLobby()
     socSocket.send('{"target":"leaveLobby"}');
 }
 
-//Добавить игрока в окне лобби
-function addPlayerToTable(nickname) 
+function sendStatus(status)
 {
-    var slotNum = getSlotNum('Свободный слот');
-    $("#CrLPModal #Slot" + slotNum + " #Nick").text(nickname);
-    $("#CrLPModal #Slot" + slotNum + " #Status").append('<input class="switchBTM" type="checkbox" readonly="" data-size="mini">');
-
-    $(".switchBTM").bootstrapSwitch();
+    socSocket.send('{"target":"setStatus", "status":"' + status + '"}');
 }
 
-//Очистить слот в окне лобби
-function setSlotEmpty(slotNum)
+function kickPlayer(username)
 {
-    $("#CrLPModal #Slot" + slotNum + " #Nick").text('Свободный слот');
-    $("#CrLPModal #Slot" + slotNum + " #Status").text('');
-}
-
-function clearLobby()
-{
-    $("#CrLPModal #Nick").text('Свободный слот');
-    $("#CrLPModal #Status").text('');
-    //$("#CrLPModal").removeClass();
-}
-
-//удалить игрока в окне лобби
-function removePlayerFromTable(nickname)
-{
-    var slotNum = getSlotNum(nickname);
-    setSlotEmpty(slotNum);
+    socSocket.send('{"target":"kickPlayer", "username":"' + username + '"}');
 }
 
 //показать список лобби
 function showLobbyList()
 {
-    $("#LobbiesBody").empty();
-
-    $.getJSON('MainPage/getLobbyList', {}, function(json)
-    { 
-        for (var i = 0, len = json.length; i < len; i++) 
+    $.ajax({
+        url: 'MainPage/getLobbyList',    
+        dataType : "json",   
+        
+        beforeSend: function() 
         {
-            var row = $('<tr/>', {class:  'lobbyRow' });
-            row.append('<th id="Host">' + json[i].lobbyName + '</th>');
-            row.append('<th id="Slots">' + json[i].busySlotNum + '/4' + '</th>');
-            var joinButton = $('<a href=#></a>');
-            joinButton = joinButton.append($('<span/>', {class: 'glyphicon glyphicon-plus', onclick: 'joinLobby("' + json[i].lobbyName + '")'}));
-            joinButton = $('<th/>').append(joinButton);
-            row.append(joinButton);
-            $("#LobbiesBody").append(row);
+            $("#LobbiesBody").empty();
+        },
+        
+        success: function (json) 
+        {
+            for (var i = 0, len = json.length; i < len; i++) 
+            {
+                var row = $('<tr/>', {class:  'lobbyRow' });
+                row.append('<th id="Host">' + json[i].lobbyName + '</th>');
+                row.append('<th id="Slots">' + json[i].busySlotNum + '/4' + '</th>');
+                var joinButton = $('<a href=#></a>');
+                joinButton = joinButton.append($('<span/>', {class: 'glyphicon glyphicon-plus', onclick: 'joinLobby("' + json[i].lobbyName + '")'}));
+                joinButton = $('<th/>').append(joinButton);
+                row.append(joinButton);
+                $("#LobbiesBody").append(row);
+            }
+        },
+        
+        error: function ()
+        {
+            ShowMSGDng("Не удалось соединиться с сервером");
         }
-    }); 
+    });
 }
 
-function changeStatus(nickname) ///Сменить статус игрока 
+//показать список лидеров
+function showLeaders()
 {
-    var slotNum = getSlotNum(nickname);
-
-    var curStatus = $("#CrLPModal #Slot" + slotNum + " .bootstrap-switch-on").text()=="";
-    if (curStatus)
-    {
-        $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-off').click();
-    }
-    else
-    {
-        $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-on').click();
-    }
+    $.ajax({
+        url: 'MainPage/getLeaders',    
+        dataType : "json",   
+        
+        beforeSend: function() 
+        {
+            $("#RaitingTableBody").empty();
+        },
+        
+        success: function (json) 
+        {
+            for (var i = 0, len = json.length; i < len; i++) 
+            {
+                var row = $('<tr/>');
+                row.append('<th>' + json[i].place + '</th>');
+                row.append('<th>' + json[i].nickname + '</th>');
+                row.append('<th>' + json[i].score + '</th>');
+                $("#RaitingTable").append(row);
+            }
+        },
+        
+        error: function ()
+        {
+            ShowMSGDng("Не удалось соединиться с сервером");
+        }
+    });
 }
-function setStatusOn(nickname)
-{
-    var slotNum = getSlotNum(nickname);
-    $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-off').click();
-}
-function setStatusOff(nickname)
-{
-    var slotNum = getSlotNum(nickname);
-    $("#CrLPModal #Slot" + slotNum + ' .bootstrap-switch-handle-on').click();
-}
-

@@ -7,7 +7,6 @@ package com.opris.colorcombat.classes;
 
 import java.util.ArrayList;
 import javax.websocket.Session;
-import com.opris.colorcombat.classes.Member;
 
 /**
  *
@@ -27,17 +26,10 @@ public class Lobby
         listeners.add(host);
     }
     
-    public void join(Session member) throws Exception
+    public void join(Session member)
     {
-        if(members.size()<4)
-        {
-            members.add(new Member(member));
-            listeners.add(member);
-        }
-        else
-        {
-            throw new Exception("В лобби нет свободных мест");
-        }
+        members.add(new Member(member));
+        listeners.add(member);
     }
     
     public void remove(Session member)
@@ -46,6 +38,13 @@ public class Lobby
         Member user = getMember(nickname);
         members.remove(user);
         listeners.remove(member);
+    }
+    
+    public void remove(String member)
+    {
+        Member user = getMember(member);
+        members.remove(user);
+        listeners.remove(user.user);
     }
     
     public void setStatus(Session session, boolean ready)
@@ -64,8 +63,19 @@ public class Lobby
     
     Member getMember(String nickname)
     {
-        int ind = members.indexOf(nickname);
-        return members.get(ind);
+        for(Member mem: members)
+        {
+            if(mem.getUserNickname().equals(nickname))
+            {
+                return mem;
+            }
+        }
+        return null;
+    }
+    
+    public Session getSession(String nickname)
+    {
+        return getMember(nickname).user;
     }
     
     public ArrayList<Session> getLobbyListeners()
@@ -86,6 +96,16 @@ public class Lobby
     public ArrayList<Member> getMembers()
     {
         return members;
+    }
+    
+    public boolean isReady()
+    {
+        boolean isReady = true;
+        for(Member mem : members)
+        {
+            isReady = isReady && mem.isReady();
+        }
+        return isReady;
     }
     
 }

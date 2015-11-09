@@ -11,6 +11,8 @@ package com.opris.colorcombat.classes;
  */
 public class Player extends MapObject {
 
+    private static int defaultSpeed = 1;
+
     public String nickname;
 
     public int speed = 1; //Скорость игрока
@@ -61,6 +63,10 @@ public class Player extends MapObject {
 
     public void moveRight() {
         this.j++;
+    }
+
+    public void restoreDefaultState() {
+        speed = defaultSpeed;
     }
 
 }

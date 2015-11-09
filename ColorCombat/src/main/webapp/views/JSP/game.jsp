@@ -16,13 +16,17 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
         <script src="<c:url value="/js/socketJS.js" />"></script>
         <script src="../js/game.js" type="text/javascript"></script>
-        
+
         <link href="../CSS/stylesTimr.css" rel="stylesheet" type="text/css"/>
         <link href="../CSS/materialize.min.css" rel="stylesheet" type="text/css"/>
         <link href="../CSS/bootstrap.css" rel="stylesheet" type="text/css"/>
         <link href="../CSS/game.css" rel="stylesheet" type="text/css"/>
     </head>
-    <body>
+
+    <body onload="onloadPage()">
+        <div id="Status">
+                <h3>В ожидании</h3>
+        </div>
         <div class="row">
             <div class="col-xs-8 ">
                 <div id="gameField" class="inactive z-depth-2" ></div>
@@ -32,28 +36,25 @@
                     <table class="table table-condensed" id='ScoreTable'></table>
                 </div>
                 <div class="timerDiv clock inactive z-depth-1 ">
-                       00:00:00 
-                    </div>
-                <button class="btn btn-primary " onclick="startGame()">Начать заново</button>
+                    00:00:00 
+                </div>
             </div>
         </div>
-        
-        
-    <div id="MsgDng" class="alert alert-warning ">
-        <a class="close" data-dismiss="alert" href="#">×</a>
-        <p>warning</p>
-    </div> 
-    <div id="Msg" class="alert alert-success ">
-        <a class="close" data-dismiss="alert" href="#">×</a>
-        <p>success</p>
-    </div>
-        
+
+
+        <div id="MsgDng" class="alert alert-warning">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            <p>warning</p>
+        </div> 
+
+        <div id="Msg" class="alert alert-success ">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            <p>success</p>
+        </div>
+
         <script src="<c:url value="/js/canvasLogic.js" />"></script>
-        
        
-       
-        
-    
-</body>
+
+    </body>
 </html>
 

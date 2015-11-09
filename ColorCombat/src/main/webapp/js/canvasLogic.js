@@ -6,9 +6,8 @@
 
 var cellsNumbers = [0, 5, 6, 7, 8]; //Цифры соответсвующие клеткам
 var playersNumbers = [1, 2, 3, 4]; //Цифры соответсвующие игрокам
+var bonusesNumbers = [10, 11, 12];
 var playersColors = ["red", "aqua", "#FFFF00", "lime"]; //Цвета игроков
-var playersTableColors = ["rgba(255,0,0,0.5)", "rgba(0, 255, 255, 0.5)",
-                        "rgba(255, 255, 0, 0.5)", "rgba(0, 255, 0, 0.5)"];
 var cellsColors = ["white", "#DB4D4D", "#33CCCC", "orange", "#00B800"]; //Цвета клеток
 var players = new Array(); //Игроки с их очками 
 
@@ -27,6 +26,7 @@ cellBorderWidth = 3; // ширина границы клетки
 // далее создаём слой для ячеек и игроков
 var cellsLayer = new Konva.Layer();
 var playersLayer = new Konva.Layer();
+var bonusLayer = new Konva.Layer();
 
 //Отрисовываем клетки
 for (var i = 0; i < field.height(); i = i + cellWidth)
@@ -45,7 +45,11 @@ for (var i = 0; i < field.height(); i = i + cellWidth)
     }
 field.add(cellsLayer);
 field.add(playersLayer);
+field.add(bonusLayer);
 
+
+//******************************ФУНКЦИИ**************************************
+//*************************************************************************
 function drawChanges(changes) {
 
     var json = JSON.parse(changes);
@@ -143,11 +147,19 @@ function getPlayerYCanvas(playerXMatrix) {
     return playerXMatrix * cellWidth + cellWidth / 2;
 }
 
+function getLeftCellCornerX(cellYMatrix) {
+    return cellYMatrix * cellWidth + cellBorderWidth / 2;
+}
+
+function getLeftCellCornerY(cellXMatrix) {
+    return cellXMatrix * cellWidth + cellBorderWidth / 2;
+}
 
 //Функция возвращает true/false если указанное цифра соответсвует клетке
 function isCell(value) {
     return cellsNumbers.indexOf(value) > -1;
 }
+
 
 //Функция возвращает true/false если указанное цифра соответствует игроку
 function isPlayer(value) {
@@ -192,21 +204,65 @@ function gameOver(winer) {
     //$("#timer").html(t);
 }
 
-//Начинаем игру
-function  startGame() {
-    clearField();
-    websocket.send("{\"target\":\"startGame\"}");
-}
-
 //Устанавливаем время
-function  setTime(t) {
+function setTime(t) {
     $('.timerDiv').html(t);
 
     $("#timer").html(t);
 }
 
-//Очистка поля (красит все клетки в белый цвет)
-function clearField() {
-    for (var i = 0; i < cellsLayer.children.length; i++)
-        cellsLayer.children[i].fill(cellsColors[0]);
+//Спавнит бонусы
+function spawnBonus(bonusesJSON) {
+
+    var bonuses = JSON.parse(bonusesJSON);
+
+    bonuses.forEach(function draw(bonus) {
+        var cell = cellsLayer.findOne('#' + getCellId(bonus.j, bonus.i));
+        cell.fill(cellsColors[0]);
+        cellsLayer.draw();
+
+        var imageObj = new Image();
+        imageObj.onload = function () {
+            var bonusImg = new Konva.Image({
+                x: getLeftCellCornerX(bonus.j),
+                y: getLeftCellCornerY(bonus.i),
+                image: imageObj,
+                width: cellWidth - cellBorderWidth,
+                height: cellWidth - cellBorderWidth * 1.25,
+                id: bonus.name
+            });
+            bonusLayer.add(bonusImg);
+            bonusImg.draw();
+        };
+
+        switch (bonus.number) {
+            case 10:
+                imageObj.src = '../Images/Game/Bonus/cross.png';
+                break;
+            case 11:
+                imageObj.src = '../Images/Game/Bonus/speedUp.png';
+                break;
+            case 12:
+                imageObj.src = '../Images/Game/Bonus/freeze.png';
+                break;
+        }
+    });
+
+}
+
+//Убирает бонусы
+function removeBonus(bonusJSON) {
+
+    var bonus = JSON.parse(bonusJSON);
+
+    var bonusObj = bonusLayer.findOne('#' + bonus.name);
+
+    bonusObj.remove();
+
+    bonusLayer.draw();
+
+}
+
+function changeStatus(statusJSON){
+    $("#Status h3").text(statusJSON);
 }
