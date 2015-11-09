@@ -128,7 +128,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Расформировать лобби</button>
-                        <button type="button" class="btn btn-primary" id="startGame">Начать</button>
+                        <button type="button" class="btn btn-primary" id="startGame" onclick="startGame()">Начать</button>
                     </div>
                 </div>
             </div>
