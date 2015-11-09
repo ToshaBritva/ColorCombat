@@ -60,3 +60,17 @@ body>.row
     //background: rgba(200,0,0,0.7);
     /*/background: red;*/
 }
+
+#EndMsg
+{
+    position: fixed;
+    top:40%;
+    left: auto;
+    right: auto;
+    width: 100%;
+    text-align: center;
+    display: none;
+    font-size: 40px;
+/*    background: red;*/
+}
+

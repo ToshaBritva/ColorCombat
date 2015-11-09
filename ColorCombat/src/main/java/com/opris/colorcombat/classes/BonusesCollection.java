@@ -19,8 +19,8 @@ public class BonusesCollection {
     public static ArrayList<Bonus> bonusesList = new ArrayList<Bonus>() {
         {
             add(new Bonus(10, -1, -1, "Cross", 3, 0));
-            add(new Bonus(11, -1, -1, "SpeedUp", 3, 5));
-            add(new Bonus(12, -1, -1, "Freeze", 3, 5));
+            add(new Bonus(11, -1, -1, "SpeedUp", 3, 2));
+            add(new Bonus(12, -1, -1, "Freeze", 3, 2));
         }
     };
 

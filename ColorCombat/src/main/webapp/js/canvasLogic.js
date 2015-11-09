@@ -200,8 +200,9 @@ function getCellId(i, j) {
 //Игра закончена
 function gameOver(winer) {
     var t = "Игра окончена!!!\nПобедил " + winer.nickname + " со счетом " + winer.score;
-    ShowMSG(t);
-    //$("#timer").html(t);
+//    ShowMSG(t, 2000);
+    
+    ShowEndMSG(t);
 }
 
 //Устанавливаем время
@@ -263,6 +264,14 @@ function removeBonus(bonusJSON) {
 
 }
 
+//Изменяет статус игры
 function changeStatus(statusJSON){
     $("#Status h3").text(statusJSON);
+    if (statusJSON=="В процессе"){
+        ShowMSG("FIGHT", 1000);
+    }
+}
+
+function countdown(seconds){
+    ShowMSG(seconds, 600);
 }

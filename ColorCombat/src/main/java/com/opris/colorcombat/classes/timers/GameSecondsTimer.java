@@ -48,8 +48,11 @@ public class GameSecondsTimer extends TimerTask {
     private LocalTime endTime = LocalTime.parse("00:00:00", sdf); //Время окончания игры
     private LocalTime startTime = LocalTime.parse("00:00:30", sdf); //Начальное время
 
-    private LocalTime maxWaitingTime = LocalTime.parse("00:00:10", sdf);
-    private LocalTime waitingTime = LocalTime.parse("00:00:00", sdf);
+    private LocalTime maxWaitingTime = LocalTime.parse("00:00:10", sdf); //максимальное время ожидание игры
+    private LocalTime waitingTime = LocalTime.parse("00:00:00", sdf); //текущее ожидание
+
+    private LocalTime countdownEnd = LocalTime.parse("00:00:00", sdf); //Конец отсчета
+    private LocalTime countdownStart = LocalTime.parse("00:00:05", sdf); //Начало отсчета
 
     public GameSecondsTimer(Game game) {
         this.game = game;
@@ -60,37 +63,49 @@ public class GameSecondsTimer extends TimerTask {
 
         //В зависимости от статусы игры изменяем время
         switch (game.Status) {
-            case WAITING:
-
-                //Если максимальное время ожидание превышено, начинаем игру
-                if (waitingTime.isAfter(maxWaitingTime) || game.GetListenPlayersCount() >= minPlayersToStart) {
-                    game.Start();
-                } else {
-                    waitingTime = waitingTime.plusSeconds(1);
-                }
-
-                break;
+            
             case IN_PROGRESS:
 
                 //Если игра уже в процессе, занимаемся бонусами и прочим
                 if (endTime.equals(startTime)) {
-                    game.sendTime(startTime.format(sdf));
+                    game.sendTime("time", startTime.format(sdf));
                     game.End();
                 } else {
-
                     //Проверяем бонусы на карте, уменьшаем время существования и т.д., удаляем не подобранные
                     game.checkBonuses();
 
+                    //Спавним бонус
                     if (startTime.getSecond() % bonusSpawnInterval == 0) {
                         game.spawnRandomBonus();
                     }
 
                     //Отправляем время клиентам
-                    game.sendTime(startTime.format(sdf));
+                    game.sendTime("time", startTime.format(sdf));
 
+                    //Уменьшаем текущее время
                     startTime = startTime.minusSeconds(1);
                 }
                 break;
+                
+            case WAITING:
+                //Если максимальное время ожидание превышено, начинаем игру
+                if (waitingTime.isAfter(maxWaitingTime) || game.GetListenPlayersCount() >= minPlayersToStart) {
+                    game.Countdown();
+                } else {
+                    waitingTime = waitingTime.plusSeconds(1);
+                }
+                break;
+
+            case COUNTDOWN:
+                if (countdownStart.equals(countdownEnd)){
+                    game.sendTime("countdown", String.valueOf(countdownStart.getSecond()));
+                    game.Start();
+                } else {
+                    game.sendTime("countdown", String.valueOf(countdownStart.getSecond()));
+                    countdownStart = countdownStart.minusSeconds(1);
+                }
+                break;
+
         }
 
     }

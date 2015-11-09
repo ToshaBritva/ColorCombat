@@ -4,21 +4,33 @@
  * and open the template in the editor.
  */
 
-function ShowMSGDng(MSG)
+function ShowMSGDng(MSG, timeout)
 {
     $('#MsgDng p').text(MSG);
     $('#MsgDng').fadeIn();
-    setTimeout(function()
+    setTimeout(function ()
     {
-        $('#MsgDng').fadeOut(); ;
-    }, 5000);
+        $('#MsgDng').fadeOut();
+    }, timeout);
 }
-function ShowMSG(MSG)
+
+function ShowMSG(MSG, timeout)
 {
     $('#Msg p').text(MSG);
     $('#Msg').fadeIn();
-    setTimeout(function()
+    setTimeout(function ()
     {
-        $('#Msg').fadeOut(); ;
-    }, 1000);
+        $('#Msg').fadeOut();
+    }, timeout);
 }
+
+function ShowEndMSG(MSG) {
+    $('#EndMsg p').text(MSG);
+    $('#EndMsg').fadeIn();
+}
+
+function onMainPage() {
+    // similar behavior as an HTTP redirect
+    window.location.replace(document.referrer);
+}
+

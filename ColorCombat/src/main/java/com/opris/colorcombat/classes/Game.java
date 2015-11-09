@@ -39,8 +39,9 @@ public class Game {
     public enum GameStatus {
 
         WAITING("Ожидание игроков"),
+        COUNTDOWN("Обратный отсчет"),
         IN_PROGRESS("В процессе"),
-        ENDED("Завершена");
+        ENDED("Игра окончена");
 
         private final String name;
 
@@ -57,7 +58,7 @@ public class Game {
 
     private Random gameRandom = new Random(); //Генератор случайных чисел для игры
 
-    private static int bonusSpawnProbability = 30; //Вероятность спавна бонуса
+    private static int bonusSpawnProbability = 40; //Вероятность спавна бонуса
 
     private static int fieldSize = 10; //Размер поля
 
@@ -171,9 +172,9 @@ public class Game {
     }
 
     //Посылаем время
-    public void sendTime(String time) {
+    public void sendTime(String target, String time) {
         JsonObject timeMessage = new JsonObject();
-        timeMessage.addProperty("target", "time");
+        timeMessage.addProperty("target", target);
         timeMessage.addProperty("value", time);
         listeners.forEach((playerSession) -> {
             try {
@@ -294,6 +295,7 @@ public class Game {
         });
     }
 
+    //Отправляем сообщение с победителем
     public void SendWinner() {
         //Определяем победителя       
         Player winer = getWinner();
@@ -313,6 +315,10 @@ public class Game {
             } catch (Exception ex) {
             }
         });
+    }
+    
+    public void SendCountdown(String time){
+        
     }
 
     //**********************************************************************
@@ -831,12 +837,22 @@ public class Game {
         //Переводим игру в статус 
         Status = GameStatus.IN_PROGRESS;
 
-        //Сигнализируем очистить поля на клиенте
+        //Отправляем статус игрокам
         SendGameStatus();
 
     }
 
-    //Влзвращает начата ли игра
+    //Обратный отсчет
+    public void Countdown() {
+        
+        //Переводим игру в статус 
+        Status = GameStatus.COUNTDOWN;
+        
+        //Отправляем статус игрокам
+        SendGameStatus();
+    }
+
+    //Возвращает начата ли игра
     public boolean IsStarted() {
         return Status.equals(GameStatus.IN_PROGRESS);
     }

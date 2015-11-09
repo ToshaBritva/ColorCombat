@@ -53,8 +53,11 @@ function onMessage(evt) {
             drawChanges(json.value);
             break
         case "time":
-            setTime(json.value)
+            setTime(json.value);
             break
+        case "countdown":
+            countdown(json.value);
+            break;
         case "gameStatus":
             changeStatus(json.value);
             break
