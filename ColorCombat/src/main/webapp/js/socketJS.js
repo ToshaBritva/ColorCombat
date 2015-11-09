@@ -40,11 +40,16 @@ function onMessage(evt) {
 
     //Определяем цель сообщения
     switch (json.target) {
+        case "spawnBonus":
+            spawnBonus(json.value);
+            break;
+        case "removeBonus":
+            removeBonus(json.value);
+            break;
         case "movePlayer":
             drawChanges(json.value);
             break
         case "time":
-            
             setTime(json.value)
             break
         case "endGame":

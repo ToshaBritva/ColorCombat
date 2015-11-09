@@ -10,6 +10,7 @@ import static com.opris.colorcombat.classes.timers.GameCurrentTime.getCurrentTim
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Random;
 import java.util.TimerTask;
 
 /**
@@ -18,7 +19,9 @@ import java.util.TimerTask;
  */
 public class GameSecondsTimer extends TimerTask {
 
-    
+    private static int bonusSpawnInterval = 2;
+    private static int bonusSpawnProbability = 30;
+
     private Game game; //Игра
     private DateTimeFormatter sdf = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH);
     private LocalTime endTime = LocalTime.parse("00:00:00", sdf); //Время окончания игры
@@ -31,11 +34,21 @@ public class GameSecondsTimer extends TimerTask {
     @Override
     public void run() {
 
-        if (endTime.equals(startTime)) {  
+        if (endTime.equals(startTime)) {
             game.sendTime(startTime.format(sdf));
             game.end();
         } else {
+
+            //Проверяем бонусы на карте, уменьшаем время существования и т.д., удаляем не подобранные
+            game.checkBonuses();
+
+            Random r = new Random();
+            if (r.nextInt(100) < bonusSpawnProbability) {
+                game.spawnRandomBonus();
+            }
+            //Отправляем время клиентам
             game.sendTime(startTime.format(sdf));
+
             startTime = startTime.minusSeconds(1);
         }
     }

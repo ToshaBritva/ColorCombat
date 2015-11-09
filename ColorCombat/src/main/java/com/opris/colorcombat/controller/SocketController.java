@@ -5,6 +5,7 @@
  */
 package com.opris.colorcombat.controller;
 
+import com.opris.colorcombat.classes.Bonus;
 import com.opris.colorcombat.classes.MapObject;
 import com.opris.colorcombat.classes.Game;
 import java.io.IOException;
@@ -78,7 +79,6 @@ public class SocketController {
 
     @OnOpen
     public void onOpen(Session session) throws IOException, EncodeException {
-
         //Добавляем новго листенера
         currentGame.listeners.add(session);
 
@@ -87,6 +87,10 @@ public class SocketController {
 
         //Отправляем его 
         currentGame.sendChanges(changes);
+        
+        for (Bonus b: currentGame.bonusesList){
+            currentGame.sendSpawnBonus(b);
+        }
     }
 
     @OnClose
