@@ -270,13 +270,13 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="Nickname"><%=request.getUserPrincipal().getName().toString()%></h4>
-                        <small id="Rating"><Рейтинг></small>
+                        <h2 class="modal-title" id="Nickname">Имя игрока: <%=request.getUserPrincipal().getName().toString()%></h2>
+                        <h4 id="Rating"><Набрано очков></h4>
                     </div>
                     <div class="modal-body">          
                         <div id="content">
                             <div class="form-group text-left">
-                                <label for="about">О себе:</label>
+                                <label for="about"><h4>О себе:</h4></label>
                                 <textarea id="About" class="form-control" rows="3" id="about" style='resize: none;' placeholder="Расскажите о себе..."></textarea>
                                 <div class='text-center'>
                                     <button id="SaveProfile" class="btn btn-primary btn-default top-buffer" style='margin-left: 10px' data-dismiss="modal">

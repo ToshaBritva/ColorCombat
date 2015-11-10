@@ -317,7 +317,7 @@ function showProfile() {
         dataType: "json",
         beforeSend: function ()
         {
-            $("#Rating").text("");
+            $("#Rating").text("Набрано очков");
             $("#About").val("");
             $("#GameHistory").empty();
         },
@@ -331,10 +331,10 @@ function showProfile() {
                 row.append('<th>' + json.games[i].result + '</th>');
                 $("#GameHistory").append(row);
             }
-            
-            $("#Rating").text(json.rating);
+
+            $("#Rating").text($("#Rating").text() + ": " + json.rating);
             $("#About").val(json.about);
-            
+
         },
         error: function ()
         {
