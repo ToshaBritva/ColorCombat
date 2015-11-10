@@ -342,3 +342,24 @@ function showProfile() {
         }
     });
 }
+
+function setUserDescription()
+{   
+    $.ajax({
+        url: 'MainPage/setUserDescr',
+        type: "POST",
+        data:
+        {
+          nickname: $(".header #NickName h2").text(),
+          description: $("#About").val()
+        },
+        success: function ()
+        {
+            ShowMSG("Запись сохранена");
+        },
+        error: function ()
+        {
+            ShowMSGDng("Не удалось соединитсья с сервером");
+        }
+    });
+}
