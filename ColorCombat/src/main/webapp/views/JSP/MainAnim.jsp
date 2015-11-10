@@ -279,7 +279,7 @@
                                 <label for="about"><h4>О себе:</h4></label>
                                 <textarea id="About" class="form-control" rows="3" id="about" style='resize: none;' placeholder="Расскажите о себе..."></textarea>
                                 <div class='text-center'>
-                                    <button id="SaveProfile" class="btn btn-primary btn-default top-buffer" style='margin-left: 10px' data-dismiss="modal" onclick="setUserDescription()">
+                                    <button id="SaveProfile" class="btn btn-primary btn-default top-buffer" style='margin-left: 10px' onclick="setUserDescription()">
                                         Сохранить
                                     </button>
                                 </div>

@@ -344,18 +344,22 @@ function showProfile() {
 }
 
 function setUserDescription()
-{
-    $.post(
-      "MainPage/setUserDescr",
-      {
-        nickname: $(".header #NickName h2").text(),
-        description: $("#about").val()
-      }
-    )
-    .done(function() {
-           ShowMSG("Запись сохранена");
-   })
-   .fail(function() {
-       alert( "Не удалось соединитсья с сервером" );
-   });
+{   
+    $.ajax({
+        url: 'MainPage/setUserDescr',
+        type: "POST",
+        data:
+        {
+          nickname: $(".header #NickName h2").text(),
+          description: $("#About").val()
+        },
+        success: function ()
+        {
+            ShowMSG("Запись сохранена");
+        },
+        error: function ()
+        {
+            ShowMSGDng("Не удалось соединитсья с сервером");
+        }
+    });
 }
