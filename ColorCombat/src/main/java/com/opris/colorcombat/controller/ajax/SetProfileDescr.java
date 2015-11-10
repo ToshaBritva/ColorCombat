@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 
 @Controller
-@RequestMapping(value = {"/MainPage/setLobbyDescr"})
+@RequestMapping(value = {"/MainPage/setUserDescr"})
 public class SetProfileDescr
 {
     private UserRepository userRepository;
@@ -36,7 +36,7 @@ public class SetProfileDescr
         this.userRepository = userRepository;
     }
     
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public void getProfile(@RequestParam(value = "nickname", required = true) String nickname, @RequestParam(value = "description", required = true) String descr)
     {

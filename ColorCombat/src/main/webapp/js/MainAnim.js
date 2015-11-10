@@ -309,3 +309,20 @@ function showLeaders()
         }
     });
 }
+
+function setUserDescription()
+{
+    $.post(
+      "MainPage/setUserDescr",
+      {
+        nickname: $(".header #NickName h2").text(),
+        description: $("#about").val()
+      }
+    )
+    .done(function() {
+           ShowMSG("Запись сохранена");
+   })
+   .fail(function() {
+       alert( "Не удалось соединитсья с сервером" );
+   });
+}
