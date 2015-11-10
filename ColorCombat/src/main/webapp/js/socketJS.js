@@ -43,18 +43,14 @@ function onOpen(evt) {
 
 //Действия при получении сообщения
 function onMessage(evt) {
-    console.log(evt.data);
-    var json = evt.data;
-    json = JSON.parse(json);
+    json = JSON.parse(evt.data);
 
     //Определяем цель сообщения
     switch (json.target) {
-        case "spawnBonus":
-            spawnBonus(json.value);
-            break;
         case "removeBonus":
             removeBonus(json.value);
             break;
+        case "spawnBonus":
         case "movePlayer":
             drawChanges(json.value);
             break
