@@ -60,6 +60,7 @@ and open the template in the editor.
     width: 100%;
     text-align: center;
     display: none;
+    z-index:1050;
     //background: rgba(200,0,0,0.7);
     /*/background: red;*/
 }
@@ -73,6 +74,7 @@ and open the template in the editor.
     width: 100%;
     text-align: center;
     display: none;
+    z-index:1050;
     //background: rgba(200,0,0,0.7);
     /*/background: red;*/
 }

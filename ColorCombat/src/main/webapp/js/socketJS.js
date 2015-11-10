@@ -23,6 +23,12 @@ function onloadPage() {
     websocket.onmessage = function (evt) {
         onMessage(evt);
     };
+    
+    $(this).keyup(function(event){
+        if(event.keyCode == 13){
+            $("#onMainPage").click();
+        }
+    });
 }
 
 //Действия по возникновению ошибки в соеденении с сокетом

@@ -54,7 +54,7 @@
         
         <div id="EndMsg" class="alert alert-success ">
             <p>EndMsg</p>
-            <button type="button" class="btn btn-success" data-dismiss="alert" onclick="onMainPage()">На главный экран</button>
+            <button type="button" id="onMainPage" class="btn btn-success" data-dismiss="alert" onclick="onMainPage()">На главный экран</button>
         </div>
         
         <script src="<c:url value="/js/canvasLogic.js" />"></script>

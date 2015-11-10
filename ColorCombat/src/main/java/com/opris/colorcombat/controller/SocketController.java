@@ -99,12 +99,7 @@ public class SocketController {
     }
 
     //Создание новой игры
-    public static void addGame(Lobby lobby) {
-
-        //Список имен игроков
-        ArrayList<String> playersNicknames = new ArrayList<>();
-        lobby.getLobbyListeners().forEach(x -> playersNicknames.add(x.getUserPrincipal().getName()));
-
+    public static void addGame(ArrayList<String> playersNicknames) {
         //Создаем новую игру
         Game game = new Game(playersNicknames);
 
