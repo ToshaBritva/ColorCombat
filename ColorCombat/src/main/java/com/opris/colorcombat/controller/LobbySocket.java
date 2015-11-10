@@ -173,7 +173,9 @@ public class LobbySocket
             {
                 if(lobby.isReady())
                 {
-                    SocketController.addGame(lobby);
+                    ArrayList<String> playersNicknames = new ArrayList<>();
+                    lobby.getLobbyListeners().forEach(x -> playersNicknames.add(x.getUserPrincipal().getName()));
+                    SocketController.addGame(playersNicknames);
                     lobbyMessage.addProperty("target", "startGame");
                     sendToLobby(lobby, lobbyMessage.toString());
                 }
@@ -204,7 +206,6 @@ public class LobbySocket
                     Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
         }
 
     }
