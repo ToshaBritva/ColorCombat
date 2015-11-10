@@ -58,7 +58,7 @@ public class Game {
 
     private Random gameRandom = new Random(); //Генератор случайных чисел для игры
 
-    private static int bonusSpawnProbability = 40; //Вероятность спавна бонуса
+    private static int bonusSpawnProbability = 30; //Вероятность спавна бонуса
 
     private static int fieldSize = 10; //Размер поля
 
@@ -136,10 +136,15 @@ public class Game {
         fieldMatrix[player.i][player.j] = player.number;
     }
 
-    //Отрисовываем клетку на матирце
-    private MapObject drawCellMatrix(int i, int j, int playerNumber) {
-        fieldMatrix[i][j] = cellsNumbers.get(playerNumber);
-        return new MapObject(cellsNumbers.get(playerNumber), i, j);
+//    //Отрисовываем клетку в цвет игрока на матирце
+//    private MapObject drawCellMatrix(int i, int j, int playerNumber) {
+//        fieldMatrix[i][j] = cellsNumbers.get(playerNumber);
+//        return new MapObject(cellsNumbers.get(playerNumber), i, j);
+//    }
+    //Отрисовываем клетку в цвет игрока на матирце
+    private MapObject drawCellMatrix(int i, int j, Player player) {
+        fieldMatrix[i][j] = cellsNumbers.get(player.paintingNumber);
+        return new MapObject(cellsNumbers.get(player.paintingNumber), i, j);
     }
 
     //**********************************************************************
@@ -316,10 +321,6 @@ public class Game {
             }
         });
     }
-    
-    public void SendCountdown(String time){
-        
-    }
 
     //**********************************************************************
     //***********************ДВИЖЕНИЕ ИГРОКА********************************
@@ -329,6 +330,9 @@ public class Game {
 
         //Получаем объект сходившего игрока
         Player player = getPlayerByNickname(nickname);
+        
+        //Получаем игрока очки которого будем менять
+        Player changindScorePlayer = getPlayerByNumber(player.paintingNumber);
 
         //Изменения произведенные игроком
         ArrayList<MapObject> changes = new ArrayList<>();
@@ -368,14 +372,17 @@ public class Game {
 
                             //Получаем бонус на этой клетке
                             Bonus bonus = getBonusByCoordinates(player.i - 1, player.j);
-
+                            
+                            //Увеличиваем очки игрока
+                            player.score++;
+                            
                             //Применяем его к указанному игроку
                             changes.addAll(applyBonus(player, bonus));
                         }
                     }
 
                     //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player.number));
+                    changes.add(drawCellMatrix(player.i, player.j, player));
 
                     //Двигаем игрока
                     player.moveUp();
@@ -410,6 +417,9 @@ public class Game {
 
                             //Получаем бонус на этой клетке
                             Bonus bonus = getBonusByCoordinates(player.i + 1, player.j);
+                            
+                            //Увеличиваем очки игрока
+                            player.score++;
 
                             //Применяем его к указанному игроку
                             changes.addAll(applyBonus(player, bonus));
@@ -417,7 +427,7 @@ public class Game {
                     }
 
                     //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player.number));
+                    changes.add(drawCellMatrix(player.i, player.j, player));
 
                     //Двигаем игрока
                     player.moveDown();
@@ -438,7 +448,7 @@ public class Game {
                             score++;
                         } else {
                             //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != player) {
+                            if (cellOwner != changindScorePlayer) {
                                 cellOwner.score--;
                                 changes.add(cellOwner);
                                 score++;
@@ -451,6 +461,9 @@ public class Game {
 
                             //Получаем бонус на этой клетке
                             Bonus bonus = getBonusByCoordinates(player.i, player.j - 1);
+                            
+                            //Увеличиваем очки игрока
+                            player.score++;
 
                             //Применяем его к указанному игроку
                             changes.addAll(applyBonus(player, bonus));
@@ -459,7 +472,7 @@ public class Game {
                     }
 
                     //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player.number));
+                    changes.add(drawCellMatrix(player.i, player.j, player));
 
                     //Двигаем игрока
                     player.moveLeft();
@@ -493,6 +506,9 @@ public class Game {
 
                             //Получаем бонус на этой клетке
                             Bonus bonus = getBonusByCoordinates(player.i, player.j + 1);
+                            
+                            //Увеличиваем очки игрока
+                            player.score++;
 
                             //Применяем его к указанному игроку
                             changes.addAll(applyBonus(player, bonus));
@@ -500,7 +516,7 @@ public class Game {
                     }
 
                     //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player.number));
+                    changes.add(drawCellMatrix(player.i, player.j, player));
 
                     //Двигаем игрока
                     player.moveRight();
@@ -508,11 +524,12 @@ public class Game {
                 }
         }
 
-        player.score += score;
+        changindScorePlayer.score += score;
 
         //Отрисовываем изменения
         drawPlayerMatrix(player);
         changes.add(player);
+        changes.add(changindScorePlayer);
 
         return changes;
     }
@@ -610,13 +627,13 @@ public class Game {
                         //Если клетка пустая
                         if (cellOwner == null) {
                             player.score++;
-                            changes.add(drawCellMatrix(i, bonus.j, player.number));
+                            changes.add(drawCellMatrix(i, bonus.j, player));
                         } else {
                             //Уменьшаем очки владельца и увеличиваем очки ходившего
                             if (cellOwner != player) {
                                 cellOwner.score--;
                                 player.score++;
-                                changes.add(drawCellMatrix(i, bonus.j, player.number));
+                                changes.add(drawCellMatrix(i, bonus.j, player));
 
                                 //Если игрок уже есть в списке изменений, то не добавляем его
                                 if (!changes.stream().anyMatch((ch) -> ch.number == cellOwner.number)) {
@@ -635,13 +652,13 @@ public class Game {
                         //Если клетка пустая
                         if (cellOwner == null) {
                             player.score++;
-                            changes.add(drawCellMatrix(bonus.i, j, player.number));
+                            changes.add(drawCellMatrix(bonus.i, j, player));
                         } else {
                             if (cellOwner != player) {
                                 //Уменьшаем очки владельца и увеличиваем очки ходившего
                                 cellOwner.score--;
                                 player.score++;
-                                changes.add(drawCellMatrix(bonus.i, j, player.number));
+                                changes.add(drawCellMatrix(bonus.i, j, player));
 
                                 if (!changes.stream().anyMatch((ch) -> ch.number == cellOwner.number)) {
                                     changedPlayers.add(cellOwner);
@@ -654,12 +671,10 @@ public class Game {
 
                 break;
             case "SpeedUp":
-                player.score++;
                 bonus.affectedPlayers.add(player);
                 player.speed = player.speed * 2;
                 break;
             case "Freeze":
-                player.score++;
                 for (Player p : players) {
                     if (p != player) {
                         p.speed = 0;
@@ -667,7 +682,16 @@ public class Game {
                     bonus.affectedPlayers.add(p);
                 }
                 break;
+            case "ReversePainting":
+                for (Player p : players) {
+                    if (p != player) {
+                        p.paintingNumber=player.paintingNumber;
+                    }
+                    bonus.affectedPlayers.add(p);
+                }
+                break;
         }
+        
         //Убираем бонус с карты
         fieldMatrix[bonus.i][bonus.j] = 0;
         sendRemoveBonus(bonus);
@@ -844,10 +868,10 @@ public class Game {
 
     //Обратный отсчет
     public void Countdown() {
-        
+
         //Переводим игру в статус 
         Status = GameStatus.COUNTDOWN;
-        
+
         //Отправляем статус игрокам
         SendGameStatus();
     }
