@@ -35,7 +35,7 @@
                     <h2><%=request.getUserPrincipal().getName().toString()%></h2>
                 </div>
                 <div id="Profile" class="col-sm-2 col-sm-offset-2 top-buffer">
-                    <button id="bntProfile" class="btn btn-primary btn-block" data-toggle="modal" data-target="#ProfileModal">Профиль</button>
+                    <button id="bntProfile" class="btn btn-primary btn-block" data-toggle="modal" data-target="#ProfileModal" onclick="showProfile()">Профиль</button>
                 </div>
                 <div id="exit" class="col-sm-2 top-buffer">
                     <button id="idExit" class="btn btn-primary btn-block" onClick='location.href = "<c:url value="/logout"/>"'>Exit</button>
@@ -270,14 +270,14 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="Nickname"><%=request.getUserPrincipal().getName().toString()%></h4>
-                        <small id="Rating"><Рейтинг></small>
+                        <h2 class="modal-title" id="Nickname">Имя игрока: <%=request.getUserPrincipal().getName().toString()%></h2>
+                        <h4 id="Rating"><Набрано очков></h4>
                     </div>
                     <div class="modal-body">          
                         <div id="content">
                             <div class="form-group text-left">
-                                <label for="about">О себе:</label>
-                                <textarea class="form-control" rows="3" id="about" style='resize: none;' placeholder="Расскажите о себе..."></textarea>
+                                <label for="about"><h4>О себе:</h4></label>
+                                <textarea id="About" class="form-control" rows="3" id="about" style='resize: none;' placeholder="Расскажите о себе..."></textarea>
                                 <div class='text-center'>
                                     <button id="SaveProfile" class="btn btn-primary btn-default top-buffer" style='margin-left: 10px' data-dismiss="modal" onclick="setUserDescription()">
                                         Сохранить
@@ -285,7 +285,7 @@
                                 </div>
                             </div>
                             <div class='top-buffer'>
-                                <table id='GameHistory' class='table table-hover'>
+                                <table class='table table-hover'>
                                     <thead>
                                         <tr class="info">
                                             <th style="width: 30%">Дата</th>
@@ -293,32 +293,7 @@
                                             <th style="width: 30%">Итог</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th>20.12.2005</th>
-                                            <th>1180</th>
-                                            <th>II место</th>
-                                        </tr>
-                                        <tr class='success'>
-                                            <th>20.12.2005</th>
-                                            <th>1280</th>
-                                            <th>I место</th>
-                                        </tr>
-                                        <tr class='success'>
-                                            <th>21.12.2005</th>
-                                            <th>1480</th>
-                                            <th>I место</th>
-                                        </tr>
-                                        <tr>
-                                            <th>23.12.2005</th>
-                                            <th>960</th>
-                                            <th>III место</th>
-                                        </tr>
-                                        <tr>
-                                            <th>25.12.2005</th>
-                                            <th>960</th>
-                                            <th>IV место</th>
-                                        </tr>
+                                    <tbody id='GameHistory'>                                
                                     </tbody>
                                 </table>
                             </div>
