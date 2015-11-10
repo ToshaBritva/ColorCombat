@@ -14,6 +14,8 @@ public class Player extends MapObject {
     private static int defaultSpeed = 1;
 
     public String nickname;
+    
+    public int paintingNumber;
 
     public int speed = 1; //Скорость игрока
 
@@ -22,6 +24,7 @@ public class Player extends MapObject {
     public Player(int playerNumber, int i, int j, String nickname) {
         super(playerNumber, i, j);
         this.nickname = nickname;
+        this.paintingNumber = playerNumber;
     }
 
     public String getNickname() {
@@ -67,6 +70,7 @@ public class Player extends MapObject {
 
     public void restoreDefaultState() {
         speed = defaultSpeed;
+        paintingNumber = number;
     }
 
 }

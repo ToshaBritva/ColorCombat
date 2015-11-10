@@ -9,7 +9,6 @@ import com.opris.colorcombat.classes.Game;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Random;
 import java.util.TimerTask;
 
 /**
@@ -22,8 +21,9 @@ public class GameSecondsTimer extends TimerTask {
     public enum GameStatus {
 
         WAITING("Ожидание игроков"),
+        COUNTDOWN("Обратный отсчет"),
         IN_PROGRESS("В процессе"),
-        ENDED("Завершена");
+        ENDED("Игра окончена");
 
         private final String name;
 
@@ -38,7 +38,7 @@ public class GameSecondsTimer extends TimerTask {
 
     }
 
-    private int bonusSpawnInterval = 3; //Интервал спавна бонуса
+    private int bonusSpawnInterval = 1; //Интервал спавна бонуса
 
     private int minPlayersToStart = 2; //Минимальное количество игроков для того чтобы начать игру
 
@@ -60,11 +60,10 @@ public class GameSecondsTimer extends TimerTask {
 
     @Override
     public void run() {
-
         //В зависимости от статусы игры изменяем время
         switch (game.Status) {
             
-            case IN_PROGRESS:
+            case  IN_PROGRESS:
 
                 //Если игра уже в процессе, занимаемся бонусами и прочим
                 if (endTime.equals(startTime)) {

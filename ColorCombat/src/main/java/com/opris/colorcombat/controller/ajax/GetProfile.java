@@ -13,6 +13,7 @@ import com.opris.colorcombat.repository.UserRepository;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  * @author HP
  */
+@Controller
+@RequestMapping(value = {"/MainPage/getProfile"})
 public class GetProfile
 {
     private UserRepository userRepository;
@@ -40,7 +43,6 @@ public class GetProfile
         
         JsonObject JSONprofile = new JsonObject();
         JSONprofile.addProperty("rating", user.getRating());
-        JSONprofile.addProperty("about", user.getDescription());
         JSONprofile.addProperty("about", user.getDescription());
         
         JsonArray JSONgames = new JsonArray();

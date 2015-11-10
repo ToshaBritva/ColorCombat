@@ -246,6 +246,9 @@ function spawnBonus(bonusesJSON) {
             case 12:
                 imageObj.src = '../Images/Game/Bonus/freeze.png';
                 break;
+            case 13:
+                imageObj.src = '../Images/Game/Bonus/reversePainting.png';
+                break;
         }
     });
 

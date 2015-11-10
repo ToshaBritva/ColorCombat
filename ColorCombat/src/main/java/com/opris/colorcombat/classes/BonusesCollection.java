@@ -21,6 +21,7 @@ public class BonusesCollection {
             add(new Bonus(10, -1, -1, "Cross", 3, 0));
             add(new Bonus(11, -1, -1, "SpeedUp", 3, 2));
             add(new Bonus(12, -1, -1, "Freeze", 3, 2));
+            add(new Bonus(13, -1, -1, "ReversePainting", 3, 2));
         }
     };
 
