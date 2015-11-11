@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import javax.websocket.Session;
 import com.opris.colorcombat.classes.timers.*;
 import com.opris.colorcombat.controller.SocketController;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,12 +19,8 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 import java.util.Timer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
@@ -66,6 +61,8 @@ public class Game {
 
     public ArrayList<Player> players = new ArrayList<>(); //Соответсвие ников и игроков
 
+    public ArrayList<Bonus> bonusesList = new ArrayList<>(); //Бонусы на карте
+
     private ArrayList<Session> listeners = new ArrayList<>(); //Список сессий прослушивающих эту игру
 
     private ArrayList<Integer> cellsNumbers = new ArrayList<>(); //Цифры соответсвующие клеткам
@@ -75,8 +72,6 @@ public class Game {
     private Timer timer = new Timer(); //Таймер игры
 
     public GameStatus Status = GameStatus.WAITING; //Статус игры - ожидание, начата, закончена
-
-    public ArrayList<Bonus> bonusesList = new ArrayList<>(); //Бонусы на карте
 
     //**********************************************************************
     //************************СОЗДАНИЕ ИГРЫ*********************************
@@ -223,185 +218,68 @@ public class Game {
         //Количество очков заработанных игроком за ход
         int score = 0;
 
-        //Определяем в каком направлении идет игрок
+        int iTargetCell = 0, jTargetCell = 0;
+
         switch (direction) {
             case "up":
-                while (canMoveUp(player) && moves < player.speed) {
-
-                    //Если игрок хочет сходить на клетку
-                    if (cellsNumbers.contains(fieldMatrix[player.i - 1][player.j])) {
-
-                        //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i - 1][player.j] - 4);
-
-                        //Если клетка пустая
-                        if (cellOwner == null) {
-                            score++;
-                        } else {
-                            //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != player) {
-                                cellOwner.score--;
-                                playersChanges.add(cellOwner);
-                                score++;
-                            }
-                        }
-
-                    } else {
-                        //Если эта клетка - бонус
-                        if (BonusesCollection.Contains(fieldMatrix[player.i - 1][player.j])) {
-
-                            //Получаем бонус на этой клетке
-                            Bonus bonus = getBonusByCoordinates(player.i - 1, player.j);
-
-                            //Увеличиваем очки игрока
-                            player.score++;
-
-                            //Применяем его к указанному игроку
-                            applyBonus(player, bonus);
-                        }
-                    }
-
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player));
-
-                    //Двигаем игрока
-                    player.moveUp();
-                    moves++;
-                }
+                iTargetCell = player.i - 1;
+                jTargetCell = player.j;
                 break;
-
             case "down":
-                while (canMoveDown(player) && moves < player.speed) {
-
-                    //Если игрок хочет сходить на клетку
-                    if (cellsNumbers.contains(fieldMatrix[player.i + 1][player.j])) {
-
-                        //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i + 1][player.j] - 4);
-
-                        //Если клетка пустая
-                        if (cellOwner == null) {
-                            score++;
-                        } else {
-                            //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != player) {
-                                cellOwner.score--;
-                                playersChanges.add(cellOwner);
-                                score++;
-                            }
-                        }
-
-                    } else {
-                        //Если эта клетка - бонус
-                        if (BonusesCollection.Contains(fieldMatrix[player.i + 1][player.j])) {
-
-                            //Получаем бонус на этой клетке
-                            Bonus bonus = getBonusByCoordinates(player.i + 1, player.j);
-
-                            //Увеличиваем очки игрока
-                            player.score++;
-
-                            //Применяем его к указанному игроку
-                            applyBonus(player, bonus);
-                        }
-                    }
-
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player));
-
-                    //Двигаем игрока
-                    player.moveDown();
-                    moves++;
-                }
-                break;
-            case "left":
-                while (canMoveLeft(player) && moves < player.speed) {
-
-                    //Если игрок хочет сходить на клетку
-                    if (cellsNumbers.contains(fieldMatrix[player.i][player.j - 1])) {
-
-                        //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i][player.j - 1] - 4);
-
-                        //Если клетка пустая
-                        if (cellOwner == null) {
-                            score++;
-                        } else {
-                            //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != changindScorePlayer) {
-                                cellOwner.score--;
-                                playersChanges.add(cellOwner);
-                                score++;
-                            }
-                        }
-
-                    } else {
-                        //Если эта клетка - бонус
-                        if (BonusesCollection.Contains(fieldMatrix[player.i][player.j - 1])) {
-
-                            //Получаем бонус на этой клетке
-                            Bonus bonus = getBonusByCoordinates(player.i, player.j - 1);
-
-                            //Увеличиваем очки игрока
-                            player.score++;
-
-                            //Применяем его к указанному игроку
-                            applyBonus(player, bonus);
-
-                        }
-                    }
-
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player));
-
-                    //Двигаем игрока
-                    player.moveLeft();
-                    moves++;
-                }
+                iTargetCell = player.i + 1;
+                jTargetCell = player.j;
                 break;
             case "right":
-                while (canMoveRight(player) && moves < player.speed) {
+                iTargetCell = player.i;
+                jTargetCell = player.j + 1;
+                break;
+            case "left":
+                iTargetCell = player.i;
+                jTargetCell = player.j - 1;
+                break;
+        }
 
-                    //Если игрок хочет сходить на клетку
-                    if (cellsNumbers.contains(fieldMatrix[player.i][player.j + 1])) {
+        while (canMove(player, direction) && moves < player.speed) {
 
-                        //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i][player.j + 1] - 4);
+            //Если игрок хочет сходить на клетку
+            if (cellsNumbers.contains(fieldMatrix[iTargetCell][jTargetCell])) {
 
-                        //Если клетка пустая
-                        if (cellOwner == null) {
-                            score++;
-                        } else {
-                            //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != player) {
-                                cellOwner.score--;
-                                playersChanges.add(cellOwner);
-                                score++;
-                            }
-                        }
+                //Получаем владельца той клетки на которую хочет сходить игрок
+                Player cellOwner = getPlayerByNumber(fieldMatrix[iTargetCell][jTargetCell] - 4);
 
-                    } else {
-                        //Если эта клетка - бонус
-                        if (BonusesCollection.Contains(fieldMatrix[player.i][player.j + 1])) {
-
-                            //Получаем бонус на этой клетке
-                            Bonus bonus = getBonusByCoordinates(player.i, player.j + 1);
-
-                            //Увеличиваем очки игрока
-                            player.score++;
-
-                            //Применяем его к указанному игроку
-                            applyBonus(player, bonus);
-                        }
+                //Если клетка пустая
+                if (cellOwner == null) {
+                    score++;
+                } else {
+                    //Уменьшаем очки владельца и увеличиваем очки ходившего
+                    if (cellOwner != player) {
+                        cellOwner.score--;
+                        playersChanges.add(cellOwner);
+                        score++;
                     }
-
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player));
-
-                    //Двигаем игрока
-                    player.moveRight();
-                    moves++;
                 }
+
+            } else {
+                //Если эта клетка - бонус
+                if (BonusesCollection.Contains(fieldMatrix[iTargetCell][jTargetCell])) {
+
+                    //Получаем бонус на этой клетке
+                    Bonus bonus = getBonusByCoordinates(iTargetCell, jTargetCell);
+
+                    //Увеличиваем очки игрока
+                    player.score++;
+
+                    //Применяем его к указанному игроку
+                    applyBonus(player, bonus);
+                }
+            }
+
+            //Красим клетку и добавляем покрашенную клетку к изменениям
+            changes.add(drawCellMatrix(player.i, player.j, player));
+
+            //Двигаем игрока
+            player.move(direction);
+            moves++;
         }
 
         changindScorePlayer.score += score;
@@ -424,21 +302,19 @@ public class Game {
 
     }
 
-    //Проверяет может ли игрок двигаться
-    private boolean canMoveUp(Player player) {
-        return player.i >= 1 && !playersNumbers.contains(fieldMatrix[player.i - 1][player.j]);
-    }
-
-    private boolean canMoveDown(Player player) {
-        return player.i <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i + 1][player.j]);
-    }
-
-    private boolean canMoveLeft(Player player) {
-        return player.j >= 1 && !playersNumbers.contains(fieldMatrix[player.i][player.j - 1]);
-    }
-
-    private boolean canMoveRight(Player player) {
-        return player.j <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i][player.j + 1]);
+    //Проверяет может ли игрок двигаться в указанном направлении
+    private boolean canMove(Player player, String direction) {
+        switch (direction) {
+            case "up":
+                return player.i >= 1 && !playersNumbers.contains(fieldMatrix[player.i - 1][player.j]);
+            case "down":
+                return player.i <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i + 1][player.j]);
+            case "left":
+                return player.j >= 1 && !playersNumbers.contains(fieldMatrix[player.i][player.j - 1]);
+            case "right":
+                return player.j <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i][player.j + 1]);
+        }
+        return false;
     }
 
     //**********************************************************************
@@ -635,7 +511,7 @@ public class Game {
                     //Отправляем сообщение клиентам
                     SendMessage("removeBonus", bonus, new TypeToken<Bonus>() {
                     }.getType());
-                    
+
                     iterator.remove();
                 } else {
                     //Если бонус не подобран, уменьшаем его время существования
@@ -647,11 +523,11 @@ public class Game {
                     bonus.affectedPlayers.forEach((player) -> {
                         player.restoreDefaultState();
                     });
-                    
+
                     //Изменяем состояние игроков
                     SendMessage("movePlayer", bonus.affectedPlayers, new TypeToken<ArrayList<Player>>() {
                     }.getType());
-                    
+
                     iterator.remove();
                 } else {
                     bonus.effectTime--;

@@ -5,16 +5,12 @@
  */
 package com.opris.colorcombat.controller;
 
-import com.google.gson.reflect.TypeToken;
-import com.opris.colorcombat.classes.Bonus;
-import com.opris.colorcombat.classes.MapObject;
+
 import com.opris.colorcombat.classes.Game;
-import com.opris.colorcombat.classes.Lobby;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.websocket.EncodeException;

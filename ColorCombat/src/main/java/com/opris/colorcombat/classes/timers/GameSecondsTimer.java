@@ -70,7 +70,6 @@ public class GameSecondsTimer extends TimerTask {
 
                 //Если игра уже в процессе, занимаемся бонусами и прочим
                 if (endTime.equals(startTime)) {
-//                    game.sendTime("time", startTime.format(sdf));
                     game.SendMessage("time", startTime.format(sdf), new TypeToken<String>(){}.getType());
                     game.End();
                 } else {
@@ -83,7 +82,6 @@ public class GameSecondsTimer extends TimerTask {
                     }
 
                     //Отправляем время клиентам
-//                    game.sendTime("time", startTime.format(sdf));
                     game.SendMessage("time", startTime.format(sdf), new TypeToken<String>(){}.getType());
 
                     //Уменьшаем текущее время
@@ -103,11 +101,9 @@ public class GameSecondsTimer extends TimerTask {
             case COUNTDOWN:
                 if (countdownStart.equals(countdownEnd)){
                     game.SendMessage("countdown", String.valueOf(countdownStart.getSecond()), new TypeToken<String>(){}.getType());
-//                    game.sendTime("countdown", String.valueOf(countdownStart.getSecond()));
                     game.Start();
                 } else {
                     game.SendMessage("countdown", String.valueOf(countdownStart.getSecond()), new TypeToken<String>(){}.getType());
-//                    game.sendTime("countdown", String.valueOf(countdownStart.getSecond()));
                     countdownStart = countdownStart.minusSeconds(1);
                 }
                 break;
