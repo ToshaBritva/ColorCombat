@@ -5,7 +5,6 @@
  */
 package com.opris.colorcombat.controller;
 
-
 import com.opris.colorcombat.classes.Game;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,8 +51,7 @@ public class SocketController {
             switch (target) {
                 case "movePlayer":
                     //Если игра начата
-                    if (game.IsStarted()) 
-                    {
+                    if (game.IsStarted()) {
 
                         //Двигаем игрока
                         game.movePlayer(nickname, (String) jsonMessage.get("value"));
@@ -109,15 +107,18 @@ public class SocketController {
 
     //Уничтожаем игру
     public static void destroyGame(Game game) {
-       
+
         //Закрываем сокеты всех листенеров игры
         for (Iterator<Session> iterator = game.getListeners().iterator(); iterator.hasNext();) {
-            Session next = iterator.next();
-            try {
-                next.close();
-            } catch (IOException ex) {
-                Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
-            }     
+            if (iterator.hasNext()) {
+                Session next = iterator.next();
+
+                try {
+                    next.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
 
         //Удаляем саму игру
