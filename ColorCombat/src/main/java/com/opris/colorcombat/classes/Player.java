@@ -60,10 +60,10 @@ public class Player extends MapObject {
                 this.i++;
                 break;
             case "right":
-                this.j--;
+                this.j++;
                 break;
             case "left":
-                this.j++;
+                this.j--;
                 break;
         }
     }
