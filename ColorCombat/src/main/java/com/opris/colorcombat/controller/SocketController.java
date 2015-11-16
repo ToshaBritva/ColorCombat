@@ -109,15 +109,12 @@ public class SocketController {
     public static void destroyGame(Game game) {
 
         //Закрываем сокеты всех листенеров игры
-        for (Iterator<Session> iterator = game.getListeners().iterator(); iterator.hasNext();) {
-            if (iterator.hasNext()) {
-                Session next = iterator.next();
-
-                try {
-                    next.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        ArrayList<Session> listeners = game.getListeners();
+        for (Session listener:listeners){
+            try {
+                listener.close();
+            } catch (IOException ex) {
+                Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
