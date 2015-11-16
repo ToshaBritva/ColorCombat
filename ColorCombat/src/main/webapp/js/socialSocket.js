@@ -32,6 +32,11 @@ socSocket.onmessage = function (evt)
             break;
         case "errorMessage":
             ShowMSGDng(json.message);
+            if(json.critical)
+            {
+                $('#CrLPModal').modal('hide');
+                $('#JoinLobby').modal('hide');
+            }
             break;
         case "startGame":
             window.location.replace("http://" + document.location.host + document.location.pathname + "/Game");

@@ -51,7 +51,8 @@ public class SocketController {
             switch (target) {
                 case "movePlayer":
                     //Если игра начата
-                    if (game.IsStarted()) {
+                    if (game.IsStarted()) 
+                    {
 
                         //Двигаем игрока и получаем все изменения
                         List<MapObject> changes = game.movePlayer(nickname, (String) jsonMessage.get("value"));

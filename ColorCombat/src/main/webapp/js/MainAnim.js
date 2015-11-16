@@ -145,10 +145,10 @@ function onloadPage() {
         // do something...
     });
     $('#GoFindModal').on('hidden.bs.modal', function (e) {
-        // do something...
+        cancelSearching();
     });
     $('#GoFindModal').on('show.bs.modal', function (e) {
-        // do something...
+        findGame();
     });
     $('#ProfileModal').on('hidden.bs.modal', function (e) {
         // do something...
@@ -164,6 +164,23 @@ function addContact(contactName)
 {
     var Contact = '<a href="#" class="list-group-item text-left">' + contactName + '</a>'; //Заменить # на валидную ссылку
     $("#Contacts").append(Contact);
+}
+
+function findGame()
+{
+    console.log("Ищем");
+    $.ajax({
+        url: 'MainPage/findGame/start',
+        type: 'GET'
+    });
+}
+
+function cancelSearching()
+{
+    $.ajax({
+        url: 'MainPage/findGame/cancel',
+        type: 'GET'
+    });
 }
 
 function ShowMSGDng(MSG)
@@ -208,30 +225,38 @@ function joinLobby(userHost)
 
     $.getJSON('MainPage/getLobby?host=' + userHost, {}, function (json)
     {
-        for (var i = 0, len = json.members.length; i < len; i++)
+        if(json !== null)
         {
-            lobbyNow.add(json.members[i].nickname);
-            if (json.members[i].status === "ready")
+            for (var i = 0, len = json.members.length; i < len; i++)
             {
-                lobbyNow.setStatus(json.members[i].nickname, "ready");
+                lobbyNow.add(json.members[i].nickname);
+                if (json.members[i].status === "ready")
+                {
+                    lobbyNow.setStatus(json.members[i].nickname, "ready");
+                }
+                else
+                {
+                    lobbyNow.setStatus(json.members[i].nickname, "notReady");
+                }
             }
-            else
-            {
-                lobbyNow.setStatus(json.members[i].nickname, "notReady");
-            }
+
+            $('.modal').modal('hide');
+
+            $("#leaveLobby").click(function () {
+                leaveLobby();
+            });
+
+            $('#JoinLobby').modal('show');
+
+            socSocket.send('{"target":"joinLobby", "userHost":"' + userHost + '"}');
+            var nickname = $(".header #NickName h2").text();
+            lobbyNow.add(nickname);
+        }
+        else
+        {
+            ShowMSGDng('Лобби не существует или переполнено, нажмите кнопку "Обновить"');
         }
 
-        $('.modal').modal('hide');
-
-        $("#leaveLobby").click(function () {
-            leaveLobby();
-        });
-
-        $('#JoinLobby').modal('show');
-
-        socSocket.send('{"target":"joinLobby", "userHost":"' + userHost + '"}');
-        var nickname = $(".header #NickName h2").text();
-        lobbyNow.add(nickname);
     });
 
 }
@@ -344,15 +369,15 @@ function showProfile() {
 }
 
 function setUserDescription()
-{   
+{
     $.ajax({
         url: 'MainPage/setUserDescr',
         type: "POST",
         data:
-        {
-          nickname: $(".header #NickName h2").text(),
-          description: $("#About").val()
-        },
+                {
+                    nickname: $(".header #NickName h2").text(),
+                    description: $("#About").val()
+                },
         success: function ()
         {
             ShowMSG("Запись сохранена");

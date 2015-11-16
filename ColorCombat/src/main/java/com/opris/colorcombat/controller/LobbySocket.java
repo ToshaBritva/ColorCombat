@@ -24,39 +24,72 @@ public class LobbySocket
 {
     static LinkedHashMap<String, Lobby> listeners = new LinkedHashMap<>(); //для навигации по клиентам
     static LinkedHashMap<String, Lobby> hosts = new LinkedHashMap<>(); //для навигации только по хостам
+    
+    static LinkedHashMap<String, Session> allUsers = new LinkedHashMap<>(); //Все текущие пользователи системы
 
     void createLobby(Session session)
     {
         String username = session.getUserPrincipal().getName();
-        Lobby lobby = new Lobby(session);
-        hosts.put(username, lobby);
+        if(!SocketController.games.containsKey(username))
+        {
+            Lobby lobby = new Lobby(session);
+            hosts.put(username, lobby);
+        }
+        else
+        {
+            try
+            {
+                sendError(session, "Вы покинули игру, дождитесь ёё завершения", true);
+            }
+            catch (Exception ex)
+            {
+                Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 
     void destroyLobby(Session session)
     {
         String username = session.getUserPrincipal().getName();
-        Lobby lobby = hosts.get(username);
-        if (lobby != null)
+        if(!SocketController.games.containsKey(username))
         {
-            lobby.remove(session); //Удаляем хоста, чтобы не слать ему сообщение
-
-            JsonObject lobbyMessage = new JsonObject();
-            lobbyMessage.addProperty("target", "kicked");
-            sendToLobby(lobby, lobbyMessage.toString());
-
-            for (Session s : lobby.getLobbyListeners())
+            Lobby lobby = hosts.get(username);
+            if (lobby != null)
             {
-                listeners.remove(s.getUserPrincipal().getName());
+                lobby.remove(session); //Удаляем хоста, чтобы не слать ему сообщение
+
+                JsonObject lobbyMessage = new JsonObject();
+                lobbyMessage.addProperty("target", "kicked");
+                sendToLobby(lobby, lobbyMessage.toString());
+
+                for (Session s : lobby.getLobbyListeners())
+                {
+                    listeners.remove(s.getUserPrincipal().getName());
+                }
+                hosts.remove(username);
             }
-            hosts.remove(username);
         }
+        else
+        {
+            try
+            {
+                sendError(session, "Вы покинули игру, дождитесь ёё завершения", true);
+            }
+            catch (Exception ex)
+            {
+                Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 
-    void sendError(Session session, String message)
+    void sendError(Session session, String message, boolean critical)
     {
         JsonObject JSONMEssage = new JsonObject();
         JSONMEssage.addProperty("target", "errorMessage");
         JSONMEssage.addProperty("message", message);
+        JSONMEssage.addProperty("critical", critical);
         try
         {
             session.getBasicRemote().sendText(JSONMEssage.toString());
@@ -82,12 +115,12 @@ public class LobbySocket
                 sendToLobby(lobby, lobbyMessage.toString());
                 lobby.join(session);
                 listeners.put(username, lobby);
-            } else
+            } 
+            else
             {
-                sendError(session, "В лобби нет свободных мест");
+                sendError(session, "В лобби нет свободных мест", true);
             }
         }
-
     }
 
     void setStatus(Session session, boolean status)
@@ -181,30 +214,12 @@ public class LobbySocket
                 }
                 else
                 {
-                    try
-                    {
-                        lobbyMessage.addProperty("target", "errorMessage");
-                        lobbyMessage.addProperty("message", "Не все участники готовы к игре");
-                        session.getBasicRemote().sendText(lobbyMessage.toString());
-                    }
-                    catch(Exception ex)
-                    {
-                        Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    sendError(session, "Не все участники готовы к игре", false);
                 }
             }
             else
             {
-                try
-                {
-                    lobbyMessage.addProperty("target", "errorMessage");
-                    lobbyMessage.addProperty("message", "Играть одному - унылое занятие");
-                    session.getBasicRemote().sendText(lobbyMessage.toString());
-                }
-                catch(Exception ex)
-                {
-                    Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                sendError(session, "Играть одному - унылое занятие", false);
             }
         }
 
@@ -253,10 +268,17 @@ public class LobbySocket
             System.out.println("Цель:" + target);
             System.out.println("Количество хостов:" + hosts.size());
             System.out.println("Количество слушателей:" + listeners.size());
-        } catch (Exception ex)
+        } 
+        catch (Exception ex)
         {
             Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    @OnOpen
+    public void onOpen(Session session)
+    {
+        allUsers.put(session.getUserPrincipal().getName(), session);
     }
 
     @OnClose
@@ -293,6 +315,8 @@ public class LobbySocket
         System.out.println("Цель: onClose");
         System.out.println("Количество хостов:" + hosts.size());
         System.out.println("Количество слушателей:" + listeners.size());
+        
+        allUsers.remove(session);
     }
 
     public void sendToLobby(Lobby lobby, String message)
@@ -328,6 +352,21 @@ public class LobbySocket
             }
         }
         );
+    }
+    
+    public static void sendToUsers(ArrayList<String> users, String message)
+    {           
+        for(String user : users)
+        {
+            try
+            {
+                allUsers.get(user).getBasicRemote().sendText(message);
+            }
+            catch (IOException ex)
+            {
+                Logger.getLogger(LobbySocket.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     public static ArrayList<Lobby> getLobbyList()

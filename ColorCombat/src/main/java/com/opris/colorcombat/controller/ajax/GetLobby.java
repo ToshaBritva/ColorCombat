@@ -11,6 +11,7 @@ import com.opris.colorcombat.classes.Lobby;
 import com.opris.colorcombat.classes.Member;
 import com.opris.colorcombat.controller.LobbySocket;
 import java.util.ArrayList;
+import org.apache.http.HttpException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,33 +29,41 @@ public class GetLobby
 {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public String getLobbyList(@RequestParam(value = "host", required = true) String hostname)
+    public String getLobby(@RequestParam(value = "host", required = true) String hostname)
     {
         Lobby lobby = LobbySocket.getLobby(hostname);
-        JsonObject JSONlobby = new JsonObject();
-        JSONlobby.addProperty("master", hostname);
         
-        ArrayList<Member> members = lobby.getMembers();
-        
-        JsonArray JSONmembers = new JsonArray();
-        for(Member member : members)
+        if(lobby != null)
         {
-             JsonObject JSONmember  = new JsonObject();
-             JSONmember.addProperty("nickname", member.getUserNickname());
-             if(member.isReady())
-             {
-                 JSONmember.addProperty("status", "ready");
-             }
-             else
-             {
-                 JSONmember.addProperty("status", "notReady");
-             }
-             
-             JSONmembers.add(JSONmember);
+            JsonObject JSONlobby = new JsonObject();
+            JSONlobby.addProperty("master", hostname);
+
+            ArrayList<Member> members = lobby.getMembers();
+
+            JsonArray JSONmembers = new JsonArray();
+            for(Member member : members)
+            {
+                 JsonObject JSONmember  = new JsonObject();
+                 JSONmember.addProperty("nickname", member.getUserNickname());
+                 if(member.isReady())
+                 {
+                     JSONmember.addProperty("status", "ready");
+                 }
+                 else
+                 {
+                     JSONmember.addProperty("status", "notReady");
+                 }
+
+                 JSONmembers.add(JSONmember);
+            }
+
+            JSONlobby.add("members", JSONmembers);
+
+            return JSONlobby.toString();
         }
-        
-        JSONlobby.add("members", JSONmembers);
-        
-        return JSONlobby.toString();
-    }
+        else
+        {
+             return null;
+        }
+    }   
 }
