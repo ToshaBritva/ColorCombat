@@ -110,7 +110,7 @@ public class SocketController {
 
         //Закрываем сокеты всех листенеров игры
         ArrayList<Session> listeners = game.getListeners();
-        for (Session listener:listeners){
+        for (Session listener : listeners) {
             try {
                 listener.close();
             } catch (IOException ex) {
@@ -119,9 +119,8 @@ public class SocketController {
         }
 
         //Удаляем саму игру
-        game.GetPlayersNicknames().stream().forEach((p) -> {
-            games.remove(p);
-        });
+        ArrayList<String> nicknames = game.GetPlayersNicknames();
+        nicknames.forEach((nickname) -> games.remove(nickname));
     }
 
 }
