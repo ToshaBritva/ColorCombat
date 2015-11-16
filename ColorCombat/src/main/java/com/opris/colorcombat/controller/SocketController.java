@@ -5,13 +5,14 @@
  */
 package com.opris.colorcombat.controller;
 
-import com.opris.colorcombat.classes.MapObject;
+
 import com.opris.colorcombat.classes.Game;
-import com.opris.colorcombat.classes.Lobby;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -54,11 +55,9 @@ public class SocketController {
                     if (game.IsStarted()) 
                     {
 
-                        //Двигаем игрока и получаем все изменения
-                        List<MapObject> changes = game.movePlayer(nickname, (String) jsonMessage.get("value"));
+                        //Двигаем игрока
+                        game.movePlayer(nickname, (String) jsonMessage.get("value"));
 
-                        //Рассылаем их
-                        game.sendChanges(changes);
                     }
                     break;
             }
@@ -110,10 +109,21 @@ public class SocketController {
 
     //Уничтожаем игру
     public static void destroyGame(Game game) {
-        ArrayList<String> playersNicknames = game.GetPlayersNicknames();
-        for (String p : playersNicknames) {
-            games.remove(p);
+       
+        //Закрываем сокеты всех листенеров игры
+        for (Iterator<Session> iterator = game.getListeners().iterator(); iterator.hasNext();) {
+            Session next = iterator.next();
+            try {
+                next.close();
+            } catch (IOException ex) {
+                Logger.getLogger(SocketController.class.getName()).log(Level.SEVERE, null, ex);
+            }     
         }
+
+        //Удаляем саму игру
+        game.GetPlayersNicknames().stream().forEach((p) -> {
+            games.remove(p);
+        });
     }
 
 }

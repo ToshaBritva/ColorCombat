@@ -14,7 +14,7 @@ public class Player extends MapObject {
     private static int defaultSpeed = 1;
 
     public String nickname;
-    
+
     public int paintingNumber;
 
     public int speed = 1; //Скорость игрока
@@ -51,21 +51,21 @@ public class Player extends MapObject {
         this.score = score;
     }
 
-    //Двигаем игрока на клекту
-    public void moveUp() {
-        this.i--;
-    }
-
-    public void moveDown() {
-        this.i++;
-    }
-
-    public void moveLeft() {
-        this.j--;
-    }
-
-    public void moveRight() {
-        this.j++;
+    public void move(String direction) {
+        switch (direction) {
+            case "up":
+                this.i--;
+                break;
+            case "down":
+                this.i++;
+                break;
+            case "right":
+                this.j++;
+                break;
+            case "left":
+                this.j--;
+                break;
+        }
     }
 
     public void restoreDefaultState() {

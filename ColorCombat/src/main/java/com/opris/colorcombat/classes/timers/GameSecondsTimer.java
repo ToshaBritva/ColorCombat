@@ -5,9 +5,12 @@
  */
 package com.opris.colorcombat.classes.timers;
 
+import com.google.gson.reflect.TypeToken;
 import com.opris.colorcombat.classes.Game;
+import com.opris.colorcombat.classes.MapObject;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.TimerTask;
 
@@ -67,7 +70,7 @@ public class GameSecondsTimer extends TimerTask {
 
                 //Если игра уже в процессе, занимаемся бонусами и прочим
                 if (endTime.equals(startTime)) {
-                    game.sendTime("time", startTime.format(sdf));
+                    game.SendMessage("time", startTime.format(sdf), new TypeToken<String>(){}.getType());
                     game.End();
                 } else {
                     //Проверяем бонусы на карте, уменьшаем время существования и т.д., удаляем не подобранные
@@ -79,7 +82,7 @@ public class GameSecondsTimer extends TimerTask {
                     }
 
                     //Отправляем время клиентам
-                    game.sendTime("time", startTime.format(sdf));
+                    game.SendMessage("time", startTime.format(sdf), new TypeToken<String>(){}.getType());
 
                     //Уменьшаем текущее время
                     startTime = startTime.minusSeconds(1);
@@ -97,10 +100,10 @@ public class GameSecondsTimer extends TimerTask {
 
             case COUNTDOWN:
                 if (countdownStart.equals(countdownEnd)){
-                    game.sendTime("countdown", String.valueOf(countdownStart.getSecond()));
+                    game.SendMessage("countdown", String.valueOf(countdownStart.getSecond()), new TypeToken<String>(){}.getType());
                     game.Start();
                 } else {
-                    game.sendTime("countdown", String.valueOf(countdownStart.getSecond()));
+                    game.SendMessage("countdown", String.valueOf(countdownStart.getSecond()), new TypeToken<String>(){}.getType());
                     countdownStart = countdownStart.minusSeconds(1);
                 }
                 break;

@@ -6,7 +6,6 @@
 
 var cellsNumbers = [0, 5, 6, 7, 8]; //Цифры соответсвующие клеткам
 var playersNumbers = [1, 2, 3, 4]; //Цифры соответсвующие игрокам
-var bonusesNumbers = [10, 11, 12];
 var playersColors = ["red", "aqua", "#FFFF00", "lime"]; //Цвета игроков
 var cellsColors = ["white", "#DB4D4D", "#33CCCC", "orange", "#00B800"]; //Цвета клеток
 var players = new Array(); //Игроки с их очками 
@@ -75,6 +74,7 @@ function drawChanges(changes) {
 
                 } else {
 
+                    player.fill(playersColors[playersNumbers.indexOf(obj.paintingNumber)])
                     //Передвигаем игрока
                     player.setAbsolutePosition({x: getPlayerXCanvas(obj.j), y: getPlayerYCanvas(obj.i)});
 
@@ -83,6 +83,8 @@ function drawChanges(changes) {
                     players[currentPlayerIndex].score = obj.score;
                 }
 
+            } else {
+                spawnBonus(obj);
             }
         }
 
@@ -198,60 +200,51 @@ function getCellId(i, j) {
 }
 
 //Игра закончена
-function gameOver(winer) {
-    var t = "Игра окончена!!!\nПобедил " + winer.nickname + " со счетом " + winer.score;
-//    ShowMSG(t, 2000);
-    
+function gameOver(winner) {
+    var player = JSON.parse(winner);
+    var t = "Игра окончена!!!\nПобедил " + player.nickname + " со счетом " + player.score;
     ShowEndMSG(t);
 }
 
 //Устанавливаем время
 function setTime(t) {
-    $('.timerDiv').html(t);
-
-    $("#timer").html(t);
+    $('.timerDiv').html(JSON.parse(t));
+    $("#timer").html(JSON.parse(t));
 }
 
-//Спавнит бонусы
-function spawnBonus(bonusesJSON) {
+function spawnBonus(bonus) {
+    var cell = cellsLayer.findOne('#' + getCellId(bonus.j, bonus.i));
+    cell.fill(cellsColors[0]);
+    cellsLayer.draw();
 
-    var bonuses = JSON.parse(bonusesJSON);
+    var imageObj = new Image();
+    imageObj.onload = function () {
+        var bonusImg = new Konva.Image({
+            x: getLeftCellCornerX(bonus.j),
+            y: getLeftCellCornerY(bonus.i),
+            image: imageObj,
+            width: cellWidth - cellBorderWidth,
+            height: cellWidth - cellBorderWidth * 1.25,
+            id: bonus.name + "_" + bonus.i + "_" + bonus.j
+        });
+        bonusLayer.add(bonusImg);
+        bonusImg.draw();
+    };
 
-    bonuses.forEach(function draw(bonus) {
-        var cell = cellsLayer.findOne('#' + getCellId(bonus.j, bonus.i));
-        cell.fill(cellsColors[0]);
-        cellsLayer.draw();
-
-        var imageObj = new Image();
-        imageObj.onload = function () {
-            var bonusImg = new Konva.Image({
-                x: getLeftCellCornerX(bonus.j),
-                y: getLeftCellCornerY(bonus.i),
-                image: imageObj,
-                width: cellWidth - cellBorderWidth,
-                height: cellWidth - cellBorderWidth * 1.25,
-                id: bonus.name
-            });
-            bonusLayer.add(bonusImg);
-            bonusImg.draw();
-        };
-
-        switch (bonus.number) {
-            case 10:
-                imageObj.src = '../Images/Game/Bonus/cross.png';
-                break;
-            case 11:
-                imageObj.src = '../Images/Game/Bonus/speedUp.png';
-                break;
-            case 12:
-                imageObj.src = '../Images/Game/Bonus/freeze.png';
-                break;
-            case 13:
-                imageObj.src = '../Images/Game/Bonus/reversePainting.png';
-                break;
-        }
-    });
-
+    switch (bonus.number) {
+        case 10:
+            imageObj.src = '../Images/Game/Bonus/cross.png';
+            break;
+        case 11:
+            imageObj.src = '../Images/Game/Bonus/speedUp.png';
+            break;
+        case 12:
+            imageObj.src = '../Images/Game/Bonus/freeze.png';
+            break;
+        case 13:
+            imageObj.src = '../Images/Game/Bonus/reversePainting.png';
+            break;
+    }
 }
 
 //Убирает бонусы
@@ -259,7 +252,7 @@ function removeBonus(bonusJSON) {
 
     var bonus = JSON.parse(bonusJSON);
 
-    var bonusObj = bonusLayer.findOne('#' + bonus.name);
+    var bonusObj = bonusLayer.findOne('#' + bonus.name + "_" + bonus.i + "_" + bonus.j);
 
     bonusObj.remove();
 
@@ -268,13 +261,13 @@ function removeBonus(bonusJSON) {
 }
 
 //Изменяет статус игры
-function changeStatus(statusJSON){
-    $("#Status h3").text(statusJSON);
-    if (statusJSON=="В процессе"){
+function changeStatus(statusJSON) {
+    $("#Status h3").text(JSON.parse(statusJSON));
+    if (JSON.parse(statusJSON) == "В процессе") {
         ShowMSG("FIGHT", 1000);
     }
 }
 
-function countdown(seconds){
-    ShowMSG(seconds, 600);
+function countdown(seconds) {
+    ShowMSG(JSON.parse(seconds), 600);
 }

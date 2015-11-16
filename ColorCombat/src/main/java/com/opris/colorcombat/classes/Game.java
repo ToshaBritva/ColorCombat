@@ -7,25 +7,20 @@ package com.opris.colorcombat.classes;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import javax.websocket.Session;
 import com.opris.colorcombat.classes.timers.*;
 import com.opris.colorcombat.controller.SocketController;
-import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 import java.util.Timer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
@@ -58,13 +53,15 @@ public class Game {
 
     private Random gameRandom = new Random(); //Генератор случайных чисел для игры
 
-    private static int bonusSpawnProbability = 30; //Вероятность спавна бонуса
+    private static int bonusSpawnProbability = 20; //Вероятность спавна бонуса
 
     private static int fieldSize = 10; //Размер поля
 
     private int[][] fieldMatrix = new int[fieldSize][fieldSize]; //Текущая матрица игрового поля
 
     public ArrayList<Player> players = new ArrayList<>(); //Соответсвие ников и игроков
+
+    public ArrayList<Bonus> bonusesList = new ArrayList<>(); //Бонусы на карте
 
     private ArrayList<Session> listeners = new ArrayList<>(); //Список сессий прослушивающих эту игру
 
@@ -75,8 +72,6 @@ public class Game {
     private Timer timer = new Timer(); //Таймер игры
 
     public GameStatus Status = GameStatus.WAITING; //Статус игры - ожидание, начата, закончена
-
-    public ArrayList<Bonus> bonusesList = new ArrayList<>(); //Бонусы на карте
 
     //**********************************************************************
     //************************СОЗДАНИЕ ИГРЫ*********************************
@@ -136,11 +131,6 @@ public class Game {
         fieldMatrix[player.i][player.j] = player.number;
     }
 
-//    //Отрисовываем клетку в цвет игрока на матирце
-//    private MapObject drawCellMatrix(int i, int j, int playerNumber) {
-//        fieldMatrix[i][j] = cellsNumbers.get(playerNumber);
-//        return new MapObject(cellsNumbers.get(playerNumber), i, j);
-//    }
     //Отрисовываем клетку в цвет игрока на матирце
     private MapObject drawCellMatrix(int i, int j, Player player) {
         fieldMatrix[i][j] = cellsNumbers.get(player.paintingNumber);
@@ -150,37 +140,37 @@ public class Game {
     //**********************************************************************
     //***********************РАССЫЛКА СООБЩЕНИЙ*****************************
     //**********************************************************************
-    //Рассылаем изменения игрокам
-    public void sendChanges(List<MapObject> changes) {
-        try {
+    //Отправляем листенеру текущее состояние игры
+    public void SendCurrentGameState(Session session) {
 
-            // Преобразуем его в JSON и отправляем
-            Gson gson = new Gson();
-            String json = gson.toJson(changes);
-            JsonObject moveMessage = new JsonObject();
-            moveMessage.addProperty("target", "movePlayer");
-            moveMessage.addProperty("value", json);
+        //Отправляем теукщее состояние поля
+        SendMessage("movePlayer", getWholeField(), new TypeToken<ArrayList<MapObject>>() {
+        }.getType(), session);
 
-            //Рассылаем всем клиентам игроков
-            listeners.forEach((playerSession) -> {
-                try {
-                    playerSession.getBasicRemote().sendText(moveMessage.toString());
+        //Отправляем всех игроков на поле
+        SendMessage("movePlayer", players, new TypeToken<ArrayList<Player>>() {
+        }.getType(), session);
 
-                } catch (IOException ex) {
-                    Logger.getLogger(SocketController.class
-                            .getName()).log(Level.SEVERE, null, ex);
-                }
-            });
-        } catch (Exception e) {
-        }
+        //Отправляем все бонусы на поле
+        SendMessage("spawnBonus", bonusesList, new TypeToken<ArrayList<Bonus>>() {
+        }.getType());
+
+        //Отправляем статус игры
+        SendMessage("gameStatus", Status.toString(), new TypeToken<String>() {
+        }.getType());
 
     }
 
-    //Посылаем время
-    public void sendTime(String target, String time) {
+    //Рассылка всем клиентам сообщения с целью target и содержимым obj
+    public void SendMessage(String target, Object obj, Type objType) {
+
+        // Преобразуем его в JSON и отправляем
+        Gson gson = new Gson();
+        String json = gson.toJson(obj, objType);
+
         JsonObject timeMessage = new JsonObject();
         timeMessage.addProperty("target", target);
-        timeMessage.addProperty("value", time);
+        timeMessage.addProperty("value", json);
         listeners.forEach((playerSession) -> {
             try {
                 playerSession.getBasicRemote().sendText(timeMessage.toString());
@@ -189,153 +179,38 @@ public class Game {
         });
     }
 
-    //Рассылает игрокам сообщение о новом бонусе
-    public void sendSpawnBonus(Bonus bonus) {
-        try {
-
-            ArrayList<Bonus> bonuses = new ArrayList<>();
-            bonuses.add(bonus);
-
-            // Преобразуем его в JSON и отправляем
-            Gson gson = new Gson();
-            String json = gson.toJson(bonuses);
-            JsonObject moveMessage = new JsonObject();
-            moveMessage.addProperty("target", "spawnBonus");
-            moveMessage.addProperty("value", json);
-
-            //Рассылаем всем клиентам игроков
-            listeners.forEach((playerSession) -> {
-                try {
-                    playerSession.getBasicRemote().sendText(moveMessage.toString());
-
-                } catch (IOException ex) {
-                    Logger.getLogger(SocketController.class
-                            .getName()).log(Level.SEVERE, null, ex);
-                }
-            });
-        } catch (Exception e) {
-        }
-    }
-
-    //Рассылает игрокам сообщение об удалении бонуса
-    private void sendRemoveBonus(Bonus bonus) {
-        try {
-
-            // Преобразуем его в JSON и отправляем
-            Gson gson = new Gson();
-            String json = gson.toJson(bonus);
-            JsonObject moveMessage = new JsonObject();
-            moveMessage.addProperty("target", "removeBonus");
-            moveMessage.addProperty("value", json);
-
-            //Рассылаем всем клиентам игроков
-            listeners.forEach((playerSession) -> {
-                try {
-                    playerSession.getBasicRemote().sendText(moveMessage.toString());
-
-                } catch (IOException ex) {
-                    Logger.getLogger(SocketController.class
-                            .getName()).log(Level.SEVERE, null, ex);
-                }
-            });
-        } catch (Exception e) {
-        }
-    }
-
-    //Отправляет листенеру все бонусы на карте
-    private void sendAllCurrentBonuses(Session session) {
-
+    //Отправляем листенеру сообщение с целью target и содержимым obj
+    public void SendMessage(String target, Object obj, Type objType, Session session) {
         // Преобразуем его в JSON и отправляем
         Gson gson = new Gson();
-        String json = gson.toJson(bonusesList);
-        JsonObject moveMessage = new JsonObject();
-        moveMessage.addProperty("target", "spawnBonus");
-        moveMessage.addProperty("value", json);
+        String json = gson.toJson(obj, objType);
 
+        JsonObject timeMessage = new JsonObject();
+        timeMessage.addProperty("target", target);
+        timeMessage.addProperty("value", json);
         try {
-            session.getBasicRemote().sendText(moveMessage.toString());
-        } catch (Exception e) {
-
+            session.getBasicRemote().sendText(timeMessage.toString());
+        } catch (Exception ex) {
         }
-
-    }
-
-    //Отправляем листенеру текущее состояние игры
-    public void SendCurrentGameState(Session session) {
-
-        //Получем текущее состояние игры
-        List<MapObject> changes = getWholeField();
-
-        // Преобразуем его в JSON и отправляем
-        Gson gson = new Gson();
-        String json = gson.toJson(changes);
-        JsonObject moveMessage = new JsonObject();
-        moveMessage.addProperty("target", "movePlayer");
-        moveMessage.addProperty("value", json);
-
-        try {
-            session.getBasicRemote().sendText(moveMessage.toString());
-        } catch (Exception e) {
-
-        }
-
-        //Отправляем все бонусы на карте
-        sendAllCurrentBonuses(session);
-
-        //Отправляем статус игры
-        SendGameStatus();
-
-    }
-
-    //Рассылаем всем слушателям статус игры
-    public void SendGameStatus() {
-        JsonObject statusMessage = new JsonObject();
-        statusMessage.addProperty("target", "gameStatus");
-        statusMessage.addProperty("value", Status.toString());
-        listeners.forEach((playerSession) -> {
-            try {
-                playerSession.getBasicRemote().sendText(statusMessage.toString());
-            } catch (Exception ex) {
-            }
-        });
-    }
-
-    //Отправляем сообщение с победителем
-    public void SendWinner() {
-        //Определяем победителя       
-        Player winer = getWinner();
-
-        //Формируем сообщения о завершении игры и победителе
-        JsonObject endMessage = new JsonObject();
-        JsonObject winerData = new JsonObject();
-        winerData.addProperty("nickname", winer.getNickname());
-        winerData.addProperty("score", winer.getScore());
-        endMessage.addProperty("target", "winner");
-        endMessage.add("value", winerData);
-
-        //Рассылаем победителей
-        listeners.forEach((playerSession) -> {
-            try {
-                playerSession.getBasicRemote().sendText(endMessage.toString());
-            } catch (Exception ex) {
-            }
-        });
     }
 
     //**********************************************************************
     //***********************ДВИЖЕНИЕ ИГРОКА********************************
     //**********************************************************************
     //Двигаем игрока, возвращаем изменения
-    public ArrayList<MapObject> movePlayer(String nickname, String direction) {
+    public void movePlayer(String nickname, String direction) {
 
         //Получаем объект сходившего игрока
         Player player = getPlayerByNickname(nickname);
-        
+
         //Получаем игрока очки которого будем менять
         Player changindScorePlayer = getPlayerByNumber(player.paintingNumber);
 
         //Изменения произведенные игроком
         ArrayList<MapObject> changes = new ArrayList<>();
+
+        //Изменения игроков
+        ArrayList<Player> playersChanges = new ArrayList<>();
 
         //Количество движений игрока
         int moves = 0;
@@ -343,214 +218,108 @@ public class Game {
         //Количество очков заработанных игроком за ход
         int score = 0;
 
-        //Определяем в каком направлении идет игрок
+        int iTargetCell = 0, jTargetCell = 0;
+
         switch (direction) {
             case "up":
-                while (canMoveUp(player) && moves < player.speed) {
-
-                    //Если игрок хочет сходить на клетку
-                    if (cellsNumbers.contains(fieldMatrix[player.i - 1][player.j])) {
-
-                        //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i - 1][player.j] - 4);
-
-                        //Если клетка пустая
-                        if (cellOwner == null) {
-                            score++;
-                        } else {
-                            //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != player) {
-                                cellOwner.score--;
-                                changes.add(cellOwner);
-                                score++;
-                            }
-                        }
-
-                    } else {
-                        //Если эта клетка - бонус
-                        if (BonusesCollection.Contains(fieldMatrix[player.i - 1][player.j])) {
-
-                            //Получаем бонус на этой клетке
-                            Bonus bonus = getBonusByCoordinates(player.i - 1, player.j);
-                            
-                            //Увеличиваем очки игрока
-                            player.score++;
-                            
-                            //Применяем его к указанному игроку
-                            changes.addAll(applyBonus(player, bonus));
-                        }
-                    }
-
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player));
-
-                    //Двигаем игрока
-                    player.moveUp();
-                    moves++;
-                }
+                iTargetCell = player.i - 1;
+                jTargetCell = player.j;
                 break;
-
             case "down":
-                while (canMoveDown(player) && moves < player.speed) {
-
-                    //Если игрок хочет сходить на клетку
-                    if (cellsNumbers.contains(fieldMatrix[player.i + 1][player.j])) {
-
-                        //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i + 1][player.j] - 4);
-
-                        //Если клетка пустая
-                        if (cellOwner == null) {
-                            score++;
-                        } else {
-                            //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != player) {
-                                cellOwner.score--;
-                                changes.add(cellOwner);
-                                score++;
-                            }
-                        }
-
-                    } else {
-                        //Если эта клетка - бонус
-                        if (BonusesCollection.Contains(fieldMatrix[player.i + 1][player.j])) {
-
-                            //Получаем бонус на этой клетке
-                            Bonus bonus = getBonusByCoordinates(player.i + 1, player.j);
-                            
-                            //Увеличиваем очки игрока
-                            player.score++;
-
-                            //Применяем его к указанному игроку
-                            changes.addAll(applyBonus(player, bonus));
-                        }
-                    }
-
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player));
-
-                    //Двигаем игрока
-                    player.moveDown();
-                    moves++;
-                }
-                break;
-            case "left":
-                while (canMoveLeft(player) && moves < player.speed) {
-
-                    //Если игрок хочет сходить на клетку
-                    if (cellsNumbers.contains(fieldMatrix[player.i][player.j - 1])) {
-
-                        //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i][player.j - 1] - 4);
-
-                        //Если клетка пустая
-                        if (cellOwner == null) {
-                            score++;
-                        } else {
-                            //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != changindScorePlayer) {
-                                cellOwner.score--;
-                                changes.add(cellOwner);
-                                score++;
-                            }
-                        }
-
-                    } else {
-                        //Если эта клетка - бонус
-                        if (BonusesCollection.Contains(fieldMatrix[player.i][player.j - 1])) {
-
-                            //Получаем бонус на этой клетке
-                            Bonus bonus = getBonusByCoordinates(player.i, player.j - 1);
-                            
-                            //Увеличиваем очки игрока
-                            player.score++;
-
-                            //Применяем его к указанному игроку
-                            changes.addAll(applyBonus(player, bonus));
-
-                        }
-                    }
-
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player));
-
-                    //Двигаем игрока
-                    player.moveLeft();
-                    moves++;
-                }
+                iTargetCell = player.i + 1;
+                jTargetCell = player.j;
                 break;
             case "right":
-                while (canMoveRight(player) && moves < player.speed) {
+                iTargetCell = player.i;
+                jTargetCell = player.j + 1;
+                break;
+            case "left":
+                iTargetCell = player.i;
+                jTargetCell = player.j - 1;
+                break;
+        }
 
-                    //Если игрок хочет сходить на клетку
-                    if (cellsNumbers.contains(fieldMatrix[player.i][player.j + 1])) {
+        while (canMove(player, direction) && moves < player.speed) {
 
-                        //Получаем владельца той клетки на которую хочет сходить игрок
-                        Player cellOwner = getPlayerByNumber(fieldMatrix[player.i][player.j + 1] - 4);
+            //Если игрок хочет сходить на клетку
+            if (cellsNumbers.contains(fieldMatrix[iTargetCell][jTargetCell])) {
 
-                        //Если клетка пустая
-                        if (cellOwner == null) {
-                            score++;
-                        } else {
-                            //Уменьшаем очки владельца и увеличиваем очки ходившего
-                            if (cellOwner != player) {
-                                cellOwner.score--;
-                                changes.add(cellOwner);
-                                score++;
-                            }
-                        }
+                //Получаем владельца той клетки на которую хочет сходить игрок
+                Player cellOwner = getPlayerByNumber(fieldMatrix[iTargetCell][jTargetCell] - 4);
 
-                    } else {
-                        //Если эта клетка - бонус
-                        if (BonusesCollection.Contains(fieldMatrix[player.i][player.j + 1])) {
-
-                            //Получаем бонус на этой клетке
-                            Bonus bonus = getBonusByCoordinates(player.i, player.j + 1);
-                            
-                            //Увеличиваем очки игрока
-                            player.score++;
-
-                            //Применяем его к указанному игроку
-                            changes.addAll(applyBonus(player, bonus));
-                        }
+                //Если клетка пустая
+                if (cellOwner == null) {
+                    score++;
+                } else {
+                    //Уменьшаем очки владельца и увеличиваем очки ходившего
+                    if (cellOwner != player) {
+                        cellOwner.score--;
+                        playersChanges.add(cellOwner);
+                        score++;
                     }
-
-                    //Красим клетку и добавляем покрашенную клетку к изменениям
-                    changes.add(drawCellMatrix(player.i, player.j, player));
-
-                    //Двигаем игрока
-                    player.moveRight();
-                    moves++;
                 }
+
+            } else {
+                //Если эта клетка - бонус
+                if (BonusesCollection.Contains(fieldMatrix[iTargetCell][jTargetCell])) {
+
+                    //Получаем бонус на этой клетке
+                    Bonus bonus = getBonusByCoordinates(iTargetCell, jTargetCell);
+
+                    //Увеличиваем очки игрока
+                    player.score++;
+
+                    //Применяем его к указанному игроку
+                    applyBonus(player, bonus);
+                }
+            }
+
+            //Красим клетку и добавляем покрашенную клетку к изменениям
+            changes.add(drawCellMatrix(player.i, player.j, player));
+
+            //Двигаем игрока
+            player.move(direction);
+            moves++;
         }
 
         changindScorePlayer.score += score;
 
         //Отрисовываем изменения
         drawPlayerMatrix(player);
-        changes.add(player);
-        changes.add(changindScorePlayer);
 
-        return changes;
+        playersChanges.add(player);
+        playersChanges.add(changindScorePlayer);
+
+        if (moves > 0) {
+            //Отправляем все изменения игроков
+            SendMessage("movePlayer", playersChanges, new TypeToken<ArrayList<Player>>() {
+            }.getType());
+
+            //Отправляем все изменения игроков
+            SendMessage("movePlayer", changes, new TypeToken<ArrayList<MapObject>>() {
+            }.getType());
+        }
+
     }
 
-    //Проверяет может ли игрок двигаться
-    private boolean canMoveUp(Player player) {
-        return player.i >= 1 && !playersNumbers.contains(fieldMatrix[player.i - 1][player.j]);
+    //Проверяет может ли игрок двигаться в указанном направлении
+    private boolean canMove(Player player, String direction) {
+        switch (direction) {
+            case "up":
+                return player.i >= 1 && !playersNumbers.contains(fieldMatrix[player.i - 1][player.j]);
+            case "down":
+                return player.i <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i + 1][player.j]);
+            case "left":
+                return player.j >= 1 && !playersNumbers.contains(fieldMatrix[player.i][player.j - 1]);
+            case "right":
+                return player.j <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i][player.j + 1]);
+        }
+        return false;
     }
 
-    private boolean canMoveDown(Player player) {
-        return player.i <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i + 1][player.j]);
-    }
-
-    private boolean canMoveLeft(Player player) {
-        return player.j >= 1 && !playersNumbers.contains(fieldMatrix[player.i][player.j - 1]);
-    }
-
-    private boolean canMoveRight(Player player) {
-        return player.j <= fieldSize - 2 && !playersNumbers.contains(fieldMatrix[player.i][player.j + 1]);
-    }
-
+    //**********************************************************************
+    //****************************БОНУСЫ************************************
+    //**********************************************************************
     //Спавнит случайны бонус на поле
     public void spawnRandomBonus() {
 
@@ -581,11 +350,14 @@ public class Game {
 
                 if (cellOwner != null) {
                     cellOwner.score--;
-                    sendChanges(new ArrayList<MapObject>() {
+                    ArrayList<Player> playerList = new ArrayList<Player>() {
                         {
                             add(cellOwner);
                         }
-                    });
+                    };
+
+                    SendMessage("movePlayer", playerList, new TypeToken<ArrayList<Player>>() {
+                    }.getType());
                 }
 
                 //Отрисовываем его на поле
@@ -594,20 +366,27 @@ public class Game {
                 //Добавляем его в коллекцию бонусов
                 bonusesList.add(bonus);
 
-                //Отправляем бонус клиентам
-                sendSpawnBonus(bonus);
+                ArrayList<Bonus> bonusList = new ArrayList<Bonus>() {
+                    {
+                        add(bonus);
+                    }
+                };
+
+                SendMessage("spawnBonus", bonusList, new TypeToken<ArrayList<Bonus>>() {
+                }.getType());
+
             }
         }
     }
 
-    //**********************************************************************
-    //****************************БОНУСЫ************************************
-    //**********************************************************************
     //Применяем изменения бонуса
-    public List<MapObject> applyBonus(Player player, Bonus bonus) {
+    public void applyBonus(Player player, Bonus bonus) {
 
         //Изменения на поле произошедшие в реузльтате подбора бонуса
-        List<MapObject> changes = new LinkedList<>();
+        ArrayList<MapObject> changes = new ArrayList<>();
+
+        //Изменения игроков
+        ArrayList<MapObject> playerChanges = new ArrayList<>();
 
         //Отмчеаем что бонус подобран
         bonus.picked = true;
@@ -637,7 +416,7 @@ public class Game {
 
                                 //Если игрок уже есть в списке изменений, то не добавляем его
                                 if (!changes.stream().anyMatch((ch) -> ch.number == cellOwner.number)) {
-                                    changedPlayers.add(cellOwner);
+                                    playerChanges.add(cellOwner);
                                 }
                             }
                         }
@@ -661,42 +440,58 @@ public class Game {
                                 changes.add(drawCellMatrix(bonus.i, j, player));
 
                                 if (!changes.stream().anyMatch((ch) -> ch.number == cellOwner.number)) {
-                                    changedPlayers.add(cellOwner);
+                                    playerChanges.add(cellOwner);
                                 }
                             }
                         }
                     }
                 }
                 changes.addAll(changedPlayers);
-
+                bonusesList.remove(bonus);
                 break;
             case "SpeedUp":
                 bonus.affectedPlayers.add(player);
                 player.speed = player.speed * 2;
                 break;
             case "Freeze":
-                for (Player p : players) {
+                players.stream().map((p) -> {
                     if (p != player) {
                         p.speed = 0;
                     }
+                    return p;
+                }).forEach((p) -> {
                     bonus.affectedPlayers.add(p);
-                }
+                });
                 break;
             case "ReversePainting":
-                for (Player p : players) {
+                players.stream().map((p) -> {
                     if (p != player) {
-                        p.paintingNumber=player.paintingNumber;
+                        p.paintingNumber = player.paintingNumber;
                     }
+                    return p;
+                }).forEach((p) -> {
                     bonus.affectedPlayers.add(p);
-                }
+                });
+                playerChanges.addAll(bonus.affectedPlayers);
                 break;
         }
-        
+
         //Убираем бонус с карты
         fieldMatrix[bonus.i][bonus.j] = 0;
-        sendRemoveBonus(bonus);
+        SendMessage("removeBonus", bonus, new TypeToken<Bonus>() {
+        }.getType());
 
-        return changes;
+        //Отправляем все изменения на карте
+        if (changes.size() > 0) {
+            SendMessage("movePlayer", changes, new TypeToken<ArrayList<MapObject>>() {
+            }.getType());
+        }
+
+        //Отправляем все изменения игроков
+        if (playerChanges.size() > 0) {
+            SendMessage("movePlayer", playerChanges, new TypeToken<ArrayList<Player>>() {
+            }.getType());
+        }
     }
 
     //Изменяет время существования бонусов, удаляет те которые не подобрали
@@ -714,7 +509,9 @@ public class Game {
                     fieldMatrix[bonus.i][bonus.j] = 0;
 
                     //Отправляем сообщение клиентам
-                    sendRemoveBonus(bonus);
+                    SendMessage("removeBonus", bonus, new TypeToken<Bonus>() {
+                    }.getType());
+
                     iterator.remove();
                 } else {
                     //Если бонус не подобран, уменьшаем его время существования
@@ -727,16 +524,16 @@ public class Game {
                         player.restoreDefaultState();
                     });
 
-                    //Отправляем сообщение клиентам
-                    sendRemoveBonus(bonus);
+                    //Изменяем состояние игроков
+                    SendMessage("movePlayer", bonus.affectedPlayers, new TypeToken<ArrayList<Player>>() {
+                    }.getType());
+
                     iterator.remove();
                 } else {
                     bonus.effectTime--;
                 }
 
             }
-            //Если бонус не подобран слишком долгое время, удаляем его
-
         }
     }
 
@@ -757,12 +554,7 @@ public class Game {
 
     //Проверяет лежит ли на поле указанный бонус
     private boolean isAlreadySpawned(int number) {
-        for (Bonus b : bonusesList) {
-            if (b.number == BonusesCollection.bonusesList.get(number).number && !b.picked) {
-                return true;
-            }
-        }
-        return false;
+        return bonusesList.stream().anyMatch((b) -> (b.number == BonusesCollection.bonusesList.get(number).number && !b.picked));
     }
 
     //Получает количество бонусов на поле
@@ -789,12 +581,15 @@ public class Game {
         Status = GameStatus.ENDED;
 
         //Рассыалем изменение статуса
-        SendGameStatus();
+        SendMessage("gameStatus", Status.toString(), new TypeToken<String>() {
+        }.getType());
 
         //Заносим результаты в БД
         resultInDB();
 
-        SendWinner();
+        Player winner = getWinner();
+        SendMessage("winner", winner, new TypeToken<Player>() {
+        }.getType());
 
         SocketController.destroyGame(this);
 
@@ -862,7 +657,8 @@ public class Game {
         Status = GameStatus.IN_PROGRESS;
 
         //Отправляем статус игрокам
-        SendGameStatus();
+        SendMessage("gameStatus", Status.toString(), new TypeToken<String>() {
+        }.getType());
 
     }
 
@@ -873,7 +669,8 @@ public class Game {
         Status = GameStatus.COUNTDOWN;
 
         //Отправляем статус игрокам
-        SendGameStatus();
+        SendMessage("gameStatus", Status.toString(), new TypeToken<String>() {
+        }.getType());
     }
 
     //Возвращает начата ли игра
@@ -907,24 +704,20 @@ public class Game {
     //Возвращаем игро по его никнейму
     public Player getPlayerByNickname(String nickname) {
         for (Player p : players) {
-            if (p.nickname == nickname) {
+            if (p.nickname.equals(nickname)) {
                 return p;
             }
         }
         return null;
     }
 
-    //Получаем все объекты на поле
+    //Получаем все объекты на поле (бонусы и клетки)
     public ArrayList<MapObject> getWholeField() {
         ArrayList<MapObject> res = new ArrayList<>();
         for (int i = 0; i < fieldSize; i++) {
             for (int j = 0; j < fieldSize; j++) {
-                if (playersNumbers.contains(fieldMatrix[i][j])) {
-                    res.add(getPlayerByNumber(fieldMatrix[i][j]));
-                } else {
-                    if (cellsNumbers.contains(fieldMatrix[i][j])) {
-                        res.add(new MapObject(fieldMatrix[i][j], i, j));
-                    }
+                if (cellsNumbers.contains(fieldMatrix[i][j]) || BonusesCollection.Contains(fieldMatrix[i][j])) {
+                    res.add(new MapObject(fieldMatrix[i][j], i, j));
                 }
             }
         }
@@ -951,9 +744,9 @@ public class Game {
 
         HashSet<String> nicknames = new HashSet<>();
 
-        for (Session s : listeners) {
+        listeners.stream().forEach((s) -> {
             nicknames.add(s.getUserPrincipal().getName());
-        }
+        });
 
         return nicknames.size();
 
